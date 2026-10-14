@@ -29,6 +29,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,700;1,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+
+<!-- MESURE D'AUDIENCE : remplacer VOTRE_ID_UMAMI par l'identifiant fourni
+     par cloud.umami.is, puis retirer les deux lignes de commentaire autour.
+     Sans cookie : aucune bannière de consentement n'est nécessaire.
+<script defer src="https://cloud.umami.is/script.js" data-website-id="VOTRE_ID_UMAMI"></script>
+-->
 <script>document.documentElement.classList.add("js");</script>
 
 <!-- Données structurées : permettent à Google d'afficher l'adresse, les horaires
@@ -114,7 +120,7 @@
         <li><a href="#horaires">Horaires</a></li>
         <li><a href="#partenaires">Références</a></li>
         <li><a href="#avis">Avis</a></li>
-        <li><a class="nav-cta" href="tel:+33777464959">Réserver par téléphone</a></li>
+        <li><a class="nav-cta" data-umami-event="appel-menu" href="tel:+33777464959">Réserver par téléphone</a></li>
       </ul>
     </nav>
   </div>
@@ -133,7 +139,7 @@
         que ce soit votre première fois ou non.
       </p>
       <div class="hero-actions reveal">
-        <a class="btn btn-primary" href="tel:+33777464959">Réserver par téléphone</a>
+        <a class="btn btn-primary" data-umami-event="appel-hero" href="tel:+33777464959">Réserver par téléphone</a>
         <a class="btn btn-ghost" href="#tarifs">Voir les tarifs</a>
       </div>
       <ul class="hero-facts reveal">
@@ -164,7 +170,7 @@
           <p class="tarif-duree">10 minutes</p>
           <p class="tarif-prix">5 €</p>
           <p class="tarif-desc">Idéal pour découvrir le simracing.</p>
-          <a class="btn btn-ghost" href="tel:+33777464959">Réserver</a>
+          <a class="btn btn-ghost" data-umami-event="appel-tarif-decouverte" href="tel:+33777464959">Réserver</a>
         </article>
 
         <article class="tarif tarif-populaire reveal">
@@ -174,7 +180,7 @@
           <p class="tarif-duree">25 minutes</p>
           <p class="tarif-prix">12 €</p>
           <p class="tarif-desc">Profitez à fond de l'expérience.</p>
-          <a class="btn btn-primary" href="tel:+33777464959">Réserver</a>
+          <a class="btn btn-primary" data-umami-event="appel-tarif-libre" href="tel:+33777464959">Réserver</a>
         </article>
 
         <article class="tarif tarif-chrono reveal">
@@ -184,7 +190,7 @@
           <p class="tarif-prix">8 €</p>
           <p class="tarif-desc">Signez le meilleur temps.</p>
           <p class="tarif-lot">Lots à gagner !</p>
-          <a class="btn btn-ghost" href="tel:+33777464959">Relever le défi</a>
+          <a class="btn btn-ghost" data-umami-event="appel-tarif-chrono" href="tel:+33777464959">Relever le défi</a>
         </article>
 
       </div>
@@ -280,11 +286,11 @@
           <li>Habillage aux couleurs de votre marque possible</li>
         </ul>
         <div class="devis">
-          <a class="btn btn-ghost devis-location" href="location-simulateurs.html">Location de simulateurs : découvrir l'offre</a>
-          <a class="btn btn-primary"
+          <a class="btn btn-ghost devis-location" data-umami-event="page-location" href="location-simulateurs.html">Location de simulateurs : découvrir l'offre</a>
+          <a class="btn btn-primary" data-umami-event="devis-email"
              href="mailto:lasimbox59@gmail.com?subject=Demande%20de%20devis%20%C3%A9v%C3%A9nementiel">Nous transmettre vos demandes dès maintenant</a>
           <p class="devis-plaquette">
-            <a href="assets/docs/simbox-location-de-simulateurs.pdf" target="_blank" rel="noopener">Télécharger la plaquette (PDF, 1 Mo)</a>
+            <a data-umami-event="plaquette" href="assets/docs/simbox-location-de-simulateurs.pdf" target="_blank" rel="noopener">Télécharger la plaquette (PDF, 1 Mo)</a>
           </p>
           <p class="devis-mail">
             Par e-mail :
@@ -314,7 +320,7 @@
             « Le paradis pour les pilotes », « une équipe au top, passionnée par le
             sport auto » : nos clients le disent mieux que nous.
           </p>
-          <a class="btn btn-ghost" href="https://www.google.com/maps?cid=8735192761302162915" target="_blank" rel="noopener">
+          <a class="btn btn-ghost" data-umami-event="avis-google" href="https://www.google.com/maps?cid=8735192761302162915" target="_blank" rel="noopener">
             Lire les avis sur Google
           </a>
         </div>
@@ -354,7 +360,7 @@
 
       <p class="note reveal">
         Le détail de ces animations — matériel, déroulé, formats — est dans notre
-        plaquette : <a href="assets/docs/simbox-location-de-simulateurs.pdf" target="_blank" rel="noopener">télécharger le PDF</a> (1 Mo).
+        plaquette : <a data-umami-event="plaquette" href="assets/docs/simbox-location-de-simulateurs.pdf" target="_blank" rel="noopener">télécharger le PDF</a> (1 Mo).
       </p>
     </div>
   </section>
@@ -464,10 +470,10 @@
       <!-- Bloc téléphone : c'est le seul moyen de réserver. -->
       <div class="phone-panel reveal">
         <p class="phone-label">Appelez-nous</p>
-        <a class="phone-number" href="tel:+33777464959">07 77 46 49 59</a>
+        <a class="phone-number" data-umami-event="appel-numero" href="tel:+33777464959">07 77 46 49 59</a>
         <p class="phone-hours">Du jeudi au samedi, 20 h – minuit<br>
         Mercredi et dimanche : groupes sur réservation</p>
-        <a class="btn btn-primary phone-btn" href="tel:+33777464959">Appeler maintenant</a>
+        <a class="btn btn-primary phone-btn" data-umami-event="appel-bouton-contact" href="tel:+33777464959">Appeler maintenant</a>
         <p class="phone-note">
           Pas de réservation en ligne : nous préférons vous parler de vive voix
           pour caler le créneau qui vous convient.
