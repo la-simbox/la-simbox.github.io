@@ -8,11 +8,11 @@
      À PERSONNALISER : titre et description (visibles sur Google)
      ====================================================================== -->
 <title>SIMBOX — Simulateurs de course automobile à La Gorgue</title>
-<meta name="description" content="SIMBOX, simulateurs de course automobile à La Gorgue. Session découverte 5 €, session libre 25 min 12 €, challenge chrono. Ouvert du jeudi au samedi de 20 h à minuit, mercredi et dimanche sur réservation pour les groupes.">
+<meta name="description" content="SIMBOX, simulateurs de course automobile à La Gorgue. Session découverte 5 €, session libre 25 min 12 €, challenge chrono. Ouvert vendredi et samedi de 20 h à minuit, dimanche de 15 h à 18 h, du lundi au jeudi sur réservation.">
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="SIMBOX — Drive your limits">
-<meta property="og:description" content="Simulateurs de course automobile à La Gorgue. Sensations 100 % réelles sur circuits officiels, sessions dès 5 €. Ouvert du jeudi au samedi, 20 h – minuit. Groupes sur réservation le mercredi et le dimanche.">
+<meta property="og:description" content="Simulateurs de course automobile à La Gorgue. Sensations 100 % réelles sur circuits officiels, sessions dès 5 €. Ouvert vendredi et samedi 20 h – minuit, dimanche 15 h – 18 h. Du lundi au jeudi sur réservation.">
 <meta property="og:image" content="https://la-simbox.github.io/assets/img/plateau.jpg">
 <meta property="og:image:width" content="1600">
 <meta property="og:image:height" content="1200">
@@ -64,9 +64,14 @@
   ],
   "openingHoursSpecification": [{
     "@type": "OpeningHoursSpecification",
-    "dayOfWeek": ["Thursday", "Friday", "Saturday"],
+    "dayOfWeek": ["Friday", "Saturday"],
     "opens": "20:00",
     "closes": "24:00"
+  }, {
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Sunday"],
+    "opens": "15:00",
+    "closes": "18:00"
   }],
   "makesOffer": [
     { "@type": "Offer", "name": "Session Découverte — 10 min", "price": "5",  "priceCurrency": "EUR" },
@@ -115,6 +120,7 @@
     <nav id="nav-principal" class="nav" aria-label="Navigation principale">
       <ul>
         <li><a href="#tarifs">Tarifs</a></li>
+        <li><a href="#bons-cadeaux">Bons cadeaux</a></li>
         <li><a href="#centre">Le centre</a></li>
         <li><a href="#evenementiel">Événementiel</a></li>
         <li><a href="#horaires">Horaires</a></li>
@@ -194,6 +200,59 @@
         </article>
 
       </div>
+    </div>
+  </section>
+
+  <!-- ================= BONS CADEAUX ================= -->
+  <section class="section section-alt section-cadeaux" id="bons-cadeaux">
+    <div class="wrap">
+      <header class="section-head reveal">
+        <p class="eyebrow">Bons cadeaux</p>
+        <h2>Offrez des sensations</h2>
+        <p class="section-sub">
+          Pour Noël, un anniversaire ou pour faire plaisir à un passionné de sport
+          auto. Le bon est valable sur toutes nos sessions, débutants bienvenus.
+        </p>
+      </header>
+
+      <div class="grid grid-3 tarifs">
+
+        <article class="tarif reveal">
+          <p class="tarif-kind">Carte cadeau</p>
+          <h3>Découverte</h3>
+          <p class="tarif-duree">15 minutes</p>
+          <p class="tarif-prix">7,50 €</p>
+          <p class="tarif-desc">Une voiture et un circuit choisis par notre opérateur. Parfait pour un premier tour de piste.</p>
+          <a class="btn btn-ghost" data-umami-event="appel-cadeau-decouverte" href="tel:+33777464959">Commander</a>
+        </article>
+
+        <article class="tarif tarif-populaire reveal">
+          <span class="tarif-flag">★ Le cadeau idéal</span>
+          <p class="tarif-kind">Carte cadeau</p>
+          <h3>Race</h3>
+          <p class="tarif-duree">30 minutes</p>
+          <p class="tarif-prix">20 €</p>
+          <p class="tarif-desc">Voiture et circuit au choix.</p>
+          <p class="tarif-lot">+ 5 min de qualification offertes</p>
+          <a class="btn btn-primary" data-umami-event="appel-cadeau-race" href="tel:+33777464959">Commander</a>
+        </article>
+
+        <article class="tarif reveal">
+          <p class="tarif-kind">Carte cadeau</p>
+          <h3>Endurance</h3>
+          <p class="tarif-duree">1 heure</p>
+          <p class="tarif-prix">50 €</p>
+          <p class="tarif-desc">Voiture et circuit au choix, pour les vrais passionnés.</p>
+          <p class="tarif-lot">+ 10 min de qualification offertes</p>
+          <a class="btn btn-ghost" data-umami-event="appel-cadeau-endurance" href="tel:+33777464959">Commander</a>
+        </article>
+
+      </div>
+
+      <p class="note reveal">
+        Commande et renseignements par téléphone au
+        <a href="tel:+33777464959">07 77 46 49 59</a>.
+      </p>
     </div>
   </section>
 
@@ -372,30 +431,31 @@
         <p class="eyebrow">Horaires</p>
         <h2>Quand venir piloter</h2>
         <p class="section-sub">
-          Ouvert à tous du jeudi au samedi, de 20 h à minuit. Le mercredi et le
-          dimanche, le centre ouvre sur réservation pour les groupes à partir de
-          10 personnes.
+          Ouvert à tous le vendredi et le samedi de 20&nbsp;h à minuit, et le dimanche
+          de 15&nbsp;h à 18&nbsp;h. Du lundi au jeudi, le centre ouvre sur réservation.
         </p>
       </header>
 
       <ol class="semaine reveal" aria-label="Horaires de la semaine">
-        <li class="jour jour-ferme" data-jour="1">
+        <li class="jour jour-groupe" data-jour="1">
           <span class="jour-nom">Lundi</span>
-          <span class="jour-etat">Fermé</span>
+          <span class="jour-etat">Sur réservation</span>
+          <span class="jour-detail">Sur appel</span>
         </li>
-        <li class="jour jour-ferme" data-jour="2">
+        <li class="jour jour-groupe" data-jour="2">
           <span class="jour-nom">Mardi</span>
-          <span class="jour-etat">Fermé</span>
+          <span class="jour-etat">Sur réservation</span>
+          <span class="jour-detail">Sur appel</span>
         </li>
         <li class="jour jour-groupe" data-jour="3">
           <span class="jour-nom">Mercredi</span>
           <span class="jour-etat">Sur réservation</span>
-          <span class="jour-detail">Groupes dès 10 personnes</span>
+          <span class="jour-detail">Sur appel</span>
         </li>
-        <li class="jour jour-ouvert" data-jour="4">
+        <li class="jour jour-groupe" data-jour="4">
           <span class="jour-nom">Jeudi</span>
-          <span class="jour-etat">20 h – minuit</span>
-          <span class="jour-detail">Ouvert à tous</span>
+          <span class="jour-etat">Sur réservation</span>
+          <span class="jour-detail">Sur appel</span>
         </li>
         <li class="jour jour-ouvert" data-jour="5">
           <span class="jour-nom">Vendredi</span>
@@ -407,23 +467,22 @@
           <span class="jour-etat">20 h – minuit</span>
           <span class="jour-detail">Ouvert à tous</span>
         </li>
-        <li class="jour jour-groupe" data-jour="0">
+        <li class="jour jour-ouvert" data-jour="0">
           <span class="jour-nom">Dimanche</span>
-          <span class="jour-etat">Sur réservation</span>
-          <span class="jour-detail">Groupes dès 10 personnes</span>
+          <span class="jour-etat">15 h – 18 h</span>
+          <span class="jour-detail">Ouvert à tous</span>
         </li>
       </ol>
 
       <p class="semaine-legende reveal">
         <span><span class="pastille pastille-ouvert" aria-hidden="true"></span>Ouvert à tous</span>
-        <span><span class="pastille pastille-groupe" aria-hidden="true"></span>Groupes sur réservation</span>
-        <span><span class="pastille pastille-ferme" aria-hidden="true"></span>Fermé</span>
+        <span><span class="pastille pastille-groupe" aria-hidden="true"></span>Sur réservation</span>
       </p>
 
       <p class="note reveal">
-        Vous êtes 10 ou plus ? Appelez le
-        <a href="tel:+33777464959">07 77 46 49 59</a> pour réserver un mercredi
-        ou un dimanche soir.
+        Envie de venir en semaine, seul ou en groupe ? Appelez le
+        <a href="tel:+33777464959">07 77 46 49 59</a> pour réserver un créneau
+        du lundi au jeudi.
       </p>
     </div>
   </section>
@@ -450,7 +509,7 @@
           </li>
           <li>
             <span class="ci" aria-hidden="true">◷</span>
-            <a href="#horaires">Du jeudi au samedi, 20 h – minuit</a>
+            <a href="#horaires">Ven. et sam. 20 h – minuit · dim. 15 h – 18 h</a>
           </li>
         </ul>
 
@@ -471,8 +530,9 @@
       <div class="phone-panel reveal">
         <p class="phone-label">Appelez-nous</p>
         <a class="phone-number" data-umami-event="appel-numero" href="tel:+33777464959">07 77 46 49 59</a>
-        <p class="phone-hours">Du jeudi au samedi, 20 h – minuit<br>
-        Mercredi et dimanche : groupes sur réservation</p>
+        <p class="phone-hours">Vendredi et samedi : 20 h – minuit<br>
+        Dimanche : 15 h – 18 h<br>
+        Du lundi au jeudi : sur réservation</p>
         <a class="btn btn-primary phone-btn" data-umami-event="appel-bouton-contact" href="tel:+33777464959">Appeler maintenant</a>
         <p class="phone-note">
           Pas de réservation en ligne : nous préférons vous parler de vive voix
@@ -502,13 +562,15 @@
       <p class="footer-slogan">Plus qu'un jeu,<br>une <span class="accent">vraie</span> expérience !</p>
       <address class="footer-address">
         3854 rue du Grand Chemin, 59253 La Gorgue<br>
-        Du jeudi au samedi, 20 h – minuit<br>
-        Mercredi et dimanche : groupes sur réservation<br>
+        Vendredi et samedi : 20 h – minuit<br>
+        Dimanche : 15 h – 18 h<br>
+        Du lundi au jeudi : sur réservation<br>
         <a href="tel:+33777464959">07 77 46 49 59</a>
       </address>
     </div>
     <nav class="footer-nav" aria-label="Pied de page">
       <a href="#tarifs">Tarifs</a>
+      <a href="#bons-cadeaux">Bons cadeaux</a>
       <a href="#centre">Le centre</a>
       <a href="#evenementiel">Événementiel</a>
       <a href="#horaires">Horaires</a>
