@@ -46,8 +46,17 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(32px,7vw,48px);lin
 .nav{display:flex;gap:4px;margin-top:8px}
 .nav button{background:none;border:none;border-bottom:3px solid transparent;border-radius:0;color:var(--band-muted);font-family:var(--display);font-size:18px;letter-spacing:.06em;text-transform:uppercase;padding:6px 10px 8px}
 .nav button[aria-current="page"]{color:var(--band-ink);border-bottom-color:var(--band-gold)}
-.nav .navlink{margin-left:auto;align-self:center;color:var(--band-gold);font-family:var(--display);font-size:16px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border:1px solid var(--band-gold);border-radius:6px;padding:4px 10px}
-.nav .navlink:hover{background:var(--band-gold);color:var(--band)}
+.swsmenu{margin-left:auto;align-self:center;position:relative}
+.swsmenu summary{list-style:none;cursor:pointer;color:var(--band-gold);font-family:var(--display);font-size:16px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--band-gold);border-radius:6px;padding:4px 10px}
+.swsmenu summary::-webkit-details-marker{display:none}
+.swsmenu summary::after{content:" ▾"}
+.swsmenu[open] summary{background:var(--band-gold);color:var(--band)}
+.swsmenu .menu{position:absolute;right:0;top:calc(100% + 6px);z-index:20;min-width:240px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.25);display:flex;flex-direction:column}
+.swsmenu .mh{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:6px 10px}
+.swsmenu .menu a{color:var(--ink);text-decoration:none;padding:9px 10px;border-radius:6px;display:flex;justify-content:space-between;gap:12px;font-weight:600}
+.swsmenu .menu a span{color:var(--gold)}
+.swsmenu .menu a:hover,.swsmenu .menu a:focus-visible{background:var(--gold-soft)}
+.swsmenu .menu a.all{border-top:1px solid var(--line);border-radius:0 0 6px 6px;font-weight:500;color:var(--muted)}
 main.wrap{padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .panel h2{font-family:var(--display);font-weight:600;font-size:20px;margin:0;letter-spacing:.02em}
@@ -188,7 +197,7 @@ footer.wrap{padding-block:0 32px;display:flex;flex-direction:column;gap:8px;alig
     <nav class="nav" aria-label="Rubriques">
       <button type="button" id="navCal" aria-current="page">Calendrier</button>
       <button type="button" id="navNews">News RK7</button>
-      <a class="navlink" href="https://www.sodiwseries.com/fr-fr/" target="_blank" rel="noopener">Site SWS ↗</a>
+      <details class="swsmenu" id="swsMenu"><summary>Équipes SWS</summary><div class="menu"><div class="mh">Nos équipes sur Sodi World Series</div><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-pro-17003.html" target="_blank" rel="noopener">RK7 Team Pro <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-racing-18095.html" target="_blank" rel="noopener">RK7 Team Racing <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-sport-25694.html" target="_blank" rel="noopener">RK7 Team Sport <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-11270.html" target="_blank" rel="noopener">RK7 Team <span>↗</span></a><a class="all" href="https://www.sodiwseries.com/fr-fr/" target="_blank" rel="noopener">Site SWS <span>↗</span></a></div></details>
     </nav>
   </div>
 </header>
@@ -697,6 +706,7 @@ footer.wrap{padding-block:0 32px;display:flex;flex-direction:column;gap:8px;alig
     }
   });
 
+  document.addEventListener("click", e => { const m=$("#swsMenu"); if(m && m.open && !m.contains(e.target)) m.open=false; });
   function route(){
     const isNews = location.hash==="#news";
     $("#viewNews").hidden=!isNews; $("#viewCal").hidden=isNews;
