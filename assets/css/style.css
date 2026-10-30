@@ -874,3 +874,7 @@ p { margin: 0 0 1em; }
 .partenaire img { max-height: 62px; width: auto; object-fit: contain; }
 
 .devis-plaquette { margin: 0; font-size: .95rem; color: var(--ink-soft); }
+
+/* ----------------------------------------------------- bons cadeaux ------ */
+.section-cadeaux { border-top: 1px solid var(--line); }
+.section-cadeaux + .section-alt { border-top: 1px solid var(--line); }
