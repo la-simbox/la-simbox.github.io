@@ -46,6 +46,8 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(32px,7vw,48px);lin
 .nav{display:flex;gap:4px;margin-top:8px}
 .nav button{background:none;border:none;border-bottom:3px solid transparent;border-radius:0;color:var(--band-muted);font-family:var(--display);font-size:18px;letter-spacing:.06em;text-transform:uppercase;padding:6px 10px 8px}
 .nav button[aria-current="page"]{color:var(--band-ink);border-bottom-color:var(--band-gold)}
+.nav .navlink{margin-left:auto;align-self:center;color:var(--band-gold);font-family:var(--display);font-size:16px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border:1px solid var(--band-gold);border-radius:6px;padding:4px 10px}
+.nav .navlink:hover{background:var(--band-gold);color:var(--band)}
 main.wrap{padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .panel h2{font-family:var(--display);font-weight:600;font-size:20px;margin:0;letter-spacing:.02em}
@@ -186,6 +188,7 @@ footer.wrap{padding-block:0 32px;display:flex;flex-direction:column;gap:8px;alig
     <nav class="nav" aria-label="Rubriques">
       <button type="button" id="navCal" aria-current="page">Calendrier</button>
       <button type="button" id="navNews">News RK7</button>
+      <a class="navlink" href="https://www.sodiwseries.com/fr-fr/" target="_blank" rel="noopener">Site SWS ↗</a>
     </nav>
   </div>
 </header>
