@@ -1,0 +1,115 @@
+/* ==========================================================================
+   Décorations de saison
+   Activées automatiquement par assets/js/saison.js selon la date
+   (classe "saison-halloween" ou "saison-noel" sur <html>).
+   Pour tester : ajouter ?saison=halloween ou ?saison=noel à l'adresse.
+   ========================================================================== */
+
+:root {
+  --citrouille: #ff7a1a;
+  --citrouille-sombre: #b84a00;
+  --neige: #f4f7ff;
+}
+
+/* ----- Bandeau de saison, sous l'en-tête ---------------------------------- */
+.saison-bandeau {
+  position: relative;
+  z-index: 40;
+  padding: .7rem 0;
+  font-weight: 600;
+  font-size: .95rem;
+  line-height: 1.4;
+  text-align: center;
+}
+.saison-bandeau .wrap { display: flex; align-items: center; justify-content: center; gap: .75rem; flex-wrap: wrap; }
+.saison-bandeau svg { flex: none; width: 26px; height: 26px; }
+.saison-bandeau a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+.saison-halloween .saison-bandeau {
+  background: #120a04;
+  color: var(--citrouille);
+  border-bottom: 4px solid transparent;
+  border-image: repeating-linear-gradient(-45deg, var(--citrouille) 0 10px, #120a04 10px 20px) 4;
+}
+.saison-noel .saison-bandeau {
+  background: var(--red);
+  color: #fff;
+}
+
+/* ----- Calque de décor dans le haut de page -------------------------------- */
+.hero-inner { position: relative; z-index: 1; }
+.saison-decor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Toile d'araignée, coin haut droit */
+.saison-toile {
+  position: absolute;
+  top: 0; right: 0;
+  width: clamp(140px, 22vw, 260px);
+  opacity: .55;
+}
+
+/* Citrouilles, bas droit */
+.saison-citrouilles {
+  position: absolute;
+  right: clamp(12px, 5vw, 70px);
+  bottom: clamp(10px, 3vw, 36px);
+  display: flex; align-items: flex-end; gap: 6px;
+}
+.saison-citrouilles svg { display: block; filter: drop-shadow(0 0 18px rgba(255,122,26,.45)); }
+.saison-citrouilles .grande { width: clamp(70px, 10vw, 120px); }
+.saison-citrouilles .petite { width: clamp(46px, 6.5vw, 78px); }
+
+/* Chauves-souris */
+.saison-chauve-souris {
+  position: absolute;
+  width: 46px;
+  color: #0b0604;
+  filter: drop-shadow(0 0 5px rgba(255,122,26,.75));
+}
+.saison-chauve-souris svg { display: block; width: 100%; }
+
+/* Neige (Noël) */
+.saison-neige { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .saison-citrouilles svg .yeux { animation: saison-flamme 2.6s ease-in-out infinite; }
+  .saison-citrouilles .petite .yeux { animation-delay: -1.1s; }
+  @keyframes saison-flamme {
+    0%, 100% { opacity: 1; }
+    45% { opacity: .65; }
+    55% { opacity: .9; }
+  }
+
+  .saison-chauve-souris { animation: saison-vol 17s linear infinite; }
+  .saison-chauve-souris svg { animation: saison-ailes .32s ease-in-out infinite alternate; transform-origin: center; }
+  .saison-chauve-souris.b2 { animation-duration: 23s; animation-delay: -9s; width: 34px; }
+  .saison-chauve-souris.b3 { animation-duration: 29s; animation-delay: -18s; width: 28px; }
+  @keyframes saison-vol {
+    0%   { transform: translate(-80px, 40vh) rotate(-6deg); }
+    25%  { transform: translate(25vw, 18vh) rotate(4deg); }
+    50%  { transform: translate(52vw, 30vh) rotate(-4deg); }
+    75%  { transform: translate(78vw, 10vh) rotate(5deg); }
+    100% { transform: translate(110vw, 24vh) rotate(-3deg); }
+  }
+  @keyframes saison-ailes { from { transform: scaleY(1); } to { transform: scaleY(.55); } }
+}
+
+/* Mouvement réduit : chauves-souris posées, sans vol */
+@media (prefers-reduced-motion: reduce) {
+  .saison-chauve-souris { top: 14%; left: 58%; }
+  .saison-chauve-souris.b2 { top: 26%; left: 70%; width: 34px; }
+  .saison-chauve-souris.b3 { top: 9%; left: 78%; width: 28px; }
+}
+
+/* Sur téléphone : décor plus discret pour garder le texte lisible */
+@media (max-width: 640px) {
+  .saison-toile { opacity: .35; }
+  .saison-citrouilles { opacity: .55; }
+  .saison-chauve-souris.b3 { display: none; }
+}
