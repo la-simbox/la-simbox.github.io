@@ -560,7 +560,7 @@ button:active:not(:disabled){transform:scale(.97)}
   </section>
   <section class="panel">
     <h2>Équipages officiels</h2>
-    <p class="msg">Les pilotes titulaires de chaque équipe (8 max). Un pilote peut toujours rouler pour une autre équipe le jour d'une course. Tu peux écrire le nom d'un pilote qui n'a pas encore son profil : il sera relié automatiquement dès qu'il le crée.</p>
+    <p class="msg">Les pilotes titulaires et renforts de chaque équipe (15 max). Un pilote peut toujours rouler pour une autre équipe le jour d'une course. Tu peux écrire le nom d'un pilote qui n'a pas encore son profil : il sera relié automatiquement dès qu'il le crée.</p>
     <form id="crewForm" class="form-grid"></form>
     <datalist id="pilotNames"></datalist>
     <p class="msg" id="crewMsg"></p>
@@ -851,6 +851,10 @@ button:active:not(:disabled){transform:scale(.97)}
   const groupOf = c => c.ordre ? "Saison "+seasonOf(c)+(!c.date && !c.terminee ? " · dates à confirmer" : "") : parse(c.date).toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
   // Prix par pilote : prix de l'équipage partagé entre les pilotes (réservés, au minimum l'équipage prévu)
   const crewCount = (c, nYes) => c.terminee ? (Number(c.equipage)||1) : Math.max(nYes||0, Number(c.equipage)||1);
+  // Sans équipe imposée, chaque équipe engagée a son propre équipage (et paie sa propre inscription)
+  const ridesFor = (pid, c) => c.equipe || teamOf(pid, c.id) || "";
+  const groupN = (c, pid) => { const t=ridesFor(pid,c); return answers(c.id).yes.filter(x=>(c.equipe||x.equipe||"")===t).length; };
+  const viewN = c => c.equipe ? answers(c.id).yes.length : (myDispo(c.id)==="oui" ? groupN(c,myId) : 0);
   const prixPilote = (c, nYes) => (c.prixEquipage!=null && c.prixEquipage!=="") ? Number(c.prixEquipage)/crewCount(c,nYes) : (hasPrice(c) ? Number(c.prix) : null);
   const isClosed = c => !!(c.limite && c.limite < today());
   const fmtDay = s => { const d=parse(s); return d.getDate()+" "+MONTHS[d.getMonth()]; };
@@ -1089,7 +1093,7 @@ button:active:not(:disabled){transform:scale(.97)}
       if(mk!==lastMonth){ html+='<div class="month">'+esc(mk)+'</div>'; lastMonth=mk; }
       const {yes,no,maybe}=answers(c.id), mine=myDispo(c.id), eq=Number(c.equipage)||0;
       let state=""; if(mine==="oui") state='<span class="chip ok">Ma place réservée</span>'; else if(mine==="non") state='<span class="chip no">Pas dispo</span>'; else if(mine==="peut") state='<span class="chip maybe">Présence possible</span>';
-      const full = eq && yes.length>=eq ? '<span class="chip ok">Équipage complet</span>' : "";
+      const full = eq && c.equipe && yes.length>=eq ? '<span class="chip ok">Équipage complet</span>' : "";
       const closed = isClosed(c) && !c.terminee;
       const limChip = (!c.terminee && c.limite) ? (closed ? '<span class="chip no">Réservations fermées</span>' : '<span class="chip">Réponse avant le '+esc(fmtDay(c.limite))+'</span>') : "";
       const chipsYes = yes.length ? '<div class="pilots"><span class="lbl">Disponibles</span>'+yes.map(p=>pilotChip(p,c.id,"",past)).join("")+'</div>' : "";
@@ -1108,7 +1112,7 @@ button:active:not(:disabled){transform:scale(.97)}
       if(!past && !c.terminee && c.date) action += '<button type="button" class="btn-ghost" style="padding:6px 10px;font-size:13px" data-ics="'+esc(c.id)+'">Ajouter à mon agenda</button>';
       if(c.terminee && !isAdmin() && myId && (c.participants||[]).some(p=>p.pid===myId)) action += '<button type="button" class="btn-ghost" style="padding:6px 10px;font-size:13px" data-poster="'+esc(c.id)+'">Affiche Instagram</button>';
       const tools = isAdmin() ? '<div class="owner-tools">'+(c.terminee?'<button class="btn-ghost" type="button" data-poster="'+esc(c.id)+'">Affiche</button>':'')+(c.resultat ? '<button class="btn-ghost" type="button" data-res="'+esc(c.id)+'">Résultat</button><button class="btn-ghost" type="button" data-reopen="'+esc(c.id)+'">Rouvrir</button>' : (!c.terminee ? '<button class="btn-ghost" type="button" data-res="'+esc(c.id)+'">Résultat</button>' : ''))+'<button class="btn-ghost" type="button" data-edit="'+esc(c.id)+'">Modifier</button><button class="btn-danger" type="button" data-del="'+esc(c.id)+'">Supprimer</button></div>' : "";
-      const pp = prixPilote(c, yes.length), n = crewCount(c, yes.length);
+      const gn=viewN(c), pp = prixPilote(c, gn), n = crewCount(c, gn);
       const price = pp!=null ? '<div class="price">'+euro(pp)+'<small>'+(c.terminee?"payé par pilote":(c.prixEquipage!=null?"par pilote (≈)":"par pilote"))+'</small>'+(c.prixEquipage!=null?'<small>Équipage '+euro(c.prixEquipage)+' ÷ '+n+'</small>':"")+'</div>' : '<div class="price na">Prix à venir<small>pas d\'infos</small></div>';
       const resHtml = (c.position || c.commentaire) ? '<div class="result">'+(c.position?'<span class="pos">'+esc(c.position)+'</span>':'')+(c.commentaire?'<span class="note">'+esc(c.commentaire)+'</span>':'')+'</div>' : "";
       const partHtml = (c.participants&&c.participants.length) ? '<div class="pilots"><span class="lbl">Ont roulé</span>'+c.participants.map(p=>'<span class="pilot"><span class="av">'+esc(initials(p.nom))+'</span>'+esc(p.nom)+' <span class="tm">· '+euro(p.part)+'</span></span>').join("")+'</div>' : "";
@@ -1128,6 +1132,11 @@ button:active:not(:disabled){transform:scale(.97)}
   const ico = n => '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">'+ICONS[n]+'</svg>';
   function seatsHtml(c, yes){
     if(c.terminee) return "";
+    if(!c.equipe && yes.length){ const g={}; yes.forEach(p=>{ const t=p.equipe||""; (g[t]=g[t]||[]).push(p); });
+      const eq0=Number(c.equipage)||0;
+      return Object.entries(g).map(([t,arr])=>{ const n=Math.max(eq0,arr.length); let h='<div class="seats"><span class="lbl2" style="min-width:56px;margin:0;font-weight:600;color:var(--gold)">'+esc(shortTeam(t)||"Équipe ?")+'</span>';
+        for(let i=0;i<n;i++){ const p=arr[i]; h+= p ? '<span class="seat'+(p.id===myId?' me':'')+'" title="'+esc(p.nom)+'" style="overflow:hidden">'+(pilots[p.id]&&pilots[p.id].avatar?'<img data-dbimg="'+esc(pilots[p.id].avatar)+'" alt="'+esc(p.nom)+'" style="width:100%;height:100%;object-fit:cover">':esc(initials(p.nom)))+'</span>' : '<span class="seat free" title="Place libre">+</span>'; }
+        return h+'<span class="lbl2">'+(eq0 ? arr.length+' / '+eq0+(arr.length>=eq0?' · complet':'') : arr.length+' inscrit'+(arr.length>1?'s':''))+'</span></div>'; }).join(""); }
     const eq=Number(c.equipage)||0, n=Math.max(eq, yes.length); if(!n) return "";
     let h='<div class="seats" aria-label="'+yes.length+' pilote(s) inscrit(s) sur '+(eq||yes.length)+' places">';
     for(let i=0;i<n;i++){ const p=yes[i]; h+= p ? '<span class="seat'+(p.id===myId?' me':'')+'" title="'+esc(p.nom)+'" style="overflow:hidden">'+(pilots[p.id]&&pilots[p.id].avatar?'<img data-dbimg="'+esc(pilots[p.id].avatar)+'" alt="'+esc(p.nom)+'" style="width:100%;height:100%;object-fit:cover">':esc(initials(p.nom)))+'</span>' : '<span class="seat free" title="Place libre">+</span>'; }
@@ -1145,7 +1154,7 @@ button:active:not(:disabled){transform:scale(.97)}
     if(!c){ el.hidden=true; return; }
     const {yes}=answers(c.id), mine=myDispo(c.id), dd=c.date?daysTo(c.date):null;
     const cd = dd==null ? '<div class="cd">?<small>Date à confirmer</small></div>' : dd<=0 ? '<div class="cd">GO<small>C\'est aujourd\'hui</small></div>' : dd===1 ? '<div class="cd">J-1<small>C\'est demain</small></div>' : '<div class="cd">J-'+dd+'<small>'+esc(longDate(c.date))+'</small></div>';
-    const pp=prixPilote(c, yes.length);
+    const pp=prixPilote(c, viewN(c));
     el.hidden=false; el.className="hero";
     el.innerHTML='<span class="k">Prochaine course'+(c.equipe?' · '+esc(c.equipe):'')+'</span><div class="top">'+cd+'<div style="min-width:0;flex:1 1 180px"><h2>'+esc(c.titre||c.lieu)+'</h2>'+
       '<div class="meta" style="margin-top:6px"><span>'+ico("pin")+'<b>'+esc(c.lieu)+'</b></span><span>'+ico("clock")+'<b>'+esc(c.duree||"—")+'</b></span>'+(c.heure?'<span>'+ico("flag")+'Départ <b>'+esc(c.heure)+'</b></span>':'')+(pp!=null?'<span>'+ico("euro")+'<b>'+euro(pp)+'</b> / pilote</span>':'')+'</div></div></div>'+
@@ -1442,7 +1451,7 @@ button:active:not(:disabled){transform:scale(.97)}
     let h='<div class="legend"><span><i style="background:var(--ok-soft);border:1px solid var(--ok)"></i>Disponible (équipe)</span><span><i style="background:var(--gold-soft);border:1px solid var(--gold)"></i>Peut-être</span><span><i style="background:var(--no-soft);border:1px solid var(--no)"></i>Pas disponible</span><span><i style="background:var(--wait-soft);border:1px solid var(--wait)"></i>En attente</span></div>';
     h+='<div class="grid-wrap"><table class="team"><thead><tr><th>Date</th><th>Lieu</th><th>Durée</th><th>Prix/pilote</th>'+ps.map(p=>'<th class="p">'+esc(p.nom)+'</th>').join("")+'</tr></thead><tbody>';
     for(const c of list){
-      h+='<tr><td class="num">'+esc(shortDate(c))+'</td><td>'+esc(c.titre||c.lieu)+(c.equipe?' <span class="tm" style="color:var(--gold)">'+esc(shortTeam(c.equipe))+'</span>':'')+'</td><td>'+esc(c.duree||"—")+'</td><td class="num">'+(()=>{ const pp=prixPilote(c, answers(c.id).yes.length); return pp!=null?euro(pp):'Pas d\'infos'; })()+'</td>'+
+      h+='<tr><td class="num">'+esc(shortDate(c))+'</td><td>'+esc(c.titre||c.lieu)+(c.equipe?' <span class="tm" style="color:var(--gold)">'+esc(shortTeam(c.equipe))+'</span>':'')+'</td><td>'+esc(c.duree||"—")+'</td><td class="num">'+(()=>{ const pp=prixPilote(c, viewN(c)); return pp!=null?euro(pp):'Pas d\'infos'; })()+'</td>'+
         ps.map(p=>{ const a=dispoOf(p.id,c.id); return '<td class="s">'+(a==="oui"?'<span class="ok">'+esc(shortTeam(c.equipe||teamOf(p.id,c.id))||"Dispo")+'</span>':a==="non"?'<span class="no">Non</span>':a==="peut"?'<span class="maybe">Peut-être</span>':'<span class="wait">?</span>')+'</td>'; }).join("")+'</tr>';
     }
     return h+'</tbody></table></div>';
@@ -1470,7 +1479,7 @@ button:active:not(:disabled){transform:scale(.97)}
     const up=courses.filter(isUpcoming), booked=up.filter(c=>myDispo(c.id)==="oui");
     $("#myCount").textContent=booked.length;
     $("#myWait").textContent=up.filter(c=>!myDispo(c.id)).length;
-    const tot=booked.reduce((s,c)=>s+(prixPilote(c, answers(c.id).yes.length)||0),0), paid=booked.filter(c=>isPaid(myId,c.id)).reduce((s,c)=>s+(prixPilote(c, answers(c.id).yes.length)||0),0);
+    const tot=booked.reduce((s,c)=>s+(prixPilote(c, groupN(c,myId))||0),0), paid=booked.filter(c=>isPaid(myId,c.id)).reduce((s,c)=>s+(prixPilote(c, groupN(c,myId))||0),0);
     $("#myTotal").textContent=euro(tot); $("#myPaid").textContent=euro(paid); $("#myDue").textContent=euro(tot-paid);
     const fb = soldes(frais)[myId]||0; $("#myFraisStat").hidden = Math.abs(fb)<0.01;
     $("#myFrais").textContent = euro(Math.abs(fb)); $("#myFrais").style.color = fb>0?"var(--ok)":"var(--no)"; $("#myFraisLbl").textContent = fb>0 ? "Frais : on te doit" : "Frais : tu dois";
@@ -1531,8 +1540,8 @@ button:active:not(:disabled){transform:scale(.97)}
     $("#budNextTitle").textContent = "Budget prévisionnel "+nextSeason;
     if(!next.length){ $("#budNextTable").innerHTML='<tbody><tr><td>Aucune course prévue pour '+nextSeason+'.</td></tr></tbody>'; $("#budNextStats").innerHTML=""; }
     else {
-      let totEq=0, mine=0; const maxPP=Math.max(1,...next.map(c=>prixPilote(c,answers(c.id).yes.length)||0));
-      const rows = next.map(c=>{ const y=answers(c.id).yes.length, pp=prixPilote(c,y), n=crewCount(c,y); totEq+=Number(c.prixEquipage||0); const me1=myDispo(c.id)==="oui"; if(me1) mine+=pp||0;
+      let totEq=0, mine=0; const maxPP=Math.max(1,...next.map(c=>prixPilote(c,viewN(c))||0));
+      const rows = next.map(c=>{ const y=answers(c.id).yes.length, gn=viewN(c), pp=prixPilote(c,gn), n=crewCount(c,gn); totEq+=Number(c.prixEquipage||0); const me1=myDispo(c.id)==="oui"; if(me1) mine+=pp||0;
         return '<tr'+(me1?' style="background:var(--gold-soft)"':'')+'><td>'+esc(c.titre||c.lieu)+'<div class="sub2">'+esc(shortTeam(c.equipe)||"")+'</div></td><td class="num"><b>'+(pp!=null?euro(pp):"—")+'</b>'+(pp!=null?'<div class="mbar"><i style="width:'+Math.round(pp/maxPP*100)+'%"></i></div>':'')+'</td><td class="num">'+(c.prixEquipage!=null?euro(c.prixEquipage):"—")+'<div class="sub2">÷ '+n+' pilotes</div></td><td class="num">'+y+'</td></tr>'; }).join("");
       $("#budNextTable").innerHTML='<thead><tr><th>Course</th><th>Par pilote</th><th>Équipage</th><th>Inscrits</th></tr></thead><tbody>'+rows+'</tbody>';
       $("#budNextStats").innerHTML='<div class="stat"><b>'+next.length+'</b><span>Courses prévues</span></div><div class="stat"><b>'+euro(totEq)+'</b><span>Budget total équipages</span></div>'+(me()?'<div class="stat"><b>'+euro(mine)+'</b><span>Mon budget (réservées)</span></div>':'');
@@ -1541,7 +1550,7 @@ button:active:not(:disabled){transform:scale(.97)}
     $("#payPanel").hidden = !isAdmin();
     if(isAdmin()){
       const up = courses.filter(c=>!c.terminee && isUpcoming(c));
-      const rows = Object.values(pilots).map(p=>{ let t=0,pd=0,n=0; for(const c of up){ if(dispoOf(p.id,c.id)==="oui"){ const v=prixPilote(c, answers(c.id).yes.length)||0; t+=v; n++; if(isPaid(p.id,c.id)) pd+=v; } } return {nom:p.nom,t,pd,n}; }).filter(r=>r.n>0).sort((a,b)=>(b.t-b.pd)-(a.t-a.pd));
+      const rows = Object.values(pilots).map(p=>{ let t=0,pd=0,n=0; for(const c of up){ if(dispoOf(p.id,c.id)==="oui"){ const v=prixPilote(c, groupN(c,p.id))||0; t+=v; n++; if(isPaid(p.id,c.id)) pd+=v; } } return {nom:p.nom,t,pd,n}; }).filter(r=>r.n>0).sort((a,b)=>(b.t-b.pd)-(a.t-a.pd));
       const T=rows.reduce((a,r)=>a+r.t,0), P=rows.reduce((a,r)=>a+r.pd,0);
       $("#payTitle").textContent="Paiements des courses à venir";
       $("#payStats").innerHTML='<div class="stat"><b>'+euro(T)+'</b><span>Réservé</span></div><div class="stat"><b>'+euro(P)+'</b><span>Encaissé</span></div><div class="stat"><b>'+euro(T-P)+'</b><span>Reste à encaisser</span></div>';
@@ -2039,7 +2048,7 @@ button:active:not(:disabled){transform:scale(.97)}
     const L=[], mt=Number(config.cotisation||0);
     for(const p of (adminPilots||[])) if(p.cotis&&p.cotis[Y]&&mt) L.push({jour:"",sens:"entree",categorie:"Cotisation",libelle:(pilots[p.id]||p).nom,montant:mt,auto:true});
     for(const c of courses.filter(c=>seasonOf(c)===Number(Y))){ const y=answers(c.id).yes.length, pp=prixPilote(c,y);
-      for(const p of Object.values(pilots)) if(p.payes&&p.payes[c.id]&&pp) L.push({jour:c.date||"",sens:"entree",categorie:"Part pilote",libelle:p.nom+" · "+(c.titre||c.lieu),montant:Math.round(pp*100)/100,auto:true});
+      for(const p of Object.values(pilots)){ const pq=prixPilote(c, groupN(c,p.id)); if(p.payes&&p.payes[c.id]&&pq) L.push({jour:c.date||"",sens:"entree",categorie:"Part pilote",libelle:p.nom+" · "+(c.titre||c.lieu),montant:Math.round(pq*100)/100,auto:true}); }
       if(c.inscPayee) L.push({jour:c.inscJour||c.date||"",sens:"sortie",categorie:"Inscription course",libelle:(c.titre||c.lieu)+(c.equipe?" · "+shortTeam(c.equipe):""),montant:Number(c.inscMontant||c.prixEquipage||0),auto:true,cid:c.id}); }
     for(const t of (treso||[])) if(String(t.jour).slice(0,4)===String(Y)) L.push(Object.assign({},t,{montant:Number(t.montant)}));
     return L.sort((a,b)=>String(b.jour).localeCompare(String(a.jour)));
@@ -2048,7 +2057,7 @@ button:active:not(:disabled){transform:scale(.97)}
     if(!isAdmin() || !treso || $("#viewAdmin").hidden) return;
     const Y=$("#tresoYear").value, L=tresoLines(Y), E=L.filter(l=>l.sens==="entree").reduce((a,l)=>a+l.montant,0), S=L.filter(l=>l.sens==="sortie").reduce((a,l)=>a+l.montant,0);
     let due=0; const dueRows=[];
-    for(const c of courses.filter(c=>seasonOf(c)===Number(Y) && !c.terminee)){ const y=answers(c.id).yes.length, pp=prixPilote(c,y)||0; for(const p of Object.values(pilots)) if(p.dispo&&p.dispo[c.id]==="oui"&&!(p.payes&&p.payes[c.id])) due+=pp; }
+    for(const c of courses.filter(c=>seasonOf(c)===Number(Y) && !c.terminee)){ const y=answers(c.id).yes.length, pp=prixPilote(c,y)||0; for(const p of Object.values(pilots)) if(p.dispo&&p.dispo[c.id]==="oui"&&!(p.payes&&p.payes[c.id])) due+=prixPilote(c, groupN(c,p.id))||0; }
     const mt=Number(config.cotisation||0); let dueC=0; for(const p of (adminPilots||[])) if(p.adhesion&&p.adhesion[Y]&&!(p.cotis&&p.cotis[Y])) dueC+=mt;
     const toPay=courses.filter(c=>seasonOf(c)===Number(Y) && !c.inscPayee && !c.terminee && answers(c.id).yes.length>0 && c.prixEquipage);
     const P=toPay.reduce((a,c)=>a+Number(c.prixEquipage),0);
@@ -2105,7 +2114,7 @@ button:active:not(:disabled){transform:scale(.97)}
     if(b.dataset.export==="resa"){
       const rows=[["Saison","Course","Date","Équipe course","Pilote","Roule pour","Réponse","Part pilote (€)","Payé"]];
       for(const c of courses.filter(c=>!c.terminee).sort((a,b)=>sortKey(a).localeCompare(sortKey(b)))){ const y=answers(c.id).yes.length, pp=prixPilote(c,y);
-        for(const p of Object.values(pilots)){ const a=dispoOf(p.id,c.id); if(!a) continue; rows.push([seasonOf(c),c.titre||c.lieu,c.date||"à confirmer",c.equipe||"",p.nom,a==="oui"?teamOf(p.id,c.id):"",a==="oui"?"Réservé":a==="peut"?"Peut-être":"Pas dispo",a==="oui"?num(pp):"",a==="oui"?(isPaid(p.id,c.id)?"Oui":"Non"):""]); } }
+        for(const p of Object.values(pilots)){ const a=dispoOf(p.id,c.id); if(!a) continue; rows.push([seasonOf(c),c.titre||c.lieu,c.date||"à confirmer",c.equipe||"",p.nom,a==="oui"?teamOf(p.id,c.id):"",a==="oui"?"Réservé":a==="peut"?"Peut-être":"Pas dispo",a==="oui"?num(prixPilote(c, groupN(c,p.id))):"",a==="oui"?(isPaid(p.id,c.id)?"Oui":"Non"):""]); } }
       csv("rk7-reservations-"+stamp+".csv", rows);
     } else if(b.dataset.export==="pilotes"){
       const y=$("#cotisYear").value, rows=[["Pilote","Équipe préférée","Poids (kg)","Licence","Taille combi","Téléphone","Cotisation "+y]];
