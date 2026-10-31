@@ -358,17 +358,20 @@ details.sec[open]>summary::before{content:"▾ "}
 .teamrow .mem a,.teamrow .mem span.x{display:inline-flex;align-items:center;gap:6px;color:var(--ink);text-decoration:none;font-weight:600;font-size:14px}
 /* --- Titres de roulage --- */
 .ttl{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;letter-spacing:.03em;border-radius:999px;padding:2px 9px;border:1px solid var(--line);background:var(--surface);white-space:nowrap}
-.ttl.t1,.ttl.t2{color:#8a6a43;border-color:#d9c3a5;background:#f6eee3}
-.ttl.t3,.ttl.t4{color:#6b7280;border-color:#cfd3da;background:#f1f3f6}
-.ttl.t5,.ttl.t6{color:var(--gold);border-color:var(--gold);background:var(--gold-soft)}
-.ttl.t7,.ttl.t8,.ttl.t9,.ttl.t10{color:var(--band-gold);border-color:var(--band-gold);background:var(--band)}
-@media (prefers-color-scheme:dark){.ttl.t1,.ttl.t2{background:#2a2117;border-color:#5a4630;color:#d6b48a}.ttl.t3,.ttl.t4{background:#22252b;border-color:#3d424b;color:#c3c8d1}}
+.ttl.t1{--n:#7CFF6B}.ttl.t2{--n:#00F0FF}.ttl.t3{--n:#3D8BFF}.ttl.t4{--n:#B26BFF}.ttl.t5{--n:#FF4FD8}.ttl.t6{--n:#FF8A1F}.ttl.t7{--n:#FFE81F}.ttl.t8{--n:#FF3B3B}.ttl.t9{--n:#FFD54A}.ttl.t10{--n:#FFFFFF}.ttl{background:#0b0b10!important;border-color:var(--n)!important;color:var(--n)!important;text-shadow:0 0 6px var(--n),0 0 12px var(--n);box-shadow:0 0 6px var(--n),inset 0 0 6px color-mix(in srgb,var(--n) 35%,transparent)}
+.ttl.t10{animation:neonrb 4s linear infinite}@keyframes neonrb{0%{--n:#FF4FD8}25%{--n:#00F0FF}50%{--n:#7CFF6B}75%{--n:#FFE81F}100%{--n:#FF4FD8}}
+@property --n{syntax:"<color>";inherits:true;initial-value:#fff}
+.tblock .big.neon{color:var(--n);text-shadow:0 0 8px var(--n),0 0 18px var(--n)}
+.tblock.neonb{background:#0b0b10;border-color:var(--n);box-shadow:0 0 14px color-mix(in srgb,var(--n) 45%,transparent);color:#eee}
+.tblock.neonb .sub2{color:#b9b4a6}.tblock.neonb .pb{background:#24242c}.tblock.neonb .pb i{background:var(--n);box-shadow:0 0 8px var(--n)}
+.tblock.neonb summary{color:var(--n)!important}
+@media (prefers-reduced-motion:reduce){.ttl.t10{animation:none}}
 .tblock{border:1px solid var(--gold);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--gold-soft)}
 .tblock .big{font-family:var(--display);font-weight:700;font-size:26px;line-height:1.05}
 .tblock .pb{height:10px;border-radius:5px;background:rgba(0,0,0,.08);overflow:hidden}
 .tblock .pb i{display:block;height:100%;background:var(--gold)}
 .tlist{display:flex;flex-wrap:wrap;gap:6px}
-.tlist .ttl.lock{opacity:.4;filter:grayscale(1)}
+.tlist .ttl.lock{opacity:.35;filter:grayscale(1);text-shadow:none;box-shadow:none}
 .newt{background:var(--band);color:var(--band-gold);border-radius:10px;padding:10px 12px;font-weight:700;text-align:center;animation:pop .6s ease}
 @keyframes pop{0%{transform:scale(.9);opacity:0}60%{transform:scale(1.04);opacity:1}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.newt{animation:none}}
@@ -1809,7 +1812,7 @@ button:active:not(:disabled){transform:scale(.97)}
   const normN = t => String(t||"").trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
   function partOf(c, pid, nom){
     const n=normN(nom), list=c.participants||[];
-    let hit=list.find(x=>x.pid===pid) || list.find(x=>normN(x.nom)===n);
+    let hit=(pid?list.find(x=>x.pid===pid):null) || list.find(x=>normN(x.nom)===n);
     if(!hit && n.length>=3){ const cand=list.filter(x=>normN(x.nom).startsWith(n+" ")); if(cand.length===1) hit=cand[0]; }
     return hit||null;
   }
@@ -1841,7 +1844,7 @@ button:active:not(:disabled){transform:scale(.97)}
       '<div class="stats"><div class="stat"><b>'+past.length+'</b><span>Courses</span></div><div class="stat"><b>'+Math.round(heures)+' h</b><span>En piste</span></div><div class="stat"><b>'+pod+'</b><span>Podiums</span></div><div class="stat"><b>'+seasons+'</b><span>Saison'+(seasons>1?'s':'')+'</span></div>'+(self&&spent?'<div class="stat"><b>'+euro(spent)+'</b><span>Investi</span></div>':'')+'</div>';
     { const x=titreOf(heures), nx=x.next, pct=nx?Math.round((heures-x.t[0])/(nx[0]-x.t[0])*100):100;
       let fresh=""; if(self){ try{ const k="rk7-titre-"+p.id, old=Number(localStorage.getItem(k)); if(!isNaN(old) && localStorage.getItem(k)!==null && x.i>old) fresh='<div class="newt">🎉 Nouveau titre débloqué : '+x.t[1]+' '+esc(x.t[2])+' !</div>'; localStorage.setItem(k,String(x.i)); }catch(e){} }
-      $("#pfCard").insertAdjacentHTML("beforeend", fresh+'<div class="tblock"><span class="sub2" style="text-transform:uppercase;letter-spacing:.08em;font-weight:600">Titre de roulage</span><div class="big">'+x.t[1]+' '+esc(x.t[2])+'</div>'+
+      $("#pfCard").insertAdjacentHTML("beforeend", fresh+'<div class="tblock neonb ttl-wrap" style="--n:'+["#7CFF6B","#00F0FF","#3D8BFF","#B26BFF","#FF4FD8","#FF8A1F","#FFE81F","#FF3B3B","#FFD54A","#FFFFFF"][x.i]+'"><span class="sub2" style="text-transform:uppercase;letter-spacing:.08em;font-weight:600">Titre de roulage</span><div class="big neon">'+x.t[1]+' '+esc(x.t[2])+'</div>'+
         (nx?'<div class="pb" aria-label="Progression vers le titre suivant"><i style="width:'+pct+'%"></i></div><span class="sub2">'+Math.round(heures)+' h · encore <b>'+Math.max(0,Math.ceil(nx[0]-heures))+' h</b> pour devenir <b>'+nx[1]+' '+esc(nx[2])+'</b></span>':'<span class="sub2">Titre ultime atteint avec '+Math.round(heures)+' h de roulage. Respect.</span>')+
         '<details class="sec"><summary>Tous les titres</summary><div class="tlist" style="margin-top:8px">'+TITRES.map((t,k)=>'<span class="ttl t'+(k+1)+(k>x.i?' lock':'')+'">'+t[1]+' '+esc(t[2])+' · '+t[0]+' h</span>').join("")+'</div></details></div>'); }
     const row=(c,right,cls,sub)=>'<div class="hi'+(cls?' '+cls:'')+'"><span class="d">'+(c.date?esc(fmtDay(c.date))+'<br>'+c.date.slice(0,4):'Saison<br>'+seasonOf(c))+'</span><span><b>'+esc(c.titre||c.lieu)+'</b><br><span class="sub2">'+esc([c.titre?c.lieu:"", c.equipe?shortTeam(c.equipe):"", c.duree].filter(Boolean).join(" · "))+(sub?' · '+sub:'')+'</span></span><span class="r">'+right+'</span></div>';
