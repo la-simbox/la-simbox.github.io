@@ -302,6 +302,28 @@ details.sec[open]>summary::before{content:"▾ "}
 .poster .bar2{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .poster button{background:#1f1f1c;color:#f3f1ea;border:1px solid #3a3833}
 .poster button.btn-gold{background:var(--band-gold);color:#121210;border-color:var(--band-gold)}
+/* --- Accueil : profil obligatoire, carte de bienvenue --- */
+.onb{position:fixed;inset:0;z-index:45;background:var(--band);color:var(--band-ink);overflow-y:auto;display:flex;justify-content:center;padding:max(24px,env(safe-area-inset-top,0px)) 16px max(24px,env(safe-area-inset-bottom,0px))}
+.onb .in{width:100%;max-width:400px;display:flex;flex-direction:column;gap:14px;margin:auto 0}
+.onb img{width:180px;margin:0 auto}
+.onb h1{font-size:34px;text-align:center}
+.onb p{margin:0;color:var(--band-muted);text-align:center}
+.onb .switch button{background:transparent;color:var(--band-muted);border:1px solid #3a3833}
+.onb .switch button[aria-pressed="true"]{background:var(--band-gold);color:#121210;border-color:var(--band-gold)}
+.onb label{color:var(--band-muted)}
+.onb input,.onb select{background:#1B1B19;border-color:#3A3833;color:var(--band-ink)}
+.onb form{display:flex;flex-direction:column;gap:12px}
+.onb .msg{color:var(--band-muted);text-align:center}
+.onb .msg.err{color:#E59673}
+.onb .btn-link{color:var(--band-muted);align-self:center}
+.welc .stepl{display:flex;flex-direction:column;gap:8px}
+.welc .st{display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg)}
+.welc .st.ok{opacity:.65}
+.welc .st .n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:var(--gold-soft);color:var(--gold);flex:0 0 auto}
+.welc .st.ok .n{background:var(--ok-soft);color:var(--ok)}
+.welc .st span.t{flex:1;min-width:0}
+.welc .prog{height:6px;border-radius:3px;background:var(--wait-soft);overflow:hidden}
+.welc .prog i{display:block;height:100%;background:var(--gold)}
 .settle{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;padding:4px 0}
 /* --- Look v3 : bandeau course, barre d'onglets en bas sur mobile, tuiles --- */
 header.band{position:relative;z-index:20;isolation:isolate}
@@ -351,6 +373,29 @@ button:active:not(:disabled){transform:scale(.97)}
 </style>
 </head>
 <body>
+
+<section class="onb" id="onb" hidden aria-labelledby="onbTitle">
+  <div class="in">
+    <img src="img/logo-rk7.png" alt="Logo RK7 Team" width="334" height="174">
+    <h1 id="onbTitle">Bienvenue !</h1>
+    <p>Dernière étape : crée ton profil pilote pour réserver tes courses et recevoir les infos de l'équipe.</p>
+    <div class="switch"><button type="button" id="onbSwNew" aria-pressed="true">Je suis nouveau</button><button type="button" id="onbSwLog" aria-pressed="false">J'ai déjà un profil</button></div>
+    <form id="onbNew">
+      <div class="field"><label for="oNom">Prénom et nom</label><input id="oNom" maxlength="40" required autocomplete="name" placeholder="Florent Cucinotta"></div>
+      <div class="field"><label for="oTeam">Équipe pour laquelle tu roules le plus</label><select id="oTeam"></select></div>
+      <div class="field"><label for="oPin">Choisis un code perso (4 chiffres)</label><input id="oPin" type="password" inputmode="numeric" pattern="\d{4}" maxlength="4" required autocomplete="new-password"></div>
+      <button class="btn-gold" type="submit">Créer mon profil</button>
+    </form>
+    <form id="onbLog" hidden>
+      <div class="field"><label for="oPilot">Mon nom</label><select id="oPilot" required></select></div>
+      <div class="field"><label for="oPin2">Code perso (4 chiffres)</label><input id="oPin2" type="password" inputmode="numeric" pattern="\d{4}" maxlength="4" required autocomplete="current-password"></div>
+      <button class="btn-gold" type="submit">Me connecter</button>
+      <p class="sub2" style="color:var(--band-muted)">Code oublié ? Demande à Florent de t'en donner un nouveau.</p>
+    </form>
+    <p class="msg" id="onbMsg"></p>
+    <button type="button" class="btn-link" id="onbSkip" hidden>Continuer sans profil (administrateur)</button>
+  </div>
+</section>
 
 <section class="gate" id="gate" hidden>
   <form id="gateForm">
@@ -448,6 +493,13 @@ button:active:not(:disabled){transform:scale(.97)}
 </main>
 
 <main class="wrap" id="viewAdmin" hidden>
+  <section class="panel" id="accessPanel">
+    <h2>Accès à l'appli</h2>
+    <div class="stats" id="accStats"></div>
+    <div class="grid-wrap"><table class="team" id="accTable"></table></div>
+    <details class="sec" id="accAnonSec"><summary id="accAnonSum">Visiteurs sans profil</summary><div id="accAnon" style="margin-top:8px"></div></details>
+    <p class="sub2" id="accNote"></p>
+  </section>
   <section class="panel" id="tresoPanel">
     <div class="row" style="justify-content:space-between;align-items:center"><h2>Trésorerie</h2><div class="field" style="flex:0 0 120px"><label for="tresoYear">Année</label><select id="tresoYear"></select></div></div>
     <div class="stats" id="tresoStats"></div>
@@ -477,7 +529,7 @@ button:active:not(:disabled){transform:scale(.97)}
     <p class="msg" id="pilotMsg"></p>
   </section>
   <section class="panel">
-    <h2>Exports Excel</h2>
+    <h2>Exports Excel et sauvegardes</h2>
     <p class="msg">Fichiers CSV qui s'ouvrent directement dans Excel ou Google Sheets.</p>
     <div class="row">
       <button type="button" class="btn-ghost" data-export="resa">Réservations et paiements</button>
@@ -486,6 +538,10 @@ button:active:not(:disabled){transform:scale(.97)}
       <button type="button" class="btn-ghost" data-export="frais">Frais annexes</button>
       <button type="button" class="btn-ghost" data-export="adhesions">Adhésions</button>
       <button type="button" class="btn-ghost" data-export="treso">Trésorerie</button>
+    </div>
+    <div class="box"><h4>Sauvegardes</h4><p>Une sauvegarde complète (courses, pilotes, paiements, adhésions, frais, trésorerie, matériel…) est faite automatiquement chaque semaine ; les 8 dernières sont gardées. Tu peux aussi en télécharger une maintenant.</p>
+      <div class="row"><button type="button" class="btn-gold" data-backup="0">Télécharger une sauvegarde maintenant</button></div>
+      <div id="backupList"></div>
     </div>
   </section>
   <section class="panel">
@@ -534,6 +590,7 @@ button:active:not(:disabled){transform:scale(.97)}
 
 <main class="wrap" id="viewCal">
   <div id="offline" class="offline" hidden></div>
+  <section class="panel welc" id="welcome" hidden></section>
   <div id="hero" hidden></div>
   <div id="teaser" hidden></div>
 
@@ -707,7 +764,7 @@ button:active:not(:disabled){transform:scale(.97)}
   const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ v==null?localStorage.removeItem(k):localStorage.setItem(k,v); }catch(e){} } };
 
   let teamToken = ls.get("rk7-token"), role = ls.get("rk7-role") || "team", pilotToken = ls.get("rk7-pilot"), myId = ls.get("rk7-pid");
-  let treso=null;
+  let treso=null, accData=null, backups=null, visited=false, onbSkip=false;
   let relays={}, materiel=[], clockSkew=0, raceCid=null, raceTimer=null, wxCache={};
   let comments=[], photos=[], openComm=new Set(), openPhotos=new Set(), elevTried=false, lbList=[], lbIdx=0;
   let frais=[], openFrais=new Set(), allFrais=new Set(), config={}, adminPilots=null, myProfile=null, openLogi=new Set(), resId=null;
@@ -823,6 +880,7 @@ button:active:not(:disabled){transform:scale(.97)}
     if(!d.__cached){ try{ localStorage.setItem("rk7-data", JSON.stringify(Object.assign({}, d, {__at:Date.now()}))); }catch(e){} $("#offline").hidden=true; } window.__bilans=d.bilans||[]; pilots={}; (d.pilots||[]).forEach(p=>pilots[p.id]=p);
     if(myId && !pilots[myId]){ logoutPilot(); }
     loaded=true; renderAll(); tryElevate();
+    if(!d.__cached && !visited){ visited=true; sendVisit(); }
   }
   // Compte pilote administrateur (Florent) : passe en mode admin sans taper le code
   async function tryElevate(){
@@ -1375,7 +1433,7 @@ button:active:not(:disabled){transform:scale(.97)}
   let profLoading=false;
   async function loadProfile(){
     if(profLoading || !pilotToken) return; profLoading=true;
-    try{ myProfile = await rpc("my_profile",{token:teamToken,pilot_token:pilotToken}); fillProfile(true); fillAdhesion(true); }catch(e){} finally{ profLoading=false; }
+    try{ myProfile = await rpc("my_profile",{token:teamToken,pilot_token:pilotToken}); fillProfile(true); fillAdhesion(true); renderWelcome(); }catch(e){} finally{ profLoading=false; }
   }
   function fillProfile(force){
     if(!myProfile) return; const pr=myProfile.profil||{};
@@ -1530,11 +1588,77 @@ button:active:not(:disabled){transform:scale(.97)}
     g.fillStyle=GOLD; g.font='600 44px '+F; g.fillText("RK7 TEAM · MORE THAN RACING", 80, H-200);
     return cv;
   }
+  // ---------- Suivi des visites (pour l'admin) ----------
+  const devName = () => { const u=navigator.userAgent; return /iPhone|iPad|iPod/.test(u)?"iPhone/iPad":/Android/.test(u)?"Android":/Windows/.test(u)?"PC Windows":/Macintosh/.test(u)?"Mac":"Autre"; };
+  function sendVisit(){ if(teamToken) rpc("visit",{token:teamToken,pilot_token:pilotToken||"",ua:devName()}).catch(()=>{}); }
+  // ---------- Profil obligatoire à l'entrée ----------
+  function needOnboard(){ return loaded && !!teamToken && !me() && !(isAdmin() && onbSkip); }
+  function renderOnboard(){
+    const show=needOnboard(), el=$("#onb"); el.hidden=!show; document.body.style.overflow = show ? "hidden" : (document.getElementById("rm")||document.getElementById("bilan") ? "hidden" : "");
+    if(!show) return;
+    $("#onbSkip").hidden=!isAdmin();
+    if(!$("#oTeam").options.length) $("#oTeam").innerHTML=teamOptions("Je ne sais pas encore");
+    const cur=$("#oPilot").value, list=Object.values(pilots).sort((a,b)=>a.nom.localeCompare(b.nom,"fr"));
+    $("#oPilot").innerHTML='<option value="">Choisir mon nom</option>'+list.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.nom)+'</option>').join(""); $("#oPilot").value=cur;
+  }
+  function onbSwitch(log){ $("#onbNew").hidden=log; $("#onbLog").hidden=!log; $("#onbSwNew").setAttribute("aria-pressed",!log); $("#onbSwLog").setAttribute("aria-pressed",log); setMsg("#onbMsg",""); }
+  $("#onbSwNew").addEventListener("click",()=>onbSwitch(false));
+  $("#onbSwLog").addEventListener("click",()=>onbSwitch(true));
+  $("#onbSkip").addEventListener("click",()=>{ onbSkip=true; renderAll(); });
+  $("#onbNew").addEventListener("submit", async e=>{ e.preventDefault();
+    if(!/^\d{4}$/.test($("#oPin").value)){ setMsg("#onbMsg","Le code perso doit faire 4 chiffres.",true); return; }
+    try{ const r=await api("pilots",{method:"POST",json:{nom:$("#oNom").value,pin:$("#oPin").value,equipePref:$("#oTeam").value}});
+      pilotToken=r.pilotToken; myId=r.pilotId; myProfile=null; elevTried=false; ls.set("rk7-pilot",pilotToken); ls.set("rk7-pid",myId);
+      $("#oPin").value=""; applyData(r.data); linkSubscription(); sendVisit(); setMsg("#meMsg","Profil créé, bienvenue dans l'équipe ! Retiens bien ton code perso."); window.scrollTo(0,0); }
+    catch(err){ setMsg("#onbMsg", /existe déjà/.test(err.message) ? "Ce nom existe déjà : choisis « J'ai déjà un profil »." : err.message, true); if(/existe déjà/.test(err.message)) onbSwitch(true); } });
+  $("#onbLog").addEventListener("submit", async e=>{ e.preventDefault();
+    try{ const r=await api("pilots/login",{method:"POST",json:{id:$("#oPilot").value,pin:$("#oPin2").value}});
+      pilotToken=r.pilotToken; myId=r.pilotId; myProfile=null; elevTried=false; ls.set("rk7-pilot",pilotToken); ls.set("rk7-pid",myId);
+      $("#oPin2").value=""; renderAll(); linkSubscription(); sendVisit(); tryElevate(); window.scrollTo(0,0); }
+    catch(err){ setMsg("#onbMsg", err.message, true); } });
+  // ---------- Carte de bienvenue (3 étapes) ----------
+  let notifOn=false;
+  function renderWelcome(){
+    const el=$("#welcome"), m=me(); if(!m){ el.hidden=true; return; }
+    let dismissed=false; try{ dismissed=localStorage.getItem("rk7-welc-"+myId)==="1"; }catch(e){}
+    const up=courses.filter(isUpcoming), booked=up.some(c=>myDispo(c.id)==="oui");
+    const prof=!!(myProfile && myProfile.profil && (myProfile.profil.poids || myProfile.profil.taille));
+    const steps=[[true,"Profil créé","",""],[notifOn||!pushSupported,"Activer les notifications","Pour ne rater aucune course ni aucun relais","notif"],[booked,"Réserver ta prochaine course","Choisis tes courses et ton équipe","book"],[prof,"Compléter ton profil pilote","Poids (lest SWS) et taille de combi","prof"]];
+    const done=steps.filter(x=>x[0]).length;
+    if(dismissed || done===steps.length){ el.hidden=true; return; }
+    el.hidden=false;
+    el.innerHTML='<div class="row" style="justify-content:space-between;align-items:center"><h2>Bienvenue '+esc(m.nom.split(" ")[0])+' !</h2><button type="button" class="btn-link" data-wx>Masquer</button></div>'+
+      '<div class="prog" aria-label="'+done+' étapes sur '+steps.length+'"><i style="width:'+Math.round(done/steps.length*100)+'%"></i></div>'+
+      '<div class="stepl">'+steps.map((s2,i)=>'<div class="st'+(s2[0]?' ok':'')+'"><span class="n">'+(s2[0]?'✓':(i+1))+'</span><span class="t"><b>'+esc(s2[1])+'</b>'+(s2[2]&&!s2[0]?'<br><span class="sub2">'+esc(s2[2])+'</span>':'')+'</span>'+(!s2[0]&&s2[3]?'<button type="button" class="btn-gold mini" data-w="'+s2[3]+'">'+(s2[3]==="notif"?"Activer":s2[3]==="book"?"Voir les courses":"Compléter")+'</button>':'')+'</div>').join("")+'</div>';
+  }
+  $("#welcome").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b) return;
+    if(b.dataset.wx!==undefined){ try{ localStorage.setItem("rk7-welc-"+myId,"1"); }catch(err){} renderWelcome(); return; }
+    if(b.dataset.w==="notif"){ $("#notifBtn").click(); return; }
+    if(b.dataset.w==="book"){ setView("up"); $("#races").scrollIntoView({behavior:"smooth",block:"start"}); return; }
+    if(b.dataset.w==="prof"){ $("#profSec").open=true; $("#profSec").scrollIntoView({behavior:"smooth",block:"start"}); return; } });
+  // ---------- Admin : accès et sauvegardes ----------
+  const dt = iso => iso ? new Date(iso).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})+" "+new Date(iso).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) : "—";
+  function renderAccess(){
+    if(!isAdmin() || !accData || $("#viewAdmin").hidden) return;
+    const ps=accData.pilots||[], anon=accData.anon||[], wk=Date.now()-7*864e5;
+    const active=ps.filter(p=>p.lastSeen && new Date(p.lastSeen).getTime()>wk).length;
+    $("#accStats").innerHTML='<div class="stat"><b>'+ps.length+'</b><span>Profils créés</span></div><div class="stat"><b>'+active+'</b><span>Actifs (7 jours)</span></div><div class="stat"><b>'+ps.filter(p=>p.notif).length+'</b><span>Notifs activées</span></div><div class="stat"><b>'+anon.length+'</b><span>Visiteurs sans profil</span></div>';
+    $("#accTable").innerHTML = ps.length ? '<thead><tr><th>Pilote</th><th>Profil créé</th><th>Dernière visite</th></tr></thead><tbody>'+ps.map(p=>'<tr><td style="white-space:normal"><b>'+esc((pilots[p.id]||p).nom)+'</b><div class="sub2">'+(p.notif?'🔔 notifications':'🔕 pas de notifications')+(p.visits?' · '+p.visits+' visite'+(p.visits>1?'s':''):'')+'</div></td><td class="num">'+esc(dt(p.createdAt))+'</td><td class="num">'+(p.lastSeen?esc(dt(p.lastSeen)):'<span class="sub2">pas encore</span>')+'</td></tr>').join("")+'</tbody>' : '<tbody><tr><td>Aucun profil.</td></tr></tbody>';
+    $("#accAnonSum").textContent="Visiteurs sans profil ("+anon.length+")";
+    $("#accAnon").innerHTML = anon.length ? anon.map(a=>'<div class="settle"><span>👤 Appareil '+esc(a.ua||"inconnu")+'</span><span class="sub2">1re visite '+esc(dt(a.first))+' · dernière '+esc(dt(a.last))+' · '+a.n+' visite'+(a.n>1?'s':'')+'</span></div>').join("") : '<p class="note">Aucun visiteur sans profil.</p>';
+    $("#accNote").textContent = "Suivi des visites depuis le "+(accData.since?new Date(accData.since).toLocaleDateString("fr-FR",{day:"numeric",month:"long"}):"aujourd'hui")+". Un « visiteur sans profil » est un appareil qui a ouvert l'appli avec le code équipe sans créer ni ouvrir de profil pilote.";
+    $("#backupList").innerHTML = (backups&&backups.length) ? '<div class="k" style="margin-top:6px">Sauvegardes automatiques</div>'+backups.map(b=>'<div class="settle"><span>'+esc(dt(b.at))+' <span class="sub2">· '+Math.round(b.size/1024)+' Ko</span></span><button type="button" class="btn-ghost mini" data-backup="'+b.id+'">Télécharger</button></div>').join("") : '';
+  }
+  $("#viewAdmin").addEventListener("click", async e=>{ const b=e.target.closest("button[data-backup]"); if(!b) return; b.disabled=true;
+    try{ const d=await rpc("admin_backup_get",{token:teamToken,backup_id:Number(b.dataset.backup)||0}); const txt=JSON.stringify(d,null,1);
+      const u=URL.createObjectURL(new Blob([txt],{type:"application/json"})), a=document.createElement("a"); a.href=u; a.download="rk7-sauvegarde-"+String(d&&d.at||new Date().toISOString()).slice(0,10)+".json"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),5000); }
+    catch(err){ alertMsg(err.message); } finally{ b.disabled=false; } });
+  function alertMsg(m){ setMsg("#pilotMsg", m, true); }
   function renderAll(){
     $("#adminPanel").hidden=!isAdmin(); $("#newsAdmin").hidden=!isAdmin(); $("#adminAccess").hidden=isAdmin(); $("#navAdmin").hidden=!isAdmin();
     if(!isAdmin()) $("#resPanel").hidden=true;
     if(!isAdmin() && location.hash==="#admin") location.hash="calendrier";
-    renderMe(); renderCal(); renderNews(); renderBudget(); renderAdmin(); renderRank(); if(raceCid) renderRace();
+    renderMe(); renderCal(); renderNews(); renderBudget(); renderAdmin(); renderRank(); if(raceCid) renderRace(); renderOnboard(); renderWelcome();
   }
 
   // ---------- Events ----------
@@ -1718,8 +1842,8 @@ button:active:not(:disabled){transform:scale(.97)}
   async function loadAdmin(){
     if(!isAdmin() || adminLoading) return; adminLoading=true;
     try{
-      const [ps, cfg, vit, tr] = await Promise.all([rpc("admin_pilots",{token:teamToken}), rpc("admin_get_config",{token:teamToken}), rpc("admin_vitrine_set",{token:teamToken,cfg:{}}), rpc("admin_treso_get",{token:teamToken})]);
-      treso=tr;
+      const [ps, cfg, vit, tr, acc, bk] = await Promise.all([rpc("admin_pilots",{token:teamToken}), rpc("admin_get_config",{token:teamToken}), rpc("admin_vitrine_set",{token:teamToken,cfg:{}}), rpc("admin_treso_get",{token:teamToken}), rpc("admin_visits",{token:teamToken}), rpc("admin_backups",{token:teamToken})]);
+      treso=tr; accData=acc; backups=bk;
       if(!$("#vitForm").contains(document.activeElement)){ $("#vTexte").value=vit.vitrine_texte||""; $("#vContact").value=vit.vitrine_contact||""; $("#vCheck").value=vit.checklist||""; }
       adminPilots=ps;
       if(!$("#cfgCodeForm").contains(document.activeElement)){ $("#cTeam").value=cfg.team_code||""; $("#cAdmin").value=cfg.admin_code||""; }
@@ -1729,7 +1853,7 @@ button:active:not(:disabled){transform:scale(.97)}
   }
   function renderAdmin(){
     if(!isAdmin() || !adminPilots || $("#viewAdmin").hidden) return;
-    renderGear(); renderTreso();
+    renderGear(); renderTreso(); renderAccess();
     if($("#pilotTable").contains(document.activeElement)) return;
     const y=$("#cotisYear").value, mt=Number(config.cotisation||0);
     const list=adminPilots.map(a=>Object.assign({},a,pilots[a.id]?{nom:pilots[a.id].nom,equipePref:pilots[a.id].equipePref}:{}));
@@ -1861,6 +1985,7 @@ button:active:not(:disabled){transform:scale(.97)}
     }
     if(Notification.permission==="denied"){ btn.hidden=true; st.textContent="Notifications bloquées pour ce site. Autorise-les dans les réglages du téléphone ou du navigateur."; return; }
     const sub = swReg ? await swReg.pushManager.getSubscription() : null;
+    notifOn = !!(sub && Notification.permission==="granted"); renderWelcome();
     if(sub && Notification.permission==="granted"){ btn.hidden=false; btn.textContent="Désactiver"; btn.className="btn-ghost"; st.textContent="Notifications activées sur cet appareil."; }
     else { btn.hidden=false; btn.textContent="Activer les notifications"; btn.className="btn-gold"; st.textContent="Reçois une alerte pour chaque nouvelle course, news, réservation et les rappels de date limite."; }
   }
