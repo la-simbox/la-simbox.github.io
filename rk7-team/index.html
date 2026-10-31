@@ -267,6 +267,23 @@ details.sec[open]>summary::before{content:"▾ "}
 .extras details.sec[open]>summary{background:var(--gold);border-color:var(--gold);color:var(--on-gold)}
 .extras details.sec[open]>summary .ico{color:var(--on-gold)}
 .extras details.sec[open]>summary em{background:rgba(0,0,0,.12);color:var(--on-gold)}
+/* --- Jeux : pilote du jour, pronostics, succès --- */
+.vote{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.vote button{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:3px 10px 3px 3px;font-weight:600;font-size:13px;cursor:pointer}
+.vote button.on{border-color:var(--gold);background:var(--gold);color:var(--on-gold)}
+.vote button em{font-style:normal;font-size:12px;opacity:.8}
+.mvp{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;background:linear-gradient(90deg,#FFD54A,#FF8A1F);color:#1b1404;font-weight:700;font-size:13px}
+.prono{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+.prono input{width:78px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;font-size:15px;background:var(--surface);color:var(--ink)}
+.plist{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.plist div{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.plist b.pts{color:var(--gold)}
+.succ{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+.succ .s{border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:2px;background:var(--surface)}
+.succ .s b{font-size:14px}.succ .s span{font-size:12px;color:var(--muted)}
+.succ .s .i{font-size:22px;line-height:1}
+.succ .s.ok{border-color:var(--gold);background:var(--gold-soft)}
+.succ .s.lock{opacity:.55;border-style:dashed}
 .mbar{height:6px;border-radius:3px;background:var(--wait-soft);margin-top:4px;overflow:hidden;min-width:60px}
 .mbar i{display:block;height:100%;background:var(--gold);border-radius:3px}
 /* --- Mode course (relais), affiche, adhésion, matériel, checklist, météo, hors ligne --- */
@@ -602,6 +619,7 @@ button:active:not(:disabled){transform:scale(.97)}
     <div class="podium" id="rankPodium"></div>
     <div class="stats" id="rankStats"></div>
     <div class="grid-wrap"><table class="team rank" id="rankTable"></table></div>
+    <div id="jeuxBox"></div>
     <p class="sub2">Classé aux heures de roulage, puis au nombre de courses. Les podiums viennent des résultats saisis après chaque course.</p>
   </section>
 </main>
@@ -906,6 +924,7 @@ button:active:not(:disabled){transform:scale(.97)}
   let proposals=[], profilePid=null, editProp=null;
   let treso=null, accData=null, backups=null, visited=false, onbSkip=false;
   let relays={}, materiel=[], clockSkew=0, raceCid=null, raceTimer=null, wxCache={};
+  let jeux={mvp:{},pronos:{}}, myPronos={}, pronoLoaded=false;
   let comments=[], photos=[], openComm=new Set(), openPhotos=new Set(), elevTried=false, lbList=[], lbIdx=0;
   let frais=[], openFrais=new Set(), allFrais=new Set(), config={}, adminPilots=null, myProfile=null, openLogi=new Set(), resId=null;
   let courses=[], news=[], pilots={}, loaded=false, view="up", mode=ls.get("rk7-mode")==="grid"?"grid":"list", editingId=null, editingNews=null;
@@ -1020,11 +1039,12 @@ button:active:not(:disabled){transform:scale(.97)}
   }
   function applyData(d){
     if(!d || !d.courses) return;
-    courses=d.courses; news=d.news||[]; config=d.config||{}; frais=d.frais||[]; if(d.roc) roc=d.roc; proposals=d.proposals||[]; comments=d.comments||[]; photos=d.photos||[]; relays=d.relays||{}; materiel=d.materiel||[]; if(d.now) clockSkew=d.now-Date.now();
+    courses=d.courses; news=d.news||[]; config=d.config||{}; frais=d.frais||[]; if(d.roc) roc=d.roc; proposals=d.proposals||[]; comments=d.comments||[]; photos=d.photos||[]; relays=d.relays||{}; materiel=d.materiel||[]; if(d.jeux) jeux=d.jeux; if(d.now) clockSkew=d.now-Date.now();
     if(!d.__cached){ try{ localStorage.setItem("rk7-data", JSON.stringify(Object.assign({}, d, {__at:Date.now()}))); }catch(e){} $("#offline").hidden=true; } window.__bilans=d.bilans||[]; pilots={}; (d.pilots||[]).forEach(p=>pilots[p.id]=p);
     if(myId && !pilots[myId]){ logoutPilot(); }
     loaded=true; renderAll(); tryElevate();
     if(!d.__cached && !visited){ visited=true; sendVisit(); }
+    if(!d.__cached && pilotToken && !pronoLoaded){ pronoLoaded=true; rpc("my_pronos",{token:teamToken,pilot_token:pilotToken}).then(r=>{ myPronos=r||{}; renderCal(); }).catch(()=>{ pronoLoaded=false; }); }
   }
   // Compte pilote administrateur (Florent) : passe en mode admin sans taper le code
   async function tryElevate(){
@@ -1052,7 +1072,7 @@ button:active:not(:disabled){transform:scale(.97)}
     finally{ $("#gateBtn").disabled=false; }
   });
   function logoutAll(){ teamToken=null; role="team"; ls.set("rk7-token",null); ls.set("rk7-role",null); logoutPilot(true); showGate(); }
-  function logoutPilot(silent){ pilotToken=null; myId=null; myProfile=null; ls.set("rk7-pilot",null); ls.set("rk7-pid",null); if(!silent) renderAll(); }
+  function logoutPilot(silent){ myPronos={}; pronoLoaded=false; pilotToken=null; myId=null; myProfile=null; ls.set("rk7-pilot",null); ls.set("rk7-pid",null); if(!silent) renderAll(); }
   $("#logoutAll").addEventListener("click", logoutAll);
   $("#logoutPilot").addEventListener("click", ()=>logoutPilot());
 
@@ -1197,7 +1217,7 @@ button:active:not(:disabled){transform:scale(.97)}
         '<div class="info"><div class="chips"><span class="chip">'+esc(c.type||"Endurance")+'</span>'+(c.equipe?'<span class="chip">'+esc(c.equipe)+'</span>':"")+state+full+limChip+'</div>'+
           '<h3>'+esc(c.titre||c.lieu)+'</h3>'+
           '<div class="meta">'+(c.titre?'<span>'+ico("pin")+'<b>'+esc(c.lieu)+'</b></span>':'')+(!c.date?'<span>'+ico("cal")+'<b>'+(c.terminee?"Date non renseignée":"Date à confirmer")+'</b></span>':'')+'<span>'+ico("clock")+'<b>'+esc(c.duree||"—")+'</b></span>'+(c.heure?'<span>'+ico("flag")+'Départ <b>'+esc(c.heure)+'</b></span>':"")+(eq&&c.terminee?'<span>'+ico("users")+'<b>'+eq+'</b> pilotes</span>':"")+(c.points&&c.points!==999?'<span>'+ico("star")+'<b>'+c.points+'</b> pts</span>':"")+(c.dateFin&&c.dateFin>c.date?'<span>'+ico("cal")+'<b>'+esc(shortDate(c))+'</b></span>':"")+'</div>'+seatsHtml(c, yes)+crewLine(c)+
-          (c.note?'<div class="note">'+esc(c.note)+'</div>':"")+resHtml+partHtml+chipsYes+chipsMaybe+chipsNo+(()=>{ const x=raceBtn(c, mine)+checkHtml(c, mine)+logiHtml(c, mine)+fraisHtml(c, mine)+commHtml(c)+photosHtml(c, mine); return x?'<div class="extras">'+x+'</div>':''; })()+'</div>'+
+          (c.note?'<div class="note">'+esc(c.note)+'</div>':"")+resHtml+partHtml+chipsYes+chipsMaybe+chipsNo+(()=>{ const x=raceBtn(c, mine)+jeuxHtml(c)+checkHtml(c, mine)+logiHtml(c, mine)+fraisHtml(c, mine)+commHtml(c)+photosHtml(c, mine); return x?'<div class="extras">'+x+'</div>':''; })()+'</div>'+
         '<div class="actions">'+price+action+tools+'</div></article>';
     }
     return html;
@@ -1686,7 +1706,7 @@ button:active:not(:disabled){transform:scale(.97)}
     $("#rankPodium").innerHTML = order.map((r,i)=>r?'<div class="'+(i===1?"p1":"")+'"><span>'+(i===1?"1er":i===0?"2e":"3e")+'</span><b>'+esc(r.nom)+'</b><span>'+H(r.heures)+'</span></div>':'<div style="visibility:hidden"></div>').join("");
     const totH=list.reduce((a,c)=>a+(Number(c.heures)||0),0), pods=list.filter(c=>{ const p=podiumOf(c.position); return p&&p<=3; }).length;
     $("#rankStats").innerHTML='<div class="stat"><b>'+list.length+'</b><span>Courses</span></div><div class="stat"><b>'+H(totH)+'</b><span>De course</span></div><div class="stat"><b>'+arr.length+'</b><span>Pilotes</span></div>'+(pods?'<div class="stat"><b>'+pods+'</b><span>Podiums</span></div>':'');
-    $("#rankTitle").textContent="Classement "+cur;
+    $("#rankTitle").textContent="Classement "+cur; renderJeuxBox(cur);
     $("#rankTable").innerHTML='<thead><tr><th>#</th><th>Pilote</th><th>Heures</th><th>Courses</th></tr></thead><tbody>'+arr.map((r,i)=>{ const bd=badges(r);
       return '<tr'+(r.pid&&r.pid===myId?' style="background:var(--gold-soft)"':'')+'><td class="r">'+(i+1)+'</td><td style="white-space:normal"><a class="pl" href="#profil/'+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return pp?esc(pp.id):'n:'+encodeURIComponent(r.nom); })()+'">'+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return pp?avatarHtml(pp,"sm"):''; })()+'<b>'+esc(r.nom)+'</b></a> '+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return titleChip(careerHours(pp?pp.id:r.pid, pp?pp.nom:r.nom)); })()+(bd.length?'<div class="badges">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+'</td><td class="num"><b>'+H(r.heures)+'</b><div class="mbar"><i style="width:'+Math.round(r.heures/Math.max(1,arr[0].heures)*100)+'%"></i></div></td><td class="num">'+r.courses+'</td></tr>'; }).join("")+'</tbody>';
   }
@@ -1810,6 +1830,94 @@ button:active:not(:disabled){transform:scale(.97)}
   function avatarHtml(p, cls){ const nm=(p&&p.nom)||"?"; return '<span class="avt'+(cls?' '+cls:'')+'">'+(p&&p.avatar?'<img data-dbimg="'+esc(p.avatar)+'" alt="Photo de '+esc(nm)+'">':esc(initials(nm)))+'</span>'; }
   // ---------- Profil pilote ----------
   const normN = t => String(t||"").trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+  // ---------- Jeux : Pilote du jour + pronostics ----------
+  const pronoPts = (g, real) => { if(!g||!real) return 0; const d=Math.abs(g-real); return d===0?10:d===1?5:d===2?3:d<=5?1:0; };
+  function mvpWinners(cid){ const m=jeux.mvp&&jeux.mvp[cid]; if(!m||!m.counts) return {ids:[],n:0,tot:0}; const e=Object.entries(m.counts); const n=Math.max(0,...e.map(x=>x[1])); return {ids:n?e.filter(x=>x[1]===n).map(x=>x[0]):[], n, tot:e.reduce((a,x)=>a+x[1],0)}; }
+  function pronoOpen(c){ return !c.terminee && !relays[c.id] && (!c.date || c.date>today()); }
+  function jeuxHtml(c){
+    let h="";
+    const parts=(c.participants||[]).filter(p=>p.pid&&pilots[p.pid]);
+    if(c.terminee && parts.length>=2){
+      const m=(jeux.mvp&&jeux.mvp[c.id])||{counts:{},voters:[]}, w=mvpWinners(c.id), iRode=myId&&parts.some(p=>p.pid===myId);
+      const days=c.date?(Date.now()-new Date(c.date+"T12:00:00").getTime())/864e5:0, open=days<=30;
+      let myVote=null; try{ myVote=localStorage.getItem("rk7-mvp-"+myId+"-"+c.id); }catch(e){} const voted=myId&&(m.voters||[]).includes(myId);
+      const canVote=iRode&&open, key="mvp:"+c.id, isOpen=openLogi.has(key)||(canVote&&!voted&&days<=7);
+      h+='<details class="sec" data-logi="'+esc(key)+'"'+(isOpen?" open":"")+'><summary>⭐ Pilote du jour'+(w.ids.length?'<em>'+esc(w.ids.map(nomOf).map(x=>x.split(" ")[0]).join(" & "))+'</em>':(canVote&&!voted?'<em class="alert">à voter</em>':''))+'</summary>'+
+        (w.ids.length?'<div><span class="mvp">⭐ '+esc(w.ids.map(nomOf).join(" & "))+' · '+w.n+' vote'+(w.n>1?'s':'')+'</span> <span class="sub2">'+w.tot+' votant'+(w.tot>1?'s':'')+'</span></div>':'<p class="sub2" style="margin:4px 0">Pas encore de vote.</p>')+
+        (canVote?'<div class="sub2" style="margin-top:6px">'+(voted?'Tu as voté. Tu peux changer ton vote jusqu\'à 30 jours après la course.':'Qui a fait la meilleure course ? (pas toi 😉)')+'</div><div class="vote">'+parts.filter(p=>p.pid!==myId).map(p=>'<button type="button"'+(voted&&myVote===p.pid?' class="on"':'')+' data-mvp="'+esc(c.id)+'" data-v="'+esc(p.pid)+'">'+avatarHtml(pilots[p.pid],"sm")+esc(pilots[p.pid].nom)+(m.counts&&m.counts[p.pid]?' <em>'+m.counts[p.pid]+'</em>':'')+'</button>').join("")+'</div>'
+          :(iRode?'<p class="sub2" style="margin:4px 0">Vote clos.</p>':'<p class="sub2" style="margin:4px 0">Seuls les pilotes qui ont roulé votent.</p>'))+'</details>';
+    }
+    const P=jeux.pronos&&jeux.pronos[c.id];
+    if(c.terminee && P && P.closed && P.list && P.list.length){
+      const real=podiumOf(c.position), list=P.list.slice().sort((a,b)=>pronoPts(b.pos,real)-pronoPts(a.pos,real)||Math.abs(a.pos-(real||0))-Math.abs(b.pos-(real||0)));
+      const key="pr:"+c.id;
+      h+='<details class="sec" data-logi="'+esc(key)+'"'+(openLogi.has(key)?" open":"")+'><summary>🔮 Pronostics<em>'+list.length+'</em></summary><div class="plist">'+(real?'<div><span>Résultat réel</span><b>P'+real+'</b></div>':'<div class="sub2">Le résultat n\'est pas encore saisi.</div>')+
+        list.map(x=>'<div><span>'+esc(nomOf(x.pid))+' avait dit <b>P'+x.pos+'</b>'+(real&&x.pos===real?' 🎯':'')+'</span>'+(real?'<b class="pts">+'+pronoPts(x.pos,real)+' pt'+(pronoPts(x.pos,real)>1?'s':'')+'</b>':'')+'</div>').join("")+'</div></details>';
+    } else if(!c.terminee){
+      const who=(P&&P.who)||[], mine=myPronos[c.id], op=pronoOpen(c), key="pr:"+c.id;
+      if(op || who.length){
+        h+='<details class="sec" data-logi="'+esc(key)+'"'+(openLogi.has(key)?" open":"")+'><summary>🔮 Pronostic'+(mine?'<em>P'+mine+'</em>':(who.length?'<em>'+who.length+'</em>':''))+'</summary>'+
+          '<div class="sub2" style="margin-top:4px">Devine la place finale de l\'équipe. Exact = 10 pts · à 1 place = 5 · à 2 = 3 · à 5 = 1. Les pronos restent secrets jusqu\'au résultat.</div>'+
+          (op ? (me()?'<div class="prono"><input type="number" min="1" max="200" inputmode="numeric" id="pr-'+esc(c.id)+'" placeholder="Place" value="'+(mine||"")+'"><button type="button" class="btn-gold" style="padding:6px 12px" data-prono="'+esc(c.id)+'">'+(mine?'Modifier':'Valider')+'</button>'+(mine?'<button type="button" class="btn-link" data-prono="'+esc(c.id)+'" data-del="1">Retirer</button>':'')+'</div>':'<p class="sub2">Ouvre ton profil pilote pour pronostiquer.</p>') : '<p class="sub2" style="margin:4px 0">Pronostics fermés.</p>')+
+          (who.length?'<div class="sub2" style="margin-top:6px">'+who.length+' pronostic'+(who.length>1?'s':'')+' : '+esc(who.map(nomOf).map(x=>x.split(" ")[0]).join(", "))+'</div>':'')+'</details>';
+      }
+    }
+    return h;
+  }
+  function jeuxSeason(Y){
+    const pr={}, mv={};
+    for(const c of courses){ if(!c.terminee || (Y && seasonOf(c)!==Y)) continue; const real=podiumOf(c.position), P=jeux.pronos&&jeux.pronos[c.id];
+      if(real && P && P.closed) for(const x of P.list||[]){ const r=pr[x.pid]||(pr[x.pid]={pts:0,n:0,exact:0}); r.n++; r.pts+=pronoPts(x.pos,real); if(x.pos===real) r.exact++; }
+      for(const id of mvpWinners(c.id).ids) mv[id]=(mv[id]||0)+1; }
+    return {pr, mv};
+  }
+  function renderJeuxBox(Y){
+    const box=$("#jeuxBox"); if(!box) return; const {pr,mv}=jeuxSeason(Y);
+    const P=Object.entries(pr).filter(([id])=>pilots[id]).sort((a,b)=>b[1].pts-a[1].pts||b[1].exact-a[1].exact), M=Object.entries(mv).filter(([id])=>pilots[id]).sort((a,b)=>b[1]-a[1]);
+    box.innerHTML = (P.length||M.length) ? '<div class="stats" style="grid-template-columns:1fr">'+
+      (M.length?'<div class="box" style="gap:6px"><b style="font-family:var(--display);font-size:18px">⭐ Pilotes du jour '+Y+'</b>'+M.map(([id,n],i)=>'<div style="display:flex;justify-content:space-between;gap:8px"><a class="pl" href="#profil/'+esc(id)+'">'+(i===0?'👑 ':'')+esc(pilots[id].nom)+'</a><b>'+n+' fois</b></div>').join("")+'</div>':'')+
+      (P.length?'<div class="box" style="gap:6px"><b style="font-family:var(--display);font-size:18px">🔮 Pronostiqueurs '+Y+'</b>'+P.map(([id,r],i)=>'<div style="display:flex;justify-content:space-between;gap:8px"><a class="pl" href="#profil/'+esc(id)+'">'+(i===0?'🧙 ':'')+esc(pilots[id].nom)+'</a><span><b>'+r.pts+' pts</b> <span class="sub2">· '+r.n+' prono'+(r.n>1?'s':'')+(r.exact?' · '+r.exact+' 🎯':'')+'</span></span></div>').join("")+'</div>':'')+'</div>' : '';
+  }
+  // ---------- Succès secrets ----------
+  const SUCCES=[
+    ["nuit","🌙","Nuit blanche","Finir une course de 24 h ou plus"],
+    ["podium","🥈","Sur la boîte","Monter sur un podium"],
+    ["win","🥇","Vainqueur","Gagner une course"],
+    ["globe","🧭","Globe-trotter","Rouler sur 4 circuits différents"],
+    ["marathon","🛣️","Marathonien","Finir 2 courses de 12 h ou plus"],
+    ["poly","🔄","Polyvalent","Rouler pour 3 équipes différentes"],
+    ["dix","🔟","Habitué","Disputer 10 courses"],
+    ["mvp","⭐","Pilote du jour","Être élu Pilote du jour"],
+    ["devin","🔮","Devin","Faire un pronostic exact"],
+    ["photo","📸","Paparazzi","Poster 10 photos"],
+    ["bla","💬","Pipelette","Écrire 20 messages"],
+    ["taxi","🚗","Taxi RK7","Proposer son véhicule pour 3 courses"],
+    ["compta","🧾","Bon compte","Avancer 5 frais pour l'équipe"],
+    ["relais","⏱️","Relayeur","Prendre 10 relais en mode course"]];
+  function succesOf(p, past){
+    const id=p.id, ok=new Set(), hs=past.map(x=>Number(x.c.heures)||0), pos=past.map(x=>podiumOf(x.c.position)).filter(Boolean);
+    if(hs.some(h=>h>=24)) ok.add("nuit"); if(pos.some(x=>x<=3)) ok.add("podium"); if(pos.includes(1)) ok.add("win");
+    if(new Set(past.map(x=>x.c.lieu).filter(Boolean)).size>=4) ok.add("globe"); if(hs.filter(h=>h>=12).length>=2) ok.add("marathon");
+    if(new Set(past.map(x=>x.c.equipe).filter(Boolean)).size>=3) ok.add("poly"); if(past.length>=10) ok.add("dix");
+    if(id){
+      if(courses.some(c=>mvpWinners(c.id).ids.includes(id))) ok.add("mvp");
+      if(courses.some(c=>{ const P=jeux.pronos&&jeux.pronos[c.id], r=podiumOf(c.position); return c.terminee&&r&&P&&P.closed&&(P.list||[]).some(x=>x.pid===id&&x.pos===r); })) ok.add("devin");
+      if(photos.filter(x=>x.pilotId===id).length>=10) ok.add("photo");
+      if(comments.filter(x=>x.pilotId===id).length>=20) ok.add("bla");
+      if(Object.values(p.logi||{}).filter(l=>l&&Number(l.places)>0).length>=3) ok.add("taxi");
+      if(frais.filter(f=>f.payeur===id&&f.categorie!=="Remboursement").length>=5) ok.add("compta");
+      let r=0; for(const k in relays) r+=((relays[k].history||[]).filter(h=>h.pid===id).length); if(r>=10) ok.add("relais");
+    }
+    return ok;
+  }
+  function succesHtml(p, past, self){
+    const ok=succesOf(p, past); let fresh="";
+    if(self){ try{ const k="rk7-succ-"+p.id, old=localStorage.getItem(k), was=new Set(old?old.split(","):[]), nw=SUCCES.filter(x=>ok.has(x[0])&&!was.has(x[0]));
+      if(old!==null && nw.length) fresh='<div class="newt">🔓 Succès débloqué : '+nw.map(x=>x[1]+' '+esc(x[2])).join(", ")+' !</div>'; localStorage.setItem(k,[...ok].join(",")); }catch(e){} }
+    const list=SUCCES.slice().sort((a,b)=>(ok.has(b[0])?1:0)-(ok.has(a[0])?1:0));
+    return fresh+'<details class="sec" open style="border-top:none;padding-top:0"><summary>🏅 Succès · '+ok.size+'/'+SUCCES.length+'</summary><div class="succ" style="margin-top:8px">'+
+      list.filter(x=>ok.has(x[0])).map(x=>'<div class="s ok"><span class="i">'+x[1]+'</span><b>'+esc(x[2])+'</b><span>'+esc(x[3])+'</span></div>').join("")+(ok.size<SUCCES.length?'<div class="s lock"><span class="i">'+'❓'.repeat(Math.min(3,SUCCES.length-ok.size))+'</span><b>'+(SUCCES.length-ok.size)+' succès secret'+(SUCCES.length-ok.size>1?'s':'')+'</b><span>À découvrir sur la piste… et ailleurs.</span></div>':'')+'</div></details>';
+  }
   function partOf(c, pid, nom){
     const n=normN(nom), list=c.participants||[];
     let hit=(pid?list.find(x=>x.pid===pid):null) || list.find(x=>normN(x.nom)===n);
@@ -1841,12 +1949,13 @@ button:active:not(:disabled){transform:scale(.97)}
     $("#pfCard").innerHTML='<div class="pfh">'+avatarHtml(p)+'<div style="min-width:0;flex:1 1 180px"><h2>'+esc(p.nom)+'</h2><div class="sub2" style="font-size:14px">'+(p.id&&officialTeamOf(p.id)?'<span class="chip ok" style="margin-right:6px">Équipage officiel · '+esc(shortTeam(officialTeamOf(p.id)))+'</span> ':p.id&&subTeamOf(p.id)?'<span class="chip maybe" style="margin-right:6px">Renfort · '+esc(shortTeam(subTeamOf(p.id)))+'</span> ':'')+esc(p.equipePref||officialTeamOf(p.id)||"RK7 Team")+(since?' · dans l\'appli depuis '+esc(since):'')+'</div>'+(bd.length?'<div class="badges" style="margin-top:6px">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+
       (self?'<div class="row" style="margin-top:8px;gap:8px"><label class="btn-ghost mini" style="cursor:pointer;border:1px solid var(--line);border-radius:6px;font-weight:600">'+(p.avatar?'Changer ma photo':'Ajouter ma photo')+'<input type="file" accept="image/*" hidden id="avIn"></label>'+(p.avatar?'<button type="button" class="btn-link" id="avDel">Retirer</button>':'')+'</div>':'')+
       (!self?'<button type="button" class="btn-link" style="margin-top:6px" data-back>← Retour</button>':'')+'</div></div>'+
-      '<div class="stats"><div class="stat"><b>'+past.length+'</b><span>Courses</span></div><div class="stat"><b>'+Math.round(heures)+' h</b><span>En piste</span></div><div class="stat"><b>'+pod+'</b><span>Podiums</span></div><div class="stat"><b>'+seasons+'</b><span>Saison'+(seasons>1?'s':'')+'</span></div>'+(self&&spent?'<div class="stat"><b>'+euro(spent)+'</b><span>Investi</span></div>':'')+'</div>';
+      '<div class="stats"><div class="stat"><b>'+past.length+'</b><span>Courses</span></div><div class="stat"><b>'+Math.round(heures)+' h</b><span>En piste</span></div><div class="stat"><b>'+pod+'</b><span>Podiums</span></div><div class="stat"><b>'+seasons+'</b><span>Saison'+(seasons>1?'s':'')+'</span></div>'+(p.id&&courses.filter(c=>mvpWinners(c.id).ids.includes(p.id)).length?'<div class="stat"><b>⭐ '+courses.filter(c=>mvpWinners(c.id).ids.includes(p.id)).length+'</b><span>Pilote du jour</span></div>':'')+(self&&spent?'<div class="stat"><b>'+euro(spent)+'</b><span>Investi</span></div>':'')+'</div>';
     { const x=titreOf(heures), nx=x.next, pct=nx?Math.round((heures-x.t[0])/(nx[0]-x.t[0])*100):100;
       let fresh=""; if(self){ try{ const k="rk7-titre-"+p.id, old=Number(localStorage.getItem(k)); if(!isNaN(old) && localStorage.getItem(k)!==null && x.i>old) fresh='<div class="newt">🎉 Nouveau titre débloqué : '+x.t[1]+' '+esc(x.t[2])+' !</div>'; localStorage.setItem(k,String(x.i)); }catch(e){} }
       $("#pfCard").insertAdjacentHTML("beforeend", fresh+'<div class="tblock neonb ttl-wrap" style="--n:'+["#7CFF6B","#00F0FF","#3D8BFF","#B26BFF","#FF4FD8","#FF8A1F","#FFE81F","#FF3B3B","#FFD54A","#FFFFFF"][x.i]+'"><span class="sub2" style="text-transform:uppercase;letter-spacing:.08em;font-weight:600">Titre de roulage</span><div class="big neon">'+x.t[1]+' '+esc(x.t[2])+'</div>'+
         (nx?'<div class="pb" aria-label="Progression vers le titre suivant"><i style="width:'+pct+'%"></i></div><span class="sub2">'+Math.round(heures)+' h · encore <b>'+Math.max(0,Math.ceil(nx[0]-heures))+' h</b> pour devenir <b>'+nx[1]+' '+esc(nx[2])+'</b></span>':'<span class="sub2">Titre ultime atteint avec '+Math.round(heures)+' h de roulage. Respect.</span>')+
         '<details class="sec"><summary>Tous les titres</summary><div class="tlist" style="margin-top:8px">'+TITRES.map((t,k)=>'<span class="ttl t'+(k+1)+(k>x.i?' lock':'')+'">'+t[1]+' '+esc(t[2])+' · '+t[0]+' h</span>').join("")+'</div></details></div>'); }
+    $("#pfCard").insertAdjacentHTML("beforeend", succesHtml(p, past, self));
     const row=(c,right,cls,sub)=>'<div class="hi'+(cls?' '+cls:'')+'"><span class="d">'+(c.date?esc(fmtDay(c.date))+'<br>'+c.date.slice(0,4):'Saison<br>'+seasonOf(c))+'</span><span><b>'+esc(c.titre||c.lieu)+'</b><br><span class="sub2">'+esc([c.titre?c.lieu:"", c.equipe?shortTeam(c.equipe):"", c.duree].filter(Boolean).join(" · "))+(sub?' · '+sub:'')+'</span></span><span class="r">'+right+'</span></div>';
     $("#pfHist").innerHTML='<h2>Historique des courses</h2>'+
       (up.length?'<div class="k" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">À venir</div><div class="hist">'+up.map(c=>row(c, self ? (isPaid(p.id,c.id)?'<span class="chip ok">payé</span>':'<span class="chip no">à payer</span>') : '<span class="chip">inscrit</span>', "up", esc(shortTeam(teamOf(p.id,c.id))||""))).join("")+'</div>':'')+
@@ -1990,6 +2099,10 @@ button:active:not(:disabled){transform:scale(.97)}
   let pendingDel=null;
   $("#races").addEventListener("click", async e => {
     const b=e.target.closest("button"); if(!b) return;
+    if(b.dataset.mvp){ b.disabled=true; try{ const r0=await rpc("mvp_vote",{token:teamToken,pilot_token:pilotToken,course_id:b.dataset.mvp,voted:b.dataset.v}); try{ localStorage.setItem("rk7-mvp-"+myId+"-"+b.dataset.mvp,b.dataset.v); }catch(e){} openLogi.add("mvp:"+b.dataset.mvp); applyData(r0); setMsg("#globalMsg","Vote enregistré pour "+nomOf(b.dataset.v)+" ⭐"); }catch(err){ setMsg("#globalMsg",err.message,true); b.disabled=false; } return; }
+    if(b.dataset.prono){ const cid=b.dataset.prono, inp=document.getElementById("pr-"+cid), v=b.dataset.del?0:Number(inp&&inp.value);
+      if(!b.dataset.del && !(v>=1 && v<=200)){ setMsg("#globalMsg","Indique une place entre 1 et 200.",true); return; }
+      b.disabled=true; try{ const r=await rpc("prono_set",{token:teamToken,pilot_token:pilotToken,course_id:cid,pos:v}); myPronos=r.mine||{}; openLogi.add("pr:"+cid); applyData(r.data); setMsg("#globalMsg", v?"Pronostic enregistré : P"+v+" 🔮":"Pronostic retiré."); }catch(err){ setMsg("#globalMsg",err.message,true); b.disabled=false; } return; }
     if(b.dataset.set!==undefined && b.dataset.cid){ const cur=myDispo(b.dataset.cid); return answer(b.dataset.cid, b.dataset.set && b.dataset.set===cur ? "" : b.dataset.set); }
     if(b.dataset.ics){ const c=courses.find(x=>x.id===b.dataset.ics); if(c) downloadIcs(c); return; }
     if(b.dataset.pay){ try{ applyData(await rpc("admin_set_paye",{token:teamToken,pilot_id:b.dataset.pay,course_id:b.dataset.cid,paye:b.dataset.v==="1"})); }catch(err){ setMsg("#globalMsg",err.message,true); } return; }
