@@ -346,6 +346,16 @@ details.sec[open]>summary::before{content:"▾ "}
 .prop{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
 .prop h3{margin:0;font-family:var(--display);font-size:20px}
 .prop .acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+/* --- Équipages officiels --- */
+.crew{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px}
+.crew .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.crew .m{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:1px 8px 1px 1px;border:1px solid var(--line);background:var(--surface)}
+.crew .m i{font-style:normal;font-weight:700}
+.crew .m.oui{border-color:var(--ok);color:var(--ok)} .crew .m.non{border-color:var(--no);color:var(--no)} .crew .m.peut{border-color:var(--gold);color:var(--gold)}
+.teamrow{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg)}
+.teamrow h3{margin:0;font-family:var(--display);font-size:19px;display:flex;justify-content:space-between;gap:8px}
+.teamrow .mem{display:flex;flex-wrap:wrap;gap:10px}
+.teamrow .mem a,.teamrow .mem span.x{display:inline-flex;align-items:center;gap:6px;color:var(--ink);text-decoration:none;font-weight:600;font-size:14px}
 .settle{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;padding:4px 0}
 /* --- Look v3 : bandeau course, barre d'onglets en bas sur mobile, tuiles --- */
 header.band{position:relative;z-index:20;isolation:isolate}
@@ -514,6 +524,7 @@ button:active:not(:disabled){transform:scale(.97)}
       <div class="field" style="flex:0 0 120px"><label for="rankSeason">Saison</label><select id="rankSeason"></select></div>
     </div>
     <div class="box gold" style="flex-direction:row;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px"><span><b style="font-family:var(--display);font-size:18px">Classement Endurance SWS</b><br><span class="sub2">Les équipes en Endurance CUP sur le site Sodi World Series</span></span><span style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn-gold sws-endu" data-p="france-c8/" href="https://www.sodiwseries.com/fr-fr/rankings/global/2026/france-c8/endurance-cup-2" target="_blank" rel="noopener" style="text-decoration:none;border-radius:6px;padding:8px 12px;font-weight:600">France ↗</a><a class="btn-ghost sws-endu" data-p="" href="https://www.sodiwseries.com/fr-fr/rankings/global/2026/endurance-cup-2" target="_blank" rel="noopener" style="text-decoration:none;border-radius:6px;padding:8px 12px;font-weight:600;border:1px solid var(--line)">Mondial ↗</a></span></div>
+    <div id="crewBox" style="display:flex;flex-direction:column;gap:8px"></div>
     <div class="podium" id="rankPodium"></div>
     <div class="stats" id="rankStats"></div>
     <div class="grid-wrap"><table class="team rank" id="rankTable"></table></div>
@@ -546,6 +557,13 @@ button:active:not(:disabled){transform:scale(.97)}
     <div class="grid-wrap"><table class="team" id="tresoTable"></table></div>
     <p class="sub2">Les cotisations cochées, les parts payées par les pilotes et les inscriptions marquées « payées » sont comptées automatiquement. Ajoute ici le reste : sponsors, subventions, solde de l'année précédente, achats.</p>
     <p class="msg" id="tresoMsg"></p>
+  </section>
+  <section class="panel">
+    <h2>Équipages officiels</h2>
+    <p class="msg">Les pilotes titulaires de chaque équipe (8 max). Un pilote peut toujours rouler pour une autre équipe le jour d'une course. Tu peux écrire le nom d'un pilote qui n'a pas encore son profil : il sera relié automatiquement dès qu'il le crée.</p>
+    <form id="crewForm" class="form-grid"></form>
+    <datalist id="pilotNames"></datalist>
+    <p class="msg" id="crewMsg"></p>
   </section>
   <section class="panel">
     <h2>Pilotes et cotisations</h2>
@@ -1025,7 +1043,7 @@ button:active:not(:disabled){transform:scale(.97)}
     const dispo = Object.assign({}, me().dispo||{}), equipes = Object.assign({}, me().equipes||{});
     if(value==="oui"){
       const sel = document.getElementById("team-"+cid);
-      const team = c.equipe || (sel && sel.value) || me().equipePref;
+      const team = c.equipe || (sel && sel.value) || me().equipePref || officialTeamOf(myId);
       if(!team){ setMsg("#globalMsg","Choisis l'équipe pour laquelle tu veux rouler avant de réserver.",true); if(sel) sel.focus(); return; }
       equipes[cid]=team;
     }
@@ -1049,7 +1067,7 @@ button:active:not(:disabled){transform:scale(.97)}
   }
   function teamSelect(c){
     if(c.equipe) return '<div class="msg">Équipe : <b>'+esc(c.equipe)+'</b></div>';
-    const cur = pendingTeam[c.id] || (me() && me().equipes && me().equipes[c.id]) || (me() && me().equipePref) || "";
+    const cur = pendingTeam[c.id] || (me() && me().equipes && me().equipes[c.id]) || (me() && me().equipePref) || officialTeamOf(myId) || "";
     return '<label class="field"><span class="lab">Rouler pour</span><select data-team-cid="'+esc(c.id)+'" id="team-'+esc(c.id)+'">'+
       '<option value=""'+(cur?"":" selected")+'>Choisir une équipe</option>'+TEAMS.map(t=>'<option'+(t===cur?" selected":"")+'>'+esc(t)+'</option>').join("")+'</select></label>';
   }
@@ -1100,7 +1118,7 @@ button:active:not(:disabled){transform:scale(.97)}
         dateBlock+
         '<div class="info"><div class="chips"><span class="chip">'+esc(c.type||"Endurance")+'</span>'+(c.equipe?'<span class="chip">'+esc(c.equipe)+'</span>':"")+state+full+limChip+'</div>'+
           '<h3>'+esc(c.titre||c.lieu)+'</h3>'+
-          '<div class="meta">'+(c.titre?'<span>'+ico("pin")+'<b>'+esc(c.lieu)+'</b></span>':'')+(!c.date?'<span>'+ico("cal")+'<b>'+(c.terminee?"Date non renseignée":"Date à confirmer")+'</b></span>':'')+'<span>'+ico("clock")+'<b>'+esc(c.duree||"—")+'</b></span>'+(c.heure?'<span>'+ico("flag")+'Départ <b>'+esc(c.heure)+'</b></span>':"")+(eq&&c.terminee?'<span>'+ico("users")+'<b>'+eq+'</b> pilotes</span>':"")+(c.points&&c.points!==999?'<span>'+ico("star")+'<b>'+c.points+'</b> pts</span>':"")+(c.dateFin&&c.dateFin>c.date?'<span>'+ico("cal")+'<b>'+esc(shortDate(c))+'</b></span>':"")+'</div>'+seatsHtml(c, yes)+
+          '<div class="meta">'+(c.titre?'<span>'+ico("pin")+'<b>'+esc(c.lieu)+'</b></span>':'')+(!c.date?'<span>'+ico("cal")+'<b>'+(c.terminee?"Date non renseignée":"Date à confirmer")+'</b></span>':'')+'<span>'+ico("clock")+'<b>'+esc(c.duree||"—")+'</b></span>'+(c.heure?'<span>'+ico("flag")+'Départ <b>'+esc(c.heure)+'</b></span>':"")+(eq&&c.terminee?'<span>'+ico("users")+'<b>'+eq+'</b> pilotes</span>':"")+(c.points&&c.points!==999?'<span>'+ico("star")+'<b>'+c.points+'</b> pts</span>':"")+(c.dateFin&&c.dateFin>c.date?'<span>'+ico("cal")+'<b>'+esc(shortDate(c))+'</b></span>':"")+'</div>'+seatsHtml(c, yes)+crewLine(c)+
           (c.note?'<div class="note">'+esc(c.note)+'</div>':"")+resHtml+partHtml+chipsYes+chipsMaybe+chipsNo+(()=>{ const x=raceBtn(c, mine)+checkHtml(c, mine)+logiHtml(c, mine)+fraisHtml(c, mine)+commHtml(c)+photosHtml(c, mine); return x?'<div class="extras">'+x+'</div>':''; })()+'</div>'+
         '<div class="actions">'+price+action+tools+'</div></article>';
     }
@@ -1732,7 +1750,7 @@ button:active:not(:disabled){transform:scale(.97)}
     const maxH=Math.max(0,...past.map(x=>Number(x.c.heures)||0)), tracks=new Set(past.map(x=>x.c.lieu)).size;
     const bd=[]; if(past.some(x=>podiumOf(x.c.position)===1)) bd.push("🥇 Victoire"); else if(pod) bd.push("🏆 Podium"); if(maxH>=24) bd.push("🌙 24 heures"); else if(maxH>=12) bd.push("⏱ 12 heures"); if(heures>=100) bd.push("💯 100 h"); else if(heures>=50) bd.push("50 h"); if(past.length>=20) bd.push("🔥 20 courses"); else if(past.length>=10) bd.push("10 courses"); if(tracks>=4) bd.push("🧭 "+tracks+" pistes");
     const since=p.since?new Date(p.since).toLocaleDateString("fr-FR",{month:"long",year:"numeric"}):"";
-    $("#pfCard").innerHTML='<div class="pfh">'+avatarHtml(p)+'<div style="min-width:0;flex:1 1 180px"><h2>'+esc(p.nom)+'</h2><div class="sub2" style="font-size:14px">'+esc(p.equipePref||"RK7 Team")+(since?' · dans l\'appli depuis '+esc(since):'')+'</div>'+(bd.length?'<div class="badges" style="margin-top:6px">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+
+    $("#pfCard").innerHTML='<div class="pfh">'+avatarHtml(p)+'<div style="min-width:0;flex:1 1 180px"><h2>'+esc(p.nom)+'</h2><div class="sub2" style="font-size:14px">'+(p.id&&officialTeamOf(p.id)?'<span class="chip ok" style="margin-right:6px">Équipage officiel · '+esc(shortTeam(officialTeamOf(p.id)))+'</span>':'')+esc(p.equipePref||officialTeamOf(p.id)||"RK7 Team")+(since?' · dans l\'appli depuis '+esc(since):'')+'</div>'+(bd.length?'<div class="badges" style="margin-top:6px">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+
       (self?'<div class="row" style="margin-top:8px;gap:8px"><label class="btn-ghost mini" style="cursor:pointer;border:1px solid var(--line);border-radius:6px;font-weight:600">'+(p.avatar?'Changer ma photo':'Ajouter ma photo')+'<input type="file" accept="image/*" hidden id="avIn"></label>'+(p.avatar?'<button type="button" class="btn-link" id="avDel">Retirer</button>':'')+'</div>':'')+
       (!self?'<button type="button" class="btn-link" style="margin-top:6px" data-back>← Retour</button>':'')+'</div></div>'+
       '<div class="stats"><div class="stat"><b>'+past.length+'</b><span>Courses</span></div><div class="stat"><b>'+Math.round(heures)+' h</b><span>En piste</span></div><div class="stat"><b>'+pod+'</b><span>Podiums</span></div><div class="stat"><b>'+seasons+'</b><span>Saison'+(seasons>1?'s':'')+'</span></div>'+(self&&spent?'<div class="stat"><b>'+euro(spent)+'</b><span>Investi</span></div>':'')+'</div>';
@@ -1775,11 +1793,34 @@ button:active:not(:disabled){transform:scale(.97)}
         resetForm(); $("#fTitre").value=x.titre||""; $("#fLieu").value=x.lieu||""; $("#fDuree").value=x.duree||""; $("#fDate").value=x.date||""; $("#fSaison").value=x.date?"":(x.saison||""); $("#fPrixEq").value=x.prixEquipage!=null?x.prixEquipage:""; $("#fEquipage").value=x.equipage?String(Math.min(6,Number(x.equipage))):""; $("#fNote").value=(x.message||"").slice(0,160);
         editProp=x.id; openForm(true); $("#adminPanel").scrollIntoView({behavior:"smooth",block:"start"}); setMsg("#adminMsg","Vérifie les infos puis « Enregistrer la course » : la proposition sera marquée comme retenue."); }
     }catch(err){ setMsg("#propMsg",err.message,true); } });
+  // ---------- Équipages officiels ----------
+  const crews = () => (config.equipages && typeof config.equipages==="object") ? config.equipages : {};
+  function crewMembers(team){ return (crews()[team]||[]).map(nm=>({nom:nm, p:pilotByName(nm)})); }
+  function officialTeamOf(pid){ if(!pid||!pilots[pid]) return ""; for(const t of TEAMS){ if(crewMembers(t).some(m=>m.p&&m.p.id===pid)) return t; } return ""; }
+  function crewLine(c){
+    if(!c.equipe || c.terminee) return ""; const mem=crewMembers(c.equipe); if(!mem.length) return "";
+    const st=m=>m.p?dispoOf(m.p.id,c.id):null, ok=mem.filter(m=>st(m)==="oui").length;
+    return '<div class="crew"><span class="lbl">Équipage officiel '+ok+'/'+mem.length+'</span>'+mem.map(m=>{ const a=st(m), ic=a==="oui"?"✓":a==="non"?"✗":a==="peut"?"?":"…";
+      const elsewhere = m.p && a==="oui" && teamOf(m.p.id,c.id) && teamOf(m.p.id,c.id)!==c.equipe ? ' (roule en '+shortTeam(teamOf(m.p.id,c.id))+')' : '';
+      return '<span class="m '+(a||"")+'" title="'+esc(m.nom)+(m.p?'':' (pas encore de profil)')+'">'+(m.p?avatarHtml(m.p,"sm"):'<span class="avt sm">'+esc(initials(m.nom))+'</span>')+esc(m.nom.split(" ")[0])+' <i>'+ic+'</i>'+esc(elsewhere)+'</span>'; }).join("")+'</div>';
+  }
+  function renderCrewBox(){
+    const box=$("#crewBox"); if(!box) return; const teams=TEAMS.filter(t=>crewMembers(t).length);
+    box.innerHTML = teams.length ? '<div class="k" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Équipages officiels</div>'+teams.map(t=>'<div class="teamrow"><h3><span>'+esc(t)+'</span><span class="sub2">'+crewMembers(t).length+' pilotes</span></h3><div class="mem">'+crewMembers(t).map(m=>m.p?'<a href="#profil/'+esc(m.p.id)+'">'+avatarHtml(m.p,"sm")+esc(m.p.nom)+'</a>':'<span class="x"><span class="avt sm">'+esc(initials(m.nom))+'</span>'+esc(m.nom)+' <span class="sub2">· pas encore de profil</span></span>').join("")+'</div></div>').join("") : "";
+  }
+  function renderCrewForm(){
+    if(!isAdmin() || $("#viewAdmin").hidden || $("#crewForm").contains(document.activeElement)) return;
+    $("#pilotNames").innerHTML=Object.values(pilots).map(p=>'<option value="'+esc(p.nom)+'">').join("");
+    $("#crewForm").innerHTML=TEAMS.map((t,i)=>'<div class="field wide"><label for="crew'+i+'">'+esc(t)+'</label><input id="crew'+i+'" data-team="'+esc(t)+'" list="pilotNames" placeholder="Noms séparés par des virgules" value="'+esc((crews()[t]||[]).join(", "))+'"></div>').join("")+'<div class="row-end wide"><button class="btn-gold" type="submit">Enregistrer les équipages</button></div>';
+  }
+  $("#crewForm").addEventListener("submit", async e=>{ e.preventDefault(); const eq={};
+    $("#crewForm").querySelectorAll("input[data-team]").forEach(inp=>{ eq[inp.dataset.team]=inp.value.split(",").map(x=>x.trim()).filter(Boolean); });
+    try{ await rpc("admin_vitrine_set",{token:teamToken,cfg:{equipages:eq}}); document.activeElement && document.activeElement.blur(); await refresh(true); renderCrewForm(); setMsg("#crewMsg","Équipages enregistrés."); }catch(err){ setMsg("#crewMsg",err.message,true); } });
   function renderAll(){
     $("#adminPanel").hidden=!isAdmin(); $("#newsAdmin").hidden=!isAdmin(); $("#adminAccess").hidden=isAdmin(); $("#navAdmin").hidden=!isAdmin();
     if(!isAdmin()) $("#resPanel").hidden=true;
     if(!isAdmin() && location.hash==="#admin") location.hash="calendrier";
-    renderMe(); renderCal(); renderNews(); renderBudget(); renderAdmin(); renderRank(); if(raceCid) renderRace(); renderOnboard(); renderWelcome(); renderProps(); renderProfil();
+    renderMe(); renderCal(); renderNews(); renderBudget(); renderAdmin(); renderRank(); if(raceCid) renderRace(); renderOnboard(); renderWelcome(); renderProps(); renderProfil(); renderCrewBox(); renderCrewForm();
   }
 
   // ---------- Events ----------
@@ -1975,7 +2016,7 @@ button:active:not(:disabled){transform:scale(.97)}
   }
   function renderAdmin(){
     if(!isAdmin() || !adminPilots || $("#viewAdmin").hidden) return;
-    renderGear(); renderTreso(); renderAccess();
+    renderGear(); renderTreso(); renderAccess(); renderCrewForm();
     if($("#pilotTable").contains(document.activeElement)) return;
     const y=$("#cotisYear").value, mt=Number(config.cotisation||0);
     const list=adminPilots.map(a=>Object.assign({},a,pilots[a.id]?{nom:pilots[a.id].nom,equipePref:pilots[a.id].equipePref}:{}));
