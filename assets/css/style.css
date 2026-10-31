@@ -878,3 +878,56 @@ p { margin: 0 0 1em; }
 /* ----------------------------------------------------- bons cadeaux ------ */
 .section-cadeaux { border-top: 1px solid var(--line); }
 .section-cadeaux + .section-alt { border-top: 1px solid var(--line); }
+
+/* ------------------------------------------------- challenge du mois ----- */
+.section-challenge { border-top: 1px solid var(--line); }
+.challenge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 1.25rem;
+  align-items: stretch;
+}
+.podium { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.podium-ligne {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.podium-rang {
+  font: 800 italic 2rem/1 var(--font-display);
+  color: var(--ink-soft);
+  text-align: center;
+}
+.podium-nom { font: 700 1.35rem/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .02em; min-width: 0; overflow-wrap: anywhere; }
+.podium-temps { font: 700 1.5rem/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.podium-1 { border-color: var(--gold); }
+.podium-1 .podium-rang, .podium-1 .podium-temps { color: var(--gold); }
+
+.defi-special {
+  display: flex; flex-direction: column; align-items: flex-start; gap: .75rem;
+  padding: 1.75rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--red);
+  background:
+    repeating-linear-gradient(-45deg, rgba(255,255,255,.03) 0 14px, transparent 14px 28px),
+    var(--surface);
+  box-shadow: var(--shadow);
+}
+.defi-flag {
+  margin: 0;
+  padding: .3rem .6rem;
+  border-radius: 4px;
+  background: var(--red);
+  color: #fff;
+  font: 700 .8rem/1 var(--font-display);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.defi-special h3 { margin: 0; font-size: 2rem; font-style: italic; color: var(--red-bright); }
+.defi-special p { margin: 0; color: var(--ink-soft); }
+.defi-special .btn { margin-top: auto; }
