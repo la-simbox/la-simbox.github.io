@@ -998,3 +998,13 @@ p { margin: 0 0 1em; }
 .defi-special h3 { margin: 0; font-size: 2rem; font-style: italic; color: var(--red-bright); }
 .defi-special p { margin: 0; color: var(--ink-soft); }
 .defi-special .btn { margin-top: auto; }
+
+/* Chronos de référence du défi spécial */
+.refs { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.refs caption { caption-side: top; text-align: left; padding: .25rem 0 .5rem; color: var(--ink-soft); font-size: .85rem; }
+.refs th, .refs td { padding: .55rem 0; text-align: left; border-top: 1px solid var(--line); }
+.refs thead th { font: 600 .72rem/1 var(--font-display); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); border-top: 0; }
+.refs tbody th { font: 700 1.05rem/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .02em; }
+.refs td { text-align: right; font: 700 1.1rem/1 var(--font-display); }
+.refs thead th:last-child { text-align: right; }
+.refs tbody tr:first-child td { color: var(--red-bright); }
