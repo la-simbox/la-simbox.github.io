@@ -356,6 +356,22 @@ details.sec[open]>summary::before{content:"▾ "}
 .teamrow h3{margin:0;font-family:var(--display);font-size:19px;display:flex;justify-content:space-between;gap:8px}
 .teamrow .mem{display:flex;flex-wrap:wrap;gap:10px}
 .teamrow .mem a,.teamrow .mem span.x{display:inline-flex;align-items:center;gap:6px;color:var(--ink);text-decoration:none;font-weight:600;font-size:14px}
+/* --- Titres de roulage --- */
+.ttl{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;letter-spacing:.03em;border-radius:999px;padding:2px 9px;border:1px solid var(--line);background:var(--surface);white-space:nowrap}
+.ttl.t1,.ttl.t2{color:#8a6a43;border-color:#d9c3a5;background:#f6eee3}
+.ttl.t3,.ttl.t4{color:#6b7280;border-color:#cfd3da;background:#f1f3f6}
+.ttl.t5,.ttl.t6{color:var(--gold);border-color:var(--gold);background:var(--gold-soft)}
+.ttl.t7,.ttl.t8,.ttl.t9,.ttl.t10{color:var(--band-gold);border-color:var(--band-gold);background:var(--band)}
+@media (prefers-color-scheme:dark){.ttl.t1,.ttl.t2{background:#2a2117;border-color:#5a4630;color:#d6b48a}.ttl.t3,.ttl.t4{background:#22252b;border-color:#3d424b;color:#c3c8d1}}
+.tblock{border:1px solid var(--gold);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--gold-soft)}
+.tblock .big{font-family:var(--display);font-weight:700;font-size:26px;line-height:1.05}
+.tblock .pb{height:10px;border-radius:5px;background:rgba(0,0,0,.08);overflow:hidden}
+.tblock .pb i{display:block;height:100%;background:var(--gold)}
+.tlist{display:flex;flex-wrap:wrap;gap:6px}
+.tlist .ttl.lock{opacity:.4;filter:grayscale(1)}
+.newt{background:var(--band);color:var(--band-gold);border-radius:10px;padding:10px 12px;font-weight:700;text-align:center;animation:pop .6s ease}
+@keyframes pop{0%{transform:scale(.9);opacity:0}60%{transform:scale(1.04);opacity:1}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.newt{animation:none}}
 .settle{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;padding:4px 0}
 /* --- Look v3 : bandeau course, barre d'onglets en bas sur mobile, tuiles --- */
 header.band{position:relative;z-index:20;isolation:isolate}
@@ -1669,7 +1685,7 @@ button:active:not(:disabled){transform:scale(.97)}
     $("#rankStats").innerHTML='<div class="stat"><b>'+list.length+'</b><span>Courses</span></div><div class="stat"><b>'+H(totH)+'</b><span>De course</span></div><div class="stat"><b>'+arr.length+'</b><span>Pilotes</span></div>'+(pods?'<div class="stat"><b>'+pods+'</b><span>Podiums</span></div>':'');
     $("#rankTitle").textContent="Classement "+cur;
     $("#rankTable").innerHTML='<thead><tr><th>#</th><th>Pilote</th><th>Heures</th><th>Courses</th></tr></thead><tbody>'+arr.map((r,i)=>{ const bd=badges(r);
-      return '<tr'+(r.pid&&r.pid===myId?' style="background:var(--gold-soft)"':'')+'><td class="r">'+(i+1)+'</td><td style="white-space:normal"><a class="pl" href="#profil/'+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return pp?esc(pp.id):'n:'+encodeURIComponent(r.nom); })()+'">'+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return pp?avatarHtml(pp,"sm"):''; })()+'<b>'+esc(r.nom)+'</b></a>'+(bd.length?'<div class="badges">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+'</td><td class="num"><b>'+H(r.heures)+'</b><div class="mbar"><i style="width:'+Math.round(r.heures/Math.max(1,arr[0].heures)*100)+'%"></i></div></td><td class="num">'+r.courses+'</td></tr>'; }).join("")+'</tbody>';
+      return '<tr'+(r.pid&&r.pid===myId?' style="background:var(--gold-soft)"':'')+'><td class="r">'+(i+1)+'</td><td style="white-space:normal"><a class="pl" href="#profil/'+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return pp?esc(pp.id):'n:'+encodeURIComponent(r.nom); })()+'">'+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return pp?avatarHtml(pp,"sm"):''; })()+'<b>'+esc(r.nom)+'</b></a> '+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return titleChip(careerHours(pp?pp.id:r.pid, pp?pp.nom:r.nom)); })()+(bd.length?'<div class="badges">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+'</td><td class="num"><b>'+H(r.heures)+'</b><div class="mbar"><i style="width:'+Math.round(r.heures/Math.max(1,arr[0].heures)*100)+'%"></i></div></td><td class="num">'+r.courses+'</td></tr>'; }).join("")+'</tbody>';
   }
   $("#rankSeason").addEventListener("change", renderRank);
   document.querySelectorAll("a.sws-endu").forEach(a=>{ a.href="https://www.sodiwseries.com/fr-fr/rankings/global/"+new Date().getFullYear()+"/"+(a.dataset.p||"")+"endurance-cup-2"; });
@@ -1797,6 +1813,11 @@ button:active:not(:disabled){transform:scale(.97)}
     if(!hit && n.length>=3){ const cand=list.filter(x=>normN(x.nom).startsWith(n+" ")); if(cand.length===1) hit=cand[0]; }
     return hit||null;
   }
+  // Titres débloqués selon les heures de roulage cumulées (toutes saisons)
+  const TITRES=[[0,"🪖","Bizuth des stands"],[5,"🔧","Mécano du dimanche"],[15,"🏁","Pilote du paddock"],[30,"⚡","Chasseur de chrono"],[50,"🔥","Roi du relais"],[75,"🛞","Mangeur de gomme"],[100,"💯","Centurion du bitume"],[150,"🌙","Seigneur de la nuit"],[250,"🏆","Légende du JPR"],[400,"👑","Immortel RK7"]];
+  function titreOf(h){ let i=0; TITRES.forEach((t,k)=>{ if(h>=t[0]) i=k; }); return {i, t:TITRES[i], next:TITRES[i+1]||null}; }
+  const titleChip = h => { const x=titreOf(h); return '<span class="ttl t'+(x.i+1)+'" title="'+esc(x.t[2])+' · '+Math.round(h)+' h de roulage">'+x.t[1]+' '+esc(x.t[2])+'</span>'; };
+  function careerHours(pid, nom){ let h=0; for(const c of courses) if(c.terminee && partOf(c,pid,nom)) h+=Number(c.heures)||0; return h; }
   function pilotByName(nm){ const n=normN(nm); const all=Object.values(pilots); return all.find(p=>normN(p.nom)===n) || (()=>{ const c=all.filter(p=>n.startsWith(normN(p.nom)+" ") && normN(p.nom).length>=3); return c.length===1?c[0]:null; })(); }
   function profileOf(key){
     if(key && key.startsWith("n:")){ const nm=decodeURIComponent(key.slice(2)), hit=pilotByName(nm); return hit || {id:null, nom:nm}; }
@@ -1818,6 +1839,11 @@ button:active:not(:disabled){transform:scale(.97)}
       (self?'<div class="row" style="margin-top:8px;gap:8px"><label class="btn-ghost mini" style="cursor:pointer;border:1px solid var(--line);border-radius:6px;font-weight:600">'+(p.avatar?'Changer ma photo':'Ajouter ma photo')+'<input type="file" accept="image/*" hidden id="avIn"></label>'+(p.avatar?'<button type="button" class="btn-link" id="avDel">Retirer</button>':'')+'</div>':'')+
       (!self?'<button type="button" class="btn-link" style="margin-top:6px" data-back>← Retour</button>':'')+'</div></div>'+
       '<div class="stats"><div class="stat"><b>'+past.length+'</b><span>Courses</span></div><div class="stat"><b>'+Math.round(heures)+' h</b><span>En piste</span></div><div class="stat"><b>'+pod+'</b><span>Podiums</span></div><div class="stat"><b>'+seasons+'</b><span>Saison'+(seasons>1?'s':'')+'</span></div>'+(self&&spent?'<div class="stat"><b>'+euro(spent)+'</b><span>Investi</span></div>':'')+'</div>';
+    { const x=titreOf(heures), nx=x.next, pct=nx?Math.round((heures-x.t[0])/(nx[0]-x.t[0])*100):100;
+      let fresh=""; if(self){ try{ const k="rk7-titre-"+p.id, old=Number(localStorage.getItem(k)); if(!isNaN(old) && localStorage.getItem(k)!==null && x.i>old) fresh='<div class="newt">🎉 Nouveau titre débloqué : '+x.t[1]+' '+esc(x.t[2])+' !</div>'; localStorage.setItem(k,String(x.i)); }catch(e){} }
+      $("#pfCard").insertAdjacentHTML("beforeend", fresh+'<div class="tblock"><span class="sub2" style="text-transform:uppercase;letter-spacing:.08em;font-weight:600">Titre de roulage</span><div class="big">'+x.t[1]+' '+esc(x.t[2])+'</div>'+
+        (nx?'<div class="pb" aria-label="Progression vers le titre suivant"><i style="width:'+pct+'%"></i></div><span class="sub2">'+Math.round(heures)+' h · encore <b>'+Math.max(0,Math.ceil(nx[0]-heures))+' h</b> pour devenir <b>'+nx[1]+' '+esc(nx[2])+'</b></span>':'<span class="sub2">Titre ultime atteint avec '+Math.round(heures)+' h de roulage. Respect.</span>')+
+        '<details class="sec"><summary>Tous les titres</summary><div class="tlist" style="margin-top:8px">'+TITRES.map((t,k)=>'<span class="ttl t'+(k+1)+(k>x.i?' lock':'')+'">'+t[1]+' '+esc(t[2])+' · '+t[0]+' h</span>').join("")+'</div></details></div>'); }
     const row=(c,right,cls,sub)=>'<div class="hi'+(cls?' '+cls:'')+'"><span class="d">'+(c.date?esc(fmtDay(c.date))+'<br>'+c.date.slice(0,4):'Saison<br>'+seasonOf(c))+'</span><span><b>'+esc(c.titre||c.lieu)+'</b><br><span class="sub2">'+esc([c.titre?c.lieu:"", c.equipe?shortTeam(c.equipe):"", c.duree].filter(Boolean).join(" · "))+(sub?' · '+sub:'')+'</span></span><span class="r">'+right+'</span></div>';
     $("#pfHist").innerHTML='<h2>Historique des courses</h2>'+
       (up.length?'<div class="k" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">À venir</div><div class="hist">'+up.map(c=>row(c, self ? (isPaid(p.id,c.id)?'<span class="chip ok">payé</span>':'<span class="chip no">à payer</span>') : '<span class="chip">inscrit</span>', "up", esc(shortTeam(teamOf(p.id,c.id))||""))).join("")+'</div>':'')+
