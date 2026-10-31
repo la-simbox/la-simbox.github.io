@@ -2,8 +2,30 @@
 const AUTH_URL = "https://ep-spring-voice-b9slst0q.neonauth.c-7.eu-central-1.aws.neon.tech/neondb/auth";
 const REST_URL = "https://ep-spring-voice-b9slst0q.apirest.c-7.eu-central-1.aws.neon.tech/neondb/rest/v1";
 
-self.addEventListener("install", () => self.skipWaiting());
-self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));
+// Hors ligne : page et images gardées en cache (réseau d'abord pour la page, pour toujours avoir la dernière version)
+const CACHE = "rk7-v3";
+const SHELL = ["./", "index.html", "equipe.html", "manifest.webmanifest", "img/logo-rk7.png", "img/icon-192.png", "img/icon-512.png", "img/apple-touch-icon.png"];
+self.addEventListener("install", (e) => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).catch(() => {})); });
+self.addEventListener("activate", (e) => e.waitUntil((async () => {
+  for (const k of await caches.keys()) if (k !== CACHE) await caches.delete(k);
+  await self.clients.claim();
+})()));
+self.addEventListener("fetch", (e) => {
+  const req = e.request; if (req.method !== "GET") return;
+  const url = new URL(req.url);
+  const sameOrigin = url.origin === self.location.origin;
+  const font = /fonts\.(googleapis|gstatic)\.com$/.test(url.hostname);
+  if (!sameOrigin && !font) return;
+  if (req.mode === "navigate" || (sameOrigin && /\.html$|\/$/.test(url.pathname))) {
+    e.respondWith(fetch(req).then((r) => { const c = r.clone(); caches.open(CACHE).then((x) => x.put(req, c)); return r; })
+      .catch(() => caches.match(req, { ignoreSearch: true }).then((r) => r || caches.match("index.html"))));
+    return;
+  }
+  e.respondWith(caches.match(req).then((hit) => {
+    const net = fetch(req).then((r) => { if (r.ok || r.type === "opaque") { const c = r.clone(); caches.open(CACHE).then((x) => x.put(req, c)); } return r; }).catch(() => hit);
+    return hit || net;
+  }));
+});
 
 async function fetchInbox() {
   const sub = await self.registration.pushManager.getSubscription();

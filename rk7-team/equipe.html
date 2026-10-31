@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>RK7 Team · Karting d'endurance</title>
+<meta name="description" content="RK7 Team, association de karting d'endurance fondée en 2017 : palmarès, équipes, calendrier et partenariats.">
+<meta name="theme-color" content="#0C0C0B">
+<meta property="og:title" content="RK7 Team · Karting d'endurance">
+<meta property="og:description" content="Association de karting d'endurance fondée en 2017, engagée sur les Sodi World Series.">
+<meta property="og:image" content="img/icon-512.png">
+<link rel="icon" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Saira+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Vitrine publique RK7 : bandeau noir et or, chiffres clés, palmarès, équipes, calendrier, photos, contact */
+:root{--bg:#0C0C0B;--panel:#151513;--line:#2c2a25;--ink:#F5F3EC;--muted:#B0AB9D;--gold:#D4AF37;--gold2:#A9821A;
+  --display:"Saira Condensed","Arial Narrow",Arial,sans-serif;--body:"Barlow","Helvetica Neue",Arial,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+a{color:var(--gold)}
+.wrap{max-width:1000px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{position:relative;overflow:hidden;isolation:isolate;padding-top:env(safe-area-inset-top,0px);border-bottom:1px solid var(--line)}
+header::before{content:"";position:absolute;z-index:-1;right:-200px;top:-60px;width:420px;height:520px;background:linear-gradient(115deg,transparent 0 34%,var(--gold) 34% 46%,transparent 46% 54%,#3a3220 54% 62%,transparent 62%);transform:skewX(-18deg);opacity:.28}
+header::after{content:"";position:absolute;z-index:-1;left:0;bottom:0;width:100%;height:24px;opacity:.08;background:conic-gradient(#fff 25%,transparent 0 50%,#fff 0 75%,transparent 0) 0 0/24px 24px}
+.top{display:flex;justify-content:space-between;align-items:center;padding-block:18px 0;gap:12px}
+.top a.btn{font-family:var(--display);font-size:15px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:1px solid var(--gold);border-radius:6px;padding:6px 12px}
+.hero{padding-block:36px 52px;display:flex;flex-direction:column;gap:14px;max-width:720px}
+.hero img{width:min(320px,70vw);height:auto}
+.eyebrow{font-family:var(--display);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-size:14px;font-weight:600}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(40px,9vw,76px);line-height:.92;margin:0;letter-spacing:.01em}
+h1 span{color:var(--gold)}
+.lead{color:var(--muted);font-size:18px;max-width:60ch;margin:0;white-space:pre-line}
+main{display:flex;flex-direction:column;gap:56px;padding-block:44px 64px}
+h2{font-family:var(--display);font-weight:700;font-size:34px;margin:0 0 16px;letter-spacing:.02em;display:flex;align-items:center;gap:12px}
+h2::before{content:"";width:28px;height:6px;background:var(--gold);transform:skewX(-25deg)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 16px;display:flex;flex-direction:column;gap:4px}
+.stat b{font-family:var(--display);font-weight:700;font-size:48px;line-height:1;color:var(--gold);font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.row .d{font-family:var(--display);font-weight:600;color:var(--muted);font-size:15px;letter-spacing:.04em;text-transform:uppercase}
+.row b{font-family:var(--display);font-size:22px;font-weight:600;letter-spacing:.01em;display:block;line-height:1.1}
+.row small{color:var(--muted);font-size:14px}
+.pos{font-family:var(--display);font-weight:700;font-size:30px;color:var(--gold);text-align:right}
+.teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.team{display:flex;justify-content:space-between;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;text-decoration:none;color:var(--ink);font-family:var(--display);font-size:22px;font-weight:600}
+.team:hover,.team:focus-visible{border-color:var(--gold)}
+.team span{color:var(--gold)}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.gal img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px;background:var(--panel);display:block}
+.cta{background:linear-gradient(135deg,#1a1710,#0f0f0d);border:1px solid var(--gold2);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:12px}
+.cta p{margin:0;color:var(--muted)}
+.cta .c{font-size:18px;color:var(--ink);font-weight:600;overflow-wrap:anywhere}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btns a{font-weight:600;text-decoration:none;border-radius:8px;padding:12px 16px;border:1px solid var(--gold)}
+.btns a.p{background:var(--gold);color:#121210}
+.empty{color:var(--muted)}
+footer{border-top:1px solid var(--line);padding-block:20px 32px;color:var(--muted);font-size:14px}
+a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media (max-width:560px){.row{grid-template-columns:70px minmax(0,1fr)} .pos{grid-column:2;text-align:left;font-size:24px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="top"><span class="eyebrow">Association loi 1901 · depuis 2017</span><a class="btn" href="./">Espace pilotes</a></div>
+    <div class="hero">
+      <img src="img/logo-rk7.png" alt="RK7 Team" width="334" height="174">
+      <h1>Karting <span>d'endurance</span>.<br>More than racing.</h1>
+      <p class="lead" id="texte">Association de karting d'endurance fondée en 2017.</p>
+    </div>
+  </div>
+</header>
+<main class="wrap">
+  <section aria-labelledby="hChiffres"><h2 id="hChiffres">En chiffres</h2><div class="stats" id="stats"><div class="stat"><b>2017</b><span>Création</span></div></div></section>
+  <section aria-labelledby="hPal" id="secPal"><h2 id="hPal">Palmarès</h2><div class="list" id="palmares"><p class="empty">Chargement…</p></div></section>
+  <section aria-labelledby="hTeams"><h2 id="hTeams">Nos équipes</h2>
+    <div class="teams">
+      <a class="team" href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-pro-17003.html" target="_blank" rel="noopener">RK7 Team Pro <span>↗</span></a>
+      <a class="team" href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-racing-18095.html" target="_blank" rel="noopener">RK7 Team Racing <span>↗</span></a>
+      <a class="team" href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-sport-25694.html" target="_blank" rel="noopener">RK7 Team Sport <span>↗</span></a>
+      <a class="team" href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-11270.html" target="_blank" rel="noopener">RK7 Team <span>↗</span></a>
+    </div>
+  </section>
+  <section aria-labelledby="hCal"><h2 id="hCal">Prochaines courses</h2><div class="list" id="prochaines"><p class="empty">Chargement…</p></div></section>
+  <section aria-labelledby="hPh" id="secPh" hidden><h2 id="hPh">En images</h2><div class="gal" id="gal"></div></section>
+  <section class="cta" aria-labelledby="hCt"><h2 id="hCt" style="margin:0">Devenir partenaire</h2>
+    <p>Votre marque sur nos karts, nos combinaisons et nos réseaux, au cœur des courses d'endurance des Sodi World Series. Parlons-en.</p>
+    <div class="c" id="contact">florentrk7teampro@gmail.com</div>
+    <div class="btns" id="ctaBtns"></div>
+  </section>
+</main>
+<footer class="wrap">RK7 Team · association loi 1901 · page mise à jour automatiquement à chaque course.</footer>
+<script>
+(async function(){
+  const AUTH="https://ep-spring-voice-b9slst0q.neonauth.c-7.eu-central-1.aws.neon.tech/neondb/auth";
+  const REST="https://ep-spring-voice-b9slst0q.apirest.c-7.eu-central-1.aws.neon.tech/neondb/rest/v1";
+  const $=s=>document.querySelector(s);
+  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const M=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+  const day=d=>{ const [y,m,dd]=d.split("-").map(Number); return dd+" "+M[m-1]+" "+y; };
+  let jwt;
+  async function rpc(n,a){ if(!jwt) jwt=(await (await fetch(AUTH+"/token/anonymous")).json()).token;
+    const r=await fetch(REST+"/rpc/"+n,{method:"POST",headers:{authorization:"Bearer "+jwt,"content-type":"application/json","content-profile":"api","accept-profile":"api"},body:JSON.stringify(a||{})}); if(!r.ok) throw new Error(n); return r.json(); }
+  try{
+    const d=await rpc("public_showcase");
+    if(d.texte) $("#texte").textContent=d.texte;
+    const s=d.stats||{};
+    $("#stats").innerHTML=[[s.courses,"Courses disputées"],[Math.round(s.heures||0)+" h","D'endurance en piste"],[s.pilotes,"Pilotes engagés"],[s.podiums,"Podiums"],[s.victoires,"Victoires"],[2017,"Création"]].filter(x=>x[0]!==0&&x[0]!=null&&x[0]!=="0 h").map(x=>'<div class="stat"><b>'+esc(x[0])+'</b><span>'+esc(x[1])+'</span></div>').join("");
+    const res=d.resultats||[];
+    if(res.length) $("#palmares").innerHTML=res.slice(0,12).map(r=>'<div class="row"><span class="d">'+esc(r.date?day(r.date):"Saison "+r.saison)+'</span><span><b>'+esc(r.titre)+'</b><small>'+esc([r.lieu,r.equipe,r.duree].filter(Boolean).join(" · "))+'</small></span><span class="pos">'+esc(r.position)+'</span></div>').join("");
+    else { const ss=d.saisons||[]; $("#palmares").innerHTML = ss.length ? ss.map(x=>'<div class="row"><span class="d">Saison</span><span><b>'+esc(x.saison)+'</b><small>'+esc(x.courses)+' courses d\'endurance · '+Math.round(x.heures)+' h de course</small></span><span></span></div>').join("") : '<p class="empty">Les résultats arrivent bientôt.</p>'; }
+    const pr=(d.prochaines||[]).slice(0,10);
+    $("#prochaines").innerHTML = pr.length ? pr.map(r=>'<div class="row"><span class="d">'+esc(r.date?day(r.date):"Saison "+r.saison)+'</span><span><b>'+esc(r.titre)+'</b><small>'+esc([r.lieu,r.equipe,r.duree].filter(Boolean).join(" · "))+'</small></span><span></span></div>').join("") : '<p class="empty">Calendrier en préparation.</p>';
+    if(d.contact){ $("#contact").textContent=d.contact; const mail=(d.contact.match(/[\w.+-]+@[\w-]+\.[\w.]+/)||[])[0], tel=(d.contact.match(/(?:\+33|0)\s?[1-9](?:[\s.-]?\d{2}){4}/)||[])[0];
+      $("#ctaBtns").innerHTML=(mail?'<a class="p" href="mailto:'+esc(mail)+'?subject='+encodeURIComponent("Partenariat RK7 Team")+'">Écrire un e-mail</a>':'')+(tel?'<a href="tel:'+esc(tel.replace(/[\s.-]/g,""))+'">Appeler</a>':''); }
+    const ph=(d.photos||[]).slice(0,24);
+    if(ph.length){ $("#secPh").hidden=false; $("#gal").innerHTML=ph.map((p,i)=>'<img alt="RK7 Team en course, photo '+(i+1)+'" data-id="'+esc(p.thumb)+'">').join("");
+      for(const im of document.querySelectorAll("#gal img")){ try{ const r=await rpc("public_image",{image_id:im.dataset.id}); im.src="data:"+r.type+";base64,"+r.b64; }catch(e){ im.remove(); } } }
+  }catch(e){ $("#palmares").innerHTML='<p class="empty">Impossible de charger les infos pour le moment.</p>'; $("#prochaines").innerHTML=""; }
+})();
+</script>
+</body>
+</html>

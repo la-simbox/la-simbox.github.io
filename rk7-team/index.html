@@ -264,6 +264,44 @@ details.sec[open]>summary::before{content:"▾ "}
 .extras details.sec[open]>summary em{background:rgba(0,0,0,.12);color:var(--on-gold)}
 .mbar{height:6px;border-radius:3px;background:var(--wait-soft);margin-top:4px;overflow:hidden;min-width:60px}
 .mbar i{display:block;height:100%;background:var(--gold);border-radius:3px}
+/* --- Mode course (relais), affiche, adhésion, matériel, checklist, météo, hors ligne --- */
+.rm{position:fixed;inset:0;z-index:40;background:var(--band);color:var(--band-ink);overflow-y:auto;padding:max(14px,env(safe-area-inset-top,0px)) 16px max(20px,env(safe-area-inset-bottom,0px))}
+.rm .in{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.rm .hd{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.rm .hd b{font-family:var(--display);font-size:20px;letter-spacing:.04em}
+.rm .k{font-family:var(--display);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--band-gold)}
+.rm .drv{font-family:var(--display);font-weight:700;font-size:44px;line-height:1;overflow-wrap:anywhere}
+.rm .tm{font-family:var(--display);font-weight:700;font-size:72px;line-height:1;color:var(--band-gold);font-variant-numeric:tabular-nums}
+.rm .tm.over{color:#E59673}
+.rm .pbar{height:10px;border-radius:5px;background:#2a2823;overflow:hidden}
+.rm .pbar i{display:block;height:100%;background:var(--band-gold)}
+.rm .pbar i.over{background:#E59673}
+.rm .card{background:#171714;border:1px solid #2e2c27;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.rm .q{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #2a2823}
+.rm .q:last-child{border-bottom:none}
+.rm .q span{flex:1;min-width:0}
+.rm button{font-size:15px}
+.rm .btn-ghost{color:var(--band-ink);border-color:#4a473f}
+.rm .big{white-space:normal;line-height:1.15;font-size:20px;padding:16px;font-family:var(--display);letter-spacing:.04em;text-transform:uppercase}
+.rm select,.rm input{background:#1f1e1a;color:var(--band-ink);border-color:#3a3833}
+.rm .mini{padding:4px 9px}
+.rm table{width:100%;border-collapse:collapse;font-size:14px}
+.rm td{padding:5px 4px;border-bottom:1px solid #2a2823}
+.rm td.n{text-align:right;font-variant-numeric:tabular-nums}
+.live{display:inline-flex;align-items:center;gap:6px;color:#E59673;font-weight:700}
+.live::before{content:"";width:9px;height:9px;border-radius:50%;background:#E59673;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.live::before{animation:none}}
+.wx{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid #3a3833;border-radius:999px;padding:3px 10px;font-size:13px;color:var(--band-ink)}
+.chk{display:flex;flex-direction:column;gap:4px}
+.chk label{display:flex;gap:8px;align-items:center;font-size:15px;padding:4px 0}
+.chk input{width:20px;height:20px}
+.offline{background:var(--no-soft);color:var(--no);border-radius:8px;padding:8px 12px;font-size:14px;font-weight:600}
+.poster{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}
+.poster canvas{max-height:76vh;max-width:100%;border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+.poster .bar2{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.poster button{background:#1f1f1c;color:#f3f1ea;border:1px solid #3a3833}
+.poster button.btn-gold{background:var(--band-gold);color:#121210;border-color:var(--band-gold)}
 .settle{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;padding:4px 0}
 @media (max-width:620px){
   .nav{gap:0}
@@ -391,6 +429,7 @@ details.sec[open]>summary::before{content:"▾ "}
       <button type="button" class="btn-ghost" data-export="pilotes">Pilotes et cotisations</button>
       <button type="button" class="btn-ghost" data-export="resultats">Résultats et dépenses</button>
       <button type="button" class="btn-ghost" data-export="frais">Frais annexes</button>
+      <button type="button" class="btn-ghost" data-export="adhesions">Adhésions</button>
     </div>
   </section>
   <section class="panel">
@@ -412,9 +451,33 @@ details.sec[open]>summary::before{content:"▾ "}
     </form>
     <p class="msg" id="cfgCodeMsg"></p>
   </section>
+  <section class="panel">
+    <h2>Matériel de l'association</h2>
+    <p class="msg">Radios, pitboards, T-shirts, bandeaux, racebox… Choisis un pilote pour lui prêter un élément : il est prévenu et le voit dans son espace.</p>
+    <div class="grid-wrap"><table class="team" id="gearTable"></table></div>
+    <form id="gearForm" class="form-grid">
+      <div class="field"><label for="gNom">Nouvel élément</label><input id="gNom" maxlength="60" placeholder="Radio n°3" required></div>
+      <div class="field"><label for="gCat">Catégorie</label><select id="gCat"><option>Radio</option><option>Pitboard</option><option>T-shirt</option><option>Bandeau de visière</option><option>Racebox</option><option>Combinaison</option><option>Casque</option><option>Autre</option></select></div>
+      <div class="field"><label for="gTaille">Taille</label><input id="gTaille" maxlength="10"></div>
+      <div class="row-end wide"><button class="btn-gold" type="submit">Ajouter</button></div>
+    </form>
+    <p class="msg" id="gearMsg"></p>
+  </section>
+  <section class="panel">
+    <h2>Vitrine publique et checklist</h2>
+    <p class="msg">La vitrine est une page sans code d'accès, à partager aux sponsors : <a id="vitLink" href="equipe.html" target="_blank" rel="noopener">voir la vitrine</a>. Elle affiche les chiffres de l'équipe, le palmarès, le calendrier et les photos que tu marques « Vitrine », sans aucun nom de pilote.</p>
+    <form id="vitForm" class="form-grid">
+      <div class="field wide"><label for="vTexte">Présentation</label><textarea id="vTexte" maxlength="800" style="min-height:80px"></textarea></div>
+      <div class="field wide"><label for="vContact">Contact affiché</label><input id="vContact" maxlength="200"></div>
+      <div class="field wide"><label for="vCheck">Checklist avant le départ (un élément par ligne)</label><textarea id="vCheck" maxlength="600" style="min-height:120px"></textarea></div>
+      <div class="row-end wide"><button class="btn-gold" type="submit">Enregistrer</button></div>
+    </form>
+    <p class="msg" id="vitMsg"></p>
+  </section>
 </main>
 
 <main class="wrap" id="viewCal">
+  <div id="offline" class="offline" hidden></div>
   <div id="hero" hidden></div>
   <div id="teaser" hidden></div>
 
@@ -460,6 +523,33 @@ details.sec[open]>summary::before{content:"▾ "}
           <div class="row-end wide"><span class="msg" id="cotisState" style="margin-right:auto;align-self:center"></span><button class="btn-gold" type="submit">Enregistrer mon profil</button></div>
         </form>
         <p class="sub2" style="margin-top:6px">Visible uniquement par toi et l'administrateur.</p>
+      </details>
+      <div class="box" id="myGear" hidden><h4>Matériel prêté par l'association</h4><div id="myGearList"></div></div>
+      <details class="sec" id="adhSec"><summary id="adhSum">Mon adhésion</summary>
+        <form id="adhForm" class="form-grid" style="margin-top:10px">
+          <p class="msg wide">Fiche d'adhésion RK7 Team · cotisation annuelle <b id="adhMt">150 €</b>. Tes informations restent visibles uniquement par toi et l'administrateur.</p>
+          <div class="field"><label for="aAnnee">Saison</label><select id="aAnnee"></select></div>
+          <div class="field"><label for="aStatut">Statut</label><select id="aStatut"><option>Pilote</option><option>Bénévole / staff</option><option>Supporter</option><option>Autre</option></select></div>
+          <div class="field"><label for="aNom">Nom</label><input id="aNom" maxlength="60" autocomplete="family-name" required></div>
+          <div class="field"><label for="aPrenom">Prénom</label><input id="aPrenom" maxlength="60" autocomplete="given-name" required></div>
+          <div class="field"><label for="aNaiss">Date de naissance</label><input id="aNaiss" type="date"></div>
+          <div class="field"><label for="aLieuN">Lieu de naissance</label><input id="aLieuN" maxlength="60"></div>
+          <div class="field wide"><label for="aAdr">Adresse</label><input id="aAdr" maxlength="120" autocomplete="street-address"></div>
+          <div class="field"><label for="aCp">Code postal</label><input id="aCp" maxlength="10" inputmode="numeric" autocomplete="postal-code"></div>
+          <div class="field"><label for="aVille">Ville</label><input id="aVille" maxlength="60" autocomplete="address-level2"></div>
+          <div class="field"><label for="aTel">Téléphone</label><input id="aTel" type="tel" maxlength="20" autocomplete="tel" required></div>
+          <div class="field"><label for="aMail">E-mail</label><input id="aMail" type="email" maxlength="80" autocomplete="email"></div>
+          <div class="field wide"><label for="aUrg">Contact d'urgence (nom et téléphone)</label><input id="aUrg" maxlength="100"></div>
+          <div class="field"><label for="aTee">Taille de T-shirt RK7</label><select id="aTee"><option value="">—</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option><option>3XL</option></select></div>
+          <div class="field"><label for="aRegl">Règlement de la cotisation</label><select id="aRegl"><option>Virement</option><option>Espèces</option><option>Chèque</option><option>Autre</option></select></div>
+          <label class="check wide"><input type="checkbox" id="aEng"> J'accepte les statuts et le règlement intérieur de RK7 Team, je m'acquitte de la cotisation annuelle et je restituerai le matériel prêté en fin de saison.</label>
+          <label class="check wide"><input type="checkbox" id="aImg"> Droit à l'image : j'autorise RK7 Team à utiliser mon image (photos, vidéos) pour sa communication.</label>
+          <label class="check wide"><input type="checkbox" id="aRgpd"> J'accepte que mes données soient conservées par l'association pour la seule gestion des adhésions (droit d'accès, de rectification et de suppression sur simple demande).</label>
+          <div class="field"><label for="aFait">Fait à</label><input id="aFait" maxlength="60"></div>
+          <div class="field"><label for="aSign">Signature : tape « Lu et approuvé » + ton nom</label><input id="aSign" maxlength="80" required placeholder="Lu et approuvé, Prénom Nom"></div>
+          <p class="sub2 wide">Adhérent mineur : joindre l'autorisation signée d'un représentant légal (à remettre à Florent).</p>
+          <div class="row-end wide"><button class="btn-gold" type="submit">Valider mon adhésion</button></div>
+        </form>
       </details>
       <div><button type="button" class="btn-link" id="logoutPilot">Changer de pilote</button></div>
     </div>
@@ -561,6 +651,7 @@ details.sec[open]>summary::before{content:"▾ "}
   const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ v==null?localStorage.removeItem(k):localStorage.setItem(k,v); }catch(e){} } };
 
   let teamToken = ls.get("rk7-token"), role = ls.get("rk7-role") || "team", pilotToken = ls.get("rk7-pilot"), myId = ls.get("rk7-pid");
+  let relays={}, materiel=[], clockSkew=0, raceCid=null, raceTimer=null, wxCache={};
   let comments=[], photos=[], openComm=new Set(), openPhotos=new Set(), elevTried=false, lbList=[], lbIdx=0;
   let frais=[], openFrais=new Set(), allFrais=new Set(), config={}, adminPilots=null, myProfile=null, openLogi=new Set(), resId=null;
   let courses=[], news=[], pilots={}, loaded=false, view="up", mode=ls.get("rk7-mode")==="grid"?"grid":"list", editingId=null, editingNews=null;
@@ -619,7 +710,7 @@ details.sec[open]>summary::before{content:"▾ "}
   }
   const PUSH_URL = "https://br-morning-pine-b9ubhk9i-rk7push.compute.c-7.eu-central-1.aws.neon.tech/";
   const VAPID_PUB = "BKUxfMqZsFFP1yIMn9Px6BDcglg2fzUGulG7FvTURJyb93Ds6ktnamVVMd-iOECqXmYWsQy004mSHzrAUw7thVo";
-  const KICK = new Set(["pilot_update","admin_save_course","admin_save_news","admin_save_result","frais_save","comment_add","photo_add"]);
+  const KICK = new Set(["pilot_update","admin_save_course","admin_save_news","admin_save_result","frais_save","comment_add","photo_add","race_action","adhesion_save","admin_materiel_save"]);
   function kickPush(){ setTimeout(()=>{ fetch(PUSH_URL,{method:"POST"}).catch(()=>{}); }, 300); }
   async function rpc(name, args){
     let res;
@@ -671,7 +762,8 @@ details.sec[open]>summary::before{content:"▾ "}
   }
   function applyData(d){
     if(!d || !d.courses) return;
-    courses=d.courses; news=d.news||[]; config=d.config||{}; frais=d.frais||[]; comments=d.comments||[]; photos=d.photos||[]; window.__bilans=d.bilans||[]; pilots={}; (d.pilots||[]).forEach(p=>pilots[p.id]=p);
+    courses=d.courses; news=d.news||[]; config=d.config||{}; frais=d.frais||[]; comments=d.comments||[]; photos=d.photos||[]; relays=d.relays||{}; materiel=d.materiel||[]; if(d.now) clockSkew=d.now-Date.now();
+    if(!d.__cached){ try{ localStorage.setItem("rk7-data", JSON.stringify(Object.assign({}, d, {__at:Date.now()}))); }catch(e){} $("#offline").hidden=true; } window.__bilans=d.bilans||[]; pilots={}; (d.pilots||[]).forEach(p=>pilots[p.id]=p);
     if(myId && !pilots[myId]){ logoutPilot(); }
     loaded=true; renderAll(); tryElevate();
   }
@@ -681,7 +773,12 @@ details.sec[open]>summary::before{content:"▾ "}
     try{ const r=await rpc("pilot_elevate",{token:teamToken,pilot_token:pilotToken}); if(r.role==="admin" && r.token){ teamToken=r.token; role="admin"; ls.set("rk7-token",teamToken); ls.set("rk7-role",role); renderAll(); setMsg("#meMsg","Mode administrateur activé avec ton compte pilote."); } }catch(e){}
   }
   const editing = () => { const a=document.activeElement; return !!(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.closest("#races,#viewAdmin,#resPanel,#profForm")); };
-  async function refresh(force){ if(!force && editing()) return; try{ applyData(await api("data")); }catch(e){ if(e.status!==401) setMsg("#globalMsg", e.message, true); } }
+  function loadCached(){ try{ const c=JSON.parse(localStorage.getItem("rk7-data")||"null"); if(c && c.courses){ c.__cached=true; applyData(c); return c; } }catch(e){} return null; }
+  async function refresh(force){ if(!force && editing()) return;
+    try{ applyData(await api("data")); }
+    catch(e){ if(e.status===401) return;
+      if(/Connexion au serveur/.test(e.message)){ const c = loaded ? JSON.parse(localStorage.getItem("rk7-data")||"null") : loadCached(); if(c){ const o=$("#offline"); o.hidden=false; o.textContent="Hors ligne : affichage des infos enregistrées le "+new Date(c.__at).toLocaleString("fr-FR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})+". Elles se mettront à jour au retour du réseau."; return; } }
+      setMsg("#globalMsg", e.message, true); } }
 
   // ---------- Gate ----------
   function showGate(){ $("#gate").hidden=false; $("#app").hidden=true; setTimeout(()=>$("#gateCode").focus(),50); }
@@ -825,7 +922,8 @@ details.sec[open]>summary::before{content:"▾ "}
           (mine?'<button type="button" class="btn-ghost" style="padding:4px 8px;font-size:13px" data-set="" data-cid="'+esc(c.id)+'">Effacer ma réponse</button>':"");
       }
       if(!past && !c.terminee && c.date) action += '<button type="button" class="btn-ghost" style="padding:6px 10px;font-size:13px" data-ics="'+esc(c.id)+'">Ajouter à mon agenda</button>';
-      const tools = isAdmin() ? '<div class="owner-tools">'+(c.resultat ? '<button class="btn-ghost" type="button" data-res="'+esc(c.id)+'">Résultat</button><button class="btn-ghost" type="button" data-reopen="'+esc(c.id)+'">Rouvrir</button>' : (!c.terminee ? '<button class="btn-ghost" type="button" data-res="'+esc(c.id)+'">Résultat</button>' : ''))+'<button class="btn-ghost" type="button" data-edit="'+esc(c.id)+'">Modifier</button><button class="btn-danger" type="button" data-del="'+esc(c.id)+'">Supprimer</button></div>' : "";
+      if(c.terminee && !isAdmin() && myId && (c.participants||[]).some(p=>p.pid===myId)) action += '<button type="button" class="btn-ghost" style="padding:6px 10px;font-size:13px" data-poster="'+esc(c.id)+'">Affiche Instagram</button>';
+      const tools = isAdmin() ? '<div class="owner-tools">'+(c.terminee?'<button class="btn-ghost" type="button" data-poster="'+esc(c.id)+'">Affiche</button>':'')+(c.resultat ? '<button class="btn-ghost" type="button" data-res="'+esc(c.id)+'">Résultat</button><button class="btn-ghost" type="button" data-reopen="'+esc(c.id)+'">Rouvrir</button>' : (!c.terminee ? '<button class="btn-ghost" type="button" data-res="'+esc(c.id)+'">Résultat</button>' : ''))+'<button class="btn-ghost" type="button" data-edit="'+esc(c.id)+'">Modifier</button><button class="btn-danger" type="button" data-del="'+esc(c.id)+'">Supprimer</button></div>' : "";
       const pp = prixPilote(c, yes.length), n = crewCount(c, yes.length);
       const price = pp!=null ? '<div class="price">'+euro(pp)+'<small>'+(c.terminee?"payé par pilote":(c.prixEquipage!=null?"par pilote (≈)":"par pilote"))+'</small>'+(c.prixEquipage!=null?'<small>Équipage '+euro(c.prixEquipage)+' ÷ '+n+'</small>':"")+'</div>' : '<div class="price na">Prix à venir<small>pas d\'infos</small></div>';
       const resHtml = (c.position || c.commentaire) ? '<div class="result">'+(c.position?'<span class="pos">'+esc(c.position)+'</span>':'')+(c.commentaire?'<span class="note">'+esc(c.commentaire)+'</span>':'')+'</div>' : "";
@@ -837,7 +935,7 @@ details.sec[open]>summary::before{content:"▾ "}
         '<div class="info"><div class="chips"><span class="chip">'+esc(c.type||"Endurance")+'</span>'+(c.equipe?'<span class="chip">'+esc(c.equipe)+'</span>':"")+state+full+limChip+'</div>'+
           '<h3>'+esc(c.titre||c.lieu)+'</h3>'+
           '<div class="meta">'+(c.titre?'<span>'+ico("pin")+'<b>'+esc(c.lieu)+'</b></span>':'')+(!c.date?'<span>'+ico("cal")+'<b>'+(c.terminee?"Date non renseignée":"Date à confirmer")+'</b></span>':'')+'<span>'+ico("clock")+'<b>'+esc(c.duree||"—")+'</b></span>'+(c.heure?'<span>'+ico("flag")+'Départ <b>'+esc(c.heure)+'</b></span>':"")+(eq&&c.terminee?'<span>'+ico("users")+'<b>'+eq+'</b> pilotes</span>':"")+(c.points&&c.points!==999?'<span>'+ico("star")+'<b>'+c.points+'</b> pts</span>':"")+(c.dateFin&&c.dateFin>c.date?'<span>'+ico("cal")+'<b>'+esc(shortDate(c))+'</b></span>':"")+'</div>'+seatsHtml(c, yes)+
-          (c.note?'<div class="note">'+esc(c.note)+'</div>':"")+resHtml+partHtml+chipsYes+chipsNo+(()=>{ const x=logiHtml(c, mine)+fraisHtml(c, mine)+commHtml(c)+photosHtml(c, mine); return x?'<div class="extras">'+x+'</div>':''; })()+'</div>'+
+          (c.note?'<div class="note">'+esc(c.note)+'</div>':"")+resHtml+partHtml+chipsYes+chipsNo+(()=>{ const x=raceBtn(c, mine)+checkHtml(c, mine)+logiHtml(c, mine)+fraisHtml(c, mine)+commHtml(c)+photosHtml(c, mine); return x?'<div class="extras">'+x+'</div>':''; })()+'</div>'+
         '<div class="actions">'+price+action+tools+'</div></article>';
     }
     return html;
@@ -854,6 +952,11 @@ details.sec[open]>summary::before{content:"▾ "}
   function daysTo(d){ const a=parse(d), t=parse(today()); return Math.round((a-t)/864e5); }
   function renderHero(){
     const el=$("#hero"); const up=courses.filter(isUpcoming);
+    const liveId=Object.keys(relays).find(k=>relays[k].status==="live" && courses.some(c=>c.id===k));
+    if(liveId){ const c=courses.find(x=>x.id===liveId), r=relays[liveId], nxt=(r.queue||[])[0];
+      el.hidden=false; el.className="hero";
+      el.innerHTML='<span class="k"><span class="live">En course</span> · '+esc(c.equipe||"RK7 Team")+'</span><h2>'+esc(c.titre||c.lieu)+'</h2><div class="meta"><span>'+ico("flag")+'Au volant : <b>'+esc(nomOf(r.current&&r.current.pid))+'</b></span>'+(nxt?'<span>Ensuite : <b>'+esc(nomOf(nxt))+'</b></span>':'')+'</div><div class="row-end"><button type="button" class="btn-gold" data-race="'+esc(liveId)+'">Ouvrir le mode course</button></div>';
+      return; }
     const dated=up.filter(c=>c.date).sort((a,b)=>a.date.localeCompare(b.date)), c=dated[0] || up.sort((a,b)=>sortKey(a).localeCompare(sortKey(b)))[0];
     if(!c){ el.hidden=true; return; }
     const {yes}=answers(c.id), mine=myDispo(c.id), dd=c.date?daysTo(c.date):null;
@@ -862,10 +965,11 @@ details.sec[open]>summary::before{content:"▾ "}
     el.hidden=false; el.className="hero";
     el.innerHTML='<span class="k">Prochaine course'+(c.equipe?' · '+esc(c.equipe):'')+'</span><div class="top">'+cd+'<div style="min-width:0;flex:1 1 180px"><h2>'+esc(c.titre||c.lieu)+'</h2>'+
       '<div class="meta" style="margin-top:6px"><span>'+ico("pin")+'<b>'+esc(c.lieu)+'</b></span><span>'+ico("clock")+'<b>'+esc(c.duree||"—")+'</b></span>'+(c.heure?'<span>'+ico("flag")+'Départ <b>'+esc(c.heure)+'</b></span>':'')+(pp!=null?'<span>'+ico("euro")+'<b>'+euro(pp)+'</b> / pilote</span>':'')+'</div></div></div>'+
-      seatsHtml(c, yes)+
-      '<div class="row-end">'+(mine==="oui"?'<span class="chip ok">Ta place est réservée</span>':'')+'<button type="button" class="'+(mine==="oui"?"btn-ghost":"btn-gold")+'" id="heroGo" data-cid="'+esc(c.id)+'">'+(mine==="oui"?"Voir la course":me()?"Réserver ma place":"Voir la course")+'</button></div>';
+      seatsHtml(c, yes)+'<div id="heroWx"></div>'+
+      '<div class="row-end">'+(raceBtn(c, mine))+(mine==="oui"?'<span class="chip ok">Ta place est réservée</span>':'')+'<button type="button" class="'+(mine==="oui"?"btn-ghost":"btn-gold")+'" id="heroGo" data-cid="'+esc(c.id)+'">'+(mine==="oui"?"Voir la course":me()?"Réserver ma place":"Voir la course")+'</button></div>';
+    if(c.date) loadWeather(c);
   }
-  $("#hero").addEventListener("click", e=>{ const b=e.target.closest("#heroGo"); if(!b) return; if(view!=="up") setView("up"); const a=document.querySelector('[data-card="'+CSS.escape(b.dataset.cid)+'"]'); if(a){ a.scrollIntoView({behavior:"smooth",block:"start"}); try{ a.animate([{boxShadow:"0 0 0 3px #D4AF37"},{boxShadow:"0 0 0 0 transparent"}],{duration:1600}); }catch(e){} } });
+  $("#hero").addEventListener("click", e=>{ const rb=e.target.closest("[data-race]"); if(rb){ openRace(rb.dataset.race); return; } const b=e.target.closest("#heroGo"); if(!b) return; if(view!=="up") setView("up"); const a=document.querySelector('[data-card="'+CSS.escape(b.dataset.cid)+'"]'); if(a){ a.scrollIntoView({behavior:"smooth",block:"start"}); try{ a.animate([{boxShadow:"0 0 0 3px #D4AF37"},{boxShadow:"0 0 0 0 transparent"}],{duration:1600}); }catch(e){} } });
   // Logistique : RDV, hébergement, relais, covoiturage
   function logiHtml(c, mine){
     if(c.terminee || !(isAdmin() || mine==="oui")) return "";
@@ -890,6 +994,7 @@ details.sec[open]>summary::before{content:"▾ "}
       h+='<div class="k" style="margin-top:4px">Infos de l\'équipe (admin)</div>'+
         '<div class="field"><label for="ar-'+esc(c.id)+'">Rendez-vous</label><input id="ar-'+esc(c.id)+'" type="text" maxlength="300" placeholder="Parking du circuit, 7h30" value="'+esc(c.rdv||"")+'"></div>'+
         '<div class="field"><label for="ah-'+esc(c.id)+'">Hébergement</label><input id="ah-'+esc(c.id)+'" type="text" maxlength="300" placeholder="Gîte réservé à …" value="'+esc(c.hebergement||"")+'"></div>'+
+        '<div class="field"><label for="av-'+esc(c.id)+'">Ville (pour la météo)</label><input id="av-'+esc(c.id)+'" type="text" maxlength="60" placeholder="'+esc(guessVille(c))+'" value="'+esc(c.ville||"")+'"></div>'+
         '<div class="field"><label for="aR-'+esc(c.id)+'">Planning des relais</label><textarea id="aR-'+esc(c.id)+'" maxlength="1000" style="min-height:80px" placeholder="1. Florent 30 min&#10;2. James 30 min…">'+esc(c.relais||"")+'</textarea></div>'+
         '<div class="row-end"><button type="button" class="btn-gold mini" data-alogi="'+esc(c.id)+'">Enregistrer les infos</button></div>';
     }
@@ -998,16 +1103,152 @@ details.sec[open]>summary::before{content:"▾ "}
     let l=$("#lb"); if(!l){ l=document.createElement("div"); l.id="lb"; l.className="lb"; l.setAttribute("role","dialog"); l.setAttribute("aria-label","Photo"); document.body.appendChild(l); document.addEventListener("keydown", lbKey);
       l.addEventListener("click", async e=>{ const b=e.target.closest("button"); if(!b){ if(e.target===l) closeLb(); return; }
         if(b.dataset.lbx!==undefined) closeLb(); else if(b.dataset.lbn) showLb(lbIdx+Number(b.dataset.lbn));
+        else if(b.dataset.lbpub){ try{ applyData(await rpc("photo_set_public",{token:teamToken,photo_id:b.dataset.lbpub,pub:b.dataset.v==="1"})); lbList=lbList.map(p=>photos.find(q=>q.id===p.id)||p); showLb(lbIdx); }catch(err){ setMsg("#globalMsg",err.message,true); } }
         else if(b.dataset.lbdel){ if(b.textContent!=="Confirmer ?"){ b.textContent="Confirmer ?"; return; } try{ applyData(await rpc("photo_delete",{token:teamToken,pilot_token:pilotToken||"",photo_id:b.dataset.lbdel})); closeLb(); setMsg("#globalMsg","Photo supprimée."); }catch(err){ setMsg("#globalMsg",err.message,true); closeLb(); } }
       }); }
     const canDel = isAdmin() || (x.pilotId && x.pilotId===myId);
     l.innerHTML='<img alt="Photo '+(lbIdx+1)+'" src="'+(imgCache[x.thumb]||"")+'"><div class="bar2">'+(lbList.length>1?'<button type="button" data-lbn="-1" aria-label="Précédente">‹</button>':'')+'<span>'+(lbIdx+1)+' / '+lbList.length+(x.pilotId?' · '+esc(nomOf(x.pilotId)):'')+'</span>'+(lbList.length>1?'<button type="button" data-lbn="1" aria-label="Suivante">›</button>':'')+
-      (canDel?'<button type="button" data-lbdel="'+esc(x.id)+'">Supprimer</button>':'')+'<button type="button" data-lbx aria-label="Fermer">Fermer ✕</button></div>';
+      (isAdmin()?'<button type="button" data-lbpub="'+esc(x.id)+'" data-v="'+(x.public?"0":"1")+'">'+(x.public?"Retirer de la vitrine":"★ Mettre sur la vitrine")+'</button>':'')+(canDel?'<button type="button" data-lbdel="'+esc(x.id)+'">Supprimer</button>':'')+'<button type="button" data-lbx aria-label="Fermer">Fermer ✕</button></div>';
     try{ const src=await fullImage(x.image); if(lbList[lbIdx]===x && $("#lb img")) $("#lb img").src=src; }catch(e){}
   }
   async function saveFrais(id, item, okText){
     try{ applyData(await rpc("frais_save",{token:teamToken,pilot_token:pilotToken||"",frais_id:id,item})); setMsg("#globalMsg",okText); return true; }
     catch(err){ setMsg("#globalMsg",err.message,true); return false; }
+  }
+  // ---------- Checklist avant le départ ----------
+  const checkItems = () => String(config.checklist||"").split(/\n/).map(t=>t.trim()).filter(Boolean);
+  function checkHtml(c, mine){
+    const items=checkItems(); if(!items.length || c.terminee || !(mine==="oui" || isAdmin())) return "";
+    const cid=c.id, my=(myId && pilots[myId] && pilots[myId].checks && pilots[myId].checks[cid]) || [];
+    const done=items.filter(t=>my.includes(t)).length;
+    let h='<details class="sec" data-chkd="'+esc(cid)+'"'+(openLogi.has("chk:"+cid)?" open":"")+'><summary>'+ico("star")+'Checklist'+(mine==="oui"?'<em'+(done===items.length?'':' class="alert"')+'>'+done+'/'+items.length+'</em>':'')+'</summary><div class="logi">';
+    if(mine==="oui") h+='<div class="chk">'+items.map(t=>'<label><input type="checkbox" data-chk="'+esc(cid)+'" value="'+esc(t)+'"'+(my.includes(t)?" checked":"")+'> '+esc(t)+'</label>').join("")+'</div>';
+    if(isAdmin()){ const crew=Object.values(pilots).filter(p=>p.dispo&&p.dispo[cid]==="oui");
+      h+='<div class="k">Qui est prêt</div>'+(crew.length?'<div class="pilots">'+crew.map(p=>{ const n=items.filter(t=>((p.checks||{})[cid]||[]).includes(t)).length; return '<span class="pilot'+(n===items.length?'':' no')+'"><span class="av">'+esc(initials(p.nom))+'</span>'+esc(p.nom)+' <span class="tm">· '+n+'/'+items.length+'</span></span>'; }).join("")+'</div>':'<p class="note">Personne n\'est encore inscrit.</p>'); }
+    return h+'</div></details>';
+  }
+  // ---------- Mode course : relais en direct ----------
+  const nowS = () => Date.now()+clockSkew;
+  const fmtDur = ms => { ms=Math.max(0,ms); const h=Math.floor(ms/3600e3), m=Math.floor(ms%3600e3/60e3), s=Math.floor(ms%60e3/1e3); return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(s).padStart(2,"0"); };
+  const fmtH = ms => { const m=Math.round(ms/60e3); return Math.floor(m/60)+" h "+String(m%60).padStart(2,"0"); };
+  function isCrew(cid){ if(!myId) return false; const r=relays[cid]; return (pilots[myId]&&pilots[myId].dispo&&pilots[myId].dispo[cid]==="oui") || (r && ((r.queue||[]).includes(myId) || (r.current&&r.current.pid===myId))); }
+  function raceDay(c){ if(!c.date) return false; const a=daysTo(c.date), b=daysTo(c.dateFin&&c.dateFin>c.date?c.dateFin:c.date); return a<=1 && b>=-1; }
+  function raceBtn(c, mine){
+    const r=relays[c.id];
+    if(c.terminee && !r) return "";
+    if(!(isAdmin() || isCrew(c.id))) return "";
+    if(!r && !raceDay(c) && !isAdmin()) return "";
+    return '<button type="button" class="btn-ghost mini" style="border-radius:999px" data-race="'+esc(c.id)+'">'+ico("flag")+' '+(r&&r.status==="live"?'<span class="live">En course</span>':r&&r.status==="done"?'Relais (bilan)':'Mode course')+'</button>';
+  }
+  function driveTotals(r){ const t={}; for(const h of (r.history||[])) t[h.pid]=(t[h.pid]||0)+(h.end-h.start); if(r.current&&r.current.pid) t[r.current.pid]=(t[r.current.pid]||0)+(nowS()-r.current.start); return t; }
+  function openRace(cid){ raceCid=cid; renderRace(); clearInterval(raceTimer); raceTimer=setInterval(tickRace,1000); document.addEventListener("keydown", raceKey); }
+  function closeRace(){ raceCid=null; clearInterval(raceTimer); const el=$("#rm"); if(el) el.remove(); document.removeEventListener("keydown", raceKey); document.body.style.overflow=""; }
+  function raceKey(e){ if(e.key==="Escape") closeRace(); }
+  function tickRace(){ const r=raceCid&&relays[raceCid]; if(!r||r.status!=="live"||!r.current) return; const el=$("#rmTimer"); if(!el) return;
+    const ms=nowS()-r.current.start, tgt=(r.stintMin||30)*60e3, over=ms>tgt; el.textContent=fmtDur(ms); el.classList.toggle("over",over);
+    const b=$("#rmBar"); if(b){ b.style.width=Math.min(100,ms/tgt*100)+"%"; b.classList.toggle("over",over); }
+    const rest=$("#rmRest"); if(rest) rest.textContent = over ? "Relais dépassé de "+fmtDur(ms-tgt) : "Fin du relais dans "+fmtDur(tgt-ms);
+    const tot=$("#rmTotal"); if(tot) tot.textContent=fmtDur(nowS()-r.startedAt); }
+  function renderRace(){
+    if(!raceCid) return; const c=courses.find(x=>x.id===raceCid); if(!c){ closeRace(); return; }
+    let el=$("#rm"); if(!el){ el=document.createElement("div"); el.id="rm"; el.className="rm"; el.setAttribute("role","dialog"); el.setAttribute("aria-label","Mode course"); document.body.appendChild(el); document.body.style.overflow="hidden"; el.addEventListener("click", raceClick); }
+    if(el.contains(document.activeElement) && /^(INPUT|SELECT)$/.test(document.activeElement.tagName)) return;
+    const r=relays[raceCid], canAct=isAdmin()||isCrew(raceCid);
+    let h='<div class="in"><div class="hd"><div><span class="k">Mode course</span><br><b>'+esc(c.titre||c.lieu)+(c.equipe?' · '+esc(shortTeam(c.equipe)):'')+'</b></div><button type="button" class="btn-ghost" data-rmx>Fermer ✕</button></div>';
+    if(!r){
+      const crew=Object.values(pilots).filter(p=>p.dispo&&p.dispo[c.id]==="oui");
+      const others=Object.values(pilots).filter(p=>!crew.includes(p)).sort((a,b)=>a.nom.localeCompare(b.nom,"fr"));
+      h+='<div class="card"><span class="k">Ordre de départ</span><p class="sub2" style="color:var(--band-muted)">Coche les pilotes dans l\'ordre des relais. Ils tournent ensuite automatiquement.</p><div id="rmOrder">'+
+        crew.concat(others).map((p,i)=>'<label class="q"><input type="checkbox" value="'+esc(p.id)+'"'+(crew.includes(p)?" checked":"")+' style="width:20px;height:20px"><span>'+esc(p.nom)+'</span>'+(crew.includes(p)?'<span class="chip">inscrit</span>':'')+'</label>').join("")+'</div>'+
+        '<div class="row"><div class="field" style="flex:1 1 140px"><label for="rmStint" style="color:var(--band-muted)">Durée d\'un relais (min)</label><input id="rmStint" type="number" min="5" max="240" value="'+(Number(c.relaisMin)||30)+'" inputmode="numeric"></div></div>'+
+        (canAct?'<button type="button" class="btn-gold big" data-rmstart>Départ ! 🏁</button>':'<p class="sub2">Seuls les pilotes inscrits peuvent lancer la course.</p>')+'</div>';
+    } else if(r.status==="live" && r.current){
+      const cur=r.current.pid, nxt=(r.queue||[])[0], tot=driveTotals(r);
+      h+='<div class="card"><span class="live">En piste</span><div class="drv">'+esc(nomOf(cur))+'</div><div class="tm" id="rmTimer">0:00</div><div class="pbar"><i id="rmBar" style="width:0%"></i></div><span class="sub2" id="rmRest" style="color:var(--band-muted)"></span></div>'+
+        (canAct?'<button type="button" class="btn-gold big" data-rmnext="'+esc(nxt||"")+'"'+(nxt?'':' disabled')+'>Changement de pilote'+(nxt?' → '+esc(nomOf(nxt)):'')+'</button>':'')+
+        '<div class="card"><span class="k">Ordre des relais suivants</span>'+((r.queue||[]).length?(r.queue||[]).map((pid,i)=>'<div class="q"><span>'+(i+1)+'. '+esc(nomOf(pid))+'</span>'+(canAct?'<button type="button" class="btn-ghost mini" data-rmup="'+i+'" aria-label="Monter '+esc(nomOf(pid))+'"'+(i?'':' disabled')+'>↑</button><button type="button" class="btn-ghost mini" data-rmgo="'+esc(pid)+'">Prendre le relais</button>':'')+'</div>').join(""):'<p class="sub2">Aucun pilote en attente.</p>')+'</div>'+
+        '<div class="card"><span class="k">Temps de roulage</span><table>'+Object.keys(tot).sort((a,b)=>tot[b]-tot[a]).map(pid=>'<tr><td>'+esc(nomOf(pid))+(pid===cur?' <span class="live" style="font-size:12px">en piste</span>':'')+'</td><td class="n">'+fmtH(tot[pid])+'</td></tr>').join("")+'</table><span class="sub2" style="color:var(--band-muted)">Course démarrée depuis <b id="rmTotal"></b> · '+((r.history||[]).length+1)+' relais</span></div>'+
+        (canAct?'<div class="row"><div class="field" style="flex:1 1 140px"><label for="rmStint" style="color:var(--band-muted)">Durée d\'un relais (min)</label><input id="rmStint" type="number" min="5" max="240" value="'+(r.stintMin||30)+'" inputmode="numeric"></div><button type="button" class="btn-ghost" data-rmstint>Modifier</button></div><button type="button" class="btn-ghost" data-rmend>Drapeau à damier : fin de course</button>':'');
+    } else {
+      const tot=driveTotals(r), all=Object.values(tot).reduce((a,b)=>a+b,0);
+      h+='<div class="card"><span class="k">Course terminée · '+fmtH(all)+' de piste · '+(r.history||[]).length+' relais</span><table>'+Object.keys(tot).sort((a,b)=>tot[b]-tot[a]).map(pid=>'<tr><td>'+esc(nomOf(pid))+'</td><td class="n">'+fmtH(tot[pid])+'</td><td class="n">'+Math.round(tot[pid]/Math.max(1,all)*100)+' %</td></tr>').join("")+'</table></div>'+
+        '<div class="card"><span class="k">Détail des relais</span><table>'+(r.history||[]).map((x,i)=>'<tr><td>'+(i+1)+'. '+esc(nomOf(x.pid))+'</td><td class="n">'+new Date(x.start).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})+'</td><td class="n">'+fmtDur(x.end-x.start)+'</td></tr>').join("")+'</table></div>'+
+        (isAdmin()?'<button type="button" class="btn-gold" data-rmres>Saisir le résultat</button><button type="button" class="btn-ghost" data-rmreset>Effacer les relais</button>':'');
+    }
+    h+='<p class="msg" id="rmMsg" style="color:var(--band-muted)"></p></div>';
+    el.innerHTML=h; tickRace();
+  }
+  async function raceAct(action, payload){
+    try{ applyData(await rpc("race_action",{token:teamToken,pilot_token:pilotToken||"",course_id:raceCid,action,payload:payload||{}})); renderRace(); }
+    catch(err){ const m=$("#rmMsg"); if(m){ m.textContent=err.message; m.style.color="#E59673"; } }
+  }
+  async function raceClick(e){
+    const b=e.target.closest("button"); if(!b) return;
+    const r=relays[raceCid];
+    if(b.dataset.rmx!==undefined) return closeRace();
+    if(b.dataset.rmstart!==undefined){ const q=[...document.querySelectorAll("#rmOrder input:checked")].map(i=>i.value); b.disabled=true; await raceAct("start",{queue:q,stintMin:Number($("#rmStint").value)||30}); return; }
+    if(b.dataset.rmnext!==undefined){ b.disabled=true; await raceAct("next",{pid:b.dataset.rmnext}); return; }
+    if(b.dataset.rmgo){ await raceAct("next",{pid:b.dataset.rmgo}); return; }
+    if(b.dataset.rmup!==undefined){ const i=Number(b.dataset.rmup), q=(r.queue||[]).slice(); if(i>0){ [q[i-1],q[i]]=[q[i],q[i-1]]; await raceAct("queue",{queue:q}); } return; }
+    if(b.dataset.rmstint!==undefined){ await raceAct("stint",{stintMin:Number($("#rmStint").value)||30}); return; }
+    if(b.dataset.rmend!==undefined){ if(b.textContent!=="Confirmer la fin de course ?"){ b.textContent="Confirmer la fin de course ?"; return; } await raceAct("end"); return; }
+    if(b.dataset.rmreset!==undefined){ if(b.textContent!=="Confirmer ?"){ b.textContent="Confirmer ?"; return; } await raceAct("reset"); closeRace(); return; }
+    if(b.dataset.rmres!==undefined){ const id=raceCid; closeRace(); location.hash="calendrier"; openResult(id); return; }
+  }
+  // ---------- Affiche Instagram (format story 1080×1920) ----------
+  let logoImg=null;
+  function loadLogo(){ return new Promise(res=>{ if(logoImg) return res(logoImg); const i=new Image(); i.onload=()=>{ logoImg=i; res(i); }; i.onerror=()=>res(null); i.src="img/logo-rk7.png"; }); }
+  async function makePoster(c){
+    try{ await document.fonts.load('700 120px "Saira Condensed"'); await document.fonts.load('600 40px "Saira Condensed"'); }catch(e){}
+    const W=1080,H=1920, cv=document.createElement("canvas"); cv.width=W; cv.height=H; const g=cv.getContext("2d");
+    const GOLD="#D4AF37", F='"Saira Condensed","Arial Narrow",Arial,sans-serif';
+    g.fillStyle="#0A0A09"; g.fillRect(0,0,W,H);
+    // bandes or façon kit déco
+    g.save(); g.beginPath(); g.moveTo(W*0.5,0); g.lineTo(W,0); g.lineTo(W,H*0.42); g.closePath(); g.clip(); g.translate(W*0.62,0); g.transform(1,0,-0.55,1,0,0);
+    g.fillStyle=GOLD; g.fillRect(140,0,120,H); g.fillStyle="#3a3220"; g.fillRect(300,0,70,H); g.fillStyle="rgba(212,175,55,.35)"; g.fillRect(410,0,24,H); g.restore();
+    g.save(); g.beginPath(); g.moveTo(W,H*0.62); g.lineTo(W,H-160); g.lineTo(W*0.72,H-160); g.closePath(); g.clip(); g.fillStyle="rgba(212,175,55,.5)"; g.translate(W*0.9,0); g.transform(1,0,-0.55,1,0,0); g.fillRect(400,0,60,H); g.fillRect(500,0,24,H); g.restore();
+    // damier
+    for(let y=0;y<4;y++) for(let x=0;x<27;x++) if((x+y)%2===0){ g.fillStyle="rgba(255,255,255,.07)"; g.fillRect(x*40,H-160+y*40,40,40); }
+    const logo=await loadLogo(); if(logo){ const lw=420, lh=lw*logo.height/logo.width; g.drawImage(logo,80,110,lw,lh); }
+    const pos=podiumOf(c.position), big = pos===1 ? "WINNER" : pos && pos<=3 ? "PODIUM" : pos ? "P"+pos : "FINISH";
+    g.fillStyle="#FFFFFF"; g.textBaseline="alphabetic";
+    g.font='700 64px '+F; g.fillStyle=GOLD; g.fillText((c.equipe||"RK7 Team").toUpperCase(), 80, 560);
+    let size=260; g.font='700 '+size+'px '+F; while(g.measureText(big).width>W-140 && size>120){ size-=10; g.font='700 '+size+'px '+F; }
+    g.fillStyle="#FFFFFF"; g.fillText(big, 72, 560+size*0.95);
+    let y=560+size*0.95+30;
+    if(pos){ g.font='700 150px '+F; g.fillStyle=GOLD; g.fillText("P"+pos, 80, y+140); const tail=(String(c.position).match(/\/\s*(\d+)/)||[])[1]; if(tail){ const w=g.measureText("P"+pos).width; g.font='600 60px '+F; g.fillStyle="#B9B4A6"; g.fillText("/ "+tail+" équipages", 80+w+24, y+130); } y+=190; }
+    g.font='700 92px '+F; g.fillStyle="#FFFFFF";
+    const title=(c.titre||c.lieu||"").toUpperCase(); const words=title.split(/\s+/); let line="", lines=[]; for(const w of words){ const t=line?line+" "+w:w; if(g.measureText(t).width>W-160 && line){ lines.push(line); line=w; } else line=t; } if(line) lines.push(line);
+    lines.slice(0,3).forEach((l,i)=>g.fillText(l, 80, y+90+i*96)); y+=90+Math.min(3,lines.length)*96;
+    g.font='600 48px '+F; g.fillStyle="#B9B4A6"; g.fillText((c.duree?c.duree.toUpperCase()+" D'ENDURANCE":"ENDURANCE")+(c.points&&c.points!==999?" · "+c.points+" PTS":""), 80, y+30);
+    g.font='600 46px '+F; g.fillStyle=GOLD; const round=(c.ordre?"ROUND "+c.ordre+" // ":"")+String(c.lieu||"").toUpperCase(); g.fillText(round, 80, H-260);
+    g.fillStyle="#F5F3EC"; g.font='600 40px '+F; g.fillText((c.date?longDate(c.date).toUpperCase()+" · ":"SAISON "+seasonOf(c)+" · ")+"MORE THAN RACING", 80, H-200);
+    return cv;
+  }
+  async function showPoster(cid){
+    const c=courses.find(x=>x.id===cid); if(!c) return;
+    const cv=await makePoster(c), el=document.createElement("div"); el.className="poster"; el.id="poster"; el.setAttribute("role","dialog"); el.setAttribute("aria-label","Affiche Instagram");
+    el.appendChild(cv); const bar=document.createElement("div"); bar.className="bar2"; bar.innerHTML='<button type="button" class="btn-gold" data-pdl>Télécharger</button>'+(navigator.canShare?'<button type="button" data-psh>Partager</button>':'')+'<button type="button" data-px>Fermer ✕</button>'; el.appendChild(bar); document.body.appendChild(el);
+    const name="rk7-"+String(c.titre||c.lieu).toLowerCase().replace(/[^a-z0-9]+/g,"-")+".png";
+    el.addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b){ if(e.target===el) el.remove(); return; }
+      if(b.dataset.px!==undefined) el.remove();
+      if(b.dataset.pdl!==undefined) cv.toBlob(bl=>{ const u=URL.createObjectURL(bl), a=document.createElement("a"); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),5000); },"image/png");
+      if(b.dataset.psh!==undefined) cv.toBlob(async bl=>{ const f=new File([bl],name,{type:"image/png"}); try{ if(navigator.canShare({files:[f]})) await navigator.share({files:[f],title:"RK7 Team"}); }catch(err){} },"image/png");
+    });
+  }
+  // ---------- Météo (Open-Meteo, gratuit, sans clé) ----------
+  const VILLES={"jpr ostricourt":"Ostricourt","rkc":"Cormeilles-en-Vexin","le mans":"Le Mans","belval":"Belval"};
+  function guessVille(c){ const l=String(c.lieu||"").toLowerCase(); for(const k in VILLES) if(l.includes(k)) return VILLES[k]; return c.lieu||""; }
+  const WX=c=>c===0?"☀️":c<=2?"🌤":c===3?"☁️":c<=48?"🌫":c<=67?"🌧":c<=77?"🌨":c<=82?"🌦":"⛈";
+  async function loadWeather(c){
+    const d=daysTo(c.date); if(d<0||d>14) return;
+    const ville=c.ville||guessVille(c), key=ville+"|"+c.date, slot=$("#heroWx"); if(!slot) return;
+    try{
+      if(!wxCache[key]){ const gq=await (await fetch("https://geocoding-api.open-meteo.com/v1/search?count=1&language=fr&name="+encodeURIComponent(ville))).json(); const pl=gq.results&&gq.results[0]; if(!pl) return;
+        const f=await (await fetch("https://api.open-meteo.com/v1/forecast?latitude="+pl.latitude+"&longitude="+pl.longitude+"&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Europe%2FParis&start_date="+c.date+"&end_date="+c.date)).json();
+        const dd=f.daily; if(!dd||!dd.time||!dd.time.length) return; wxCache[key]={code:dd.weather_code[0],max:dd.temperature_2m_max[0],min:dd.temperature_2m_min[0],rain:dd.precipitation_probability_max[0],ville:pl.name}; }
+      const w=wxCache[key], s2=$("#heroWx"); if(s2) s2.innerHTML='<span class="wx" title="Prévision Open-Meteo pour '+esc(w.ville)+'">'+WX(w.code)+' '+Math.round(w.max)+'° / '+Math.round(w.min)+'°'+(w.rain!=null?' · pluie '+w.rain+' %':'')+' · '+esc(w.ville)+'</span>';
+    }catch(e){}
   }
   function renderGrid(list){
     const ps = Object.values(pilots).sort((a,b)=>a.nom.localeCompare(b.nom,"fr"));
@@ -1050,12 +1291,32 @@ details.sec[open]>summary::before{content:"▾ "}
     $("#payInfoBox").hidden = !config.paiementInfo; $("#payInfoText").textContent = config.paiementInfo||"";
     if(!myProfile) loadProfile(); else fillProfile();
     $("#calBox").hidden=false;
+    const mine2=materiel.filter(x=>x.pilotId===myId); $("#myGear").hidden=!mine2.length;
+    $("#myGearList").innerHTML=mine2.map(x=>'<div class="sub2" style="font-size:14px;color:var(--ink)">• <b>'+esc(x.nom)+'</b>'+(x.taille?' ('+esc(x.taille)+')':'')+(x.depuis?' · depuis le '+esc(fmtDay(x.depuis)):'')+'</div>').join("");
   }
+  (function(){ const d0=new Date(), y=d0.getMonth()>=8?d0.getFullYear()+1:d0.getFullYear(); $("#aAnnee").innerHTML=[y,y+1].filter((v,i,a)=>a.indexOf(v)===i).map(v=>'<option'+(v===y?" selected":"")+'>'+v+'</option>').join(""); })();
+  function fillAdhesion(force){
+    if(!myProfile) return; const y=$("#aAnnee").value, a=(myProfile.adhesion||{})[y], pr=myProfile.profil||{};
+    $("#adhMt").textContent=euro(config.cotisation||150);
+    $("#adhSum").innerHTML='Mon adhésion '+esc(y)+' '+(a?'<span class="chip ok" style="margin-left:6px">envoyée ✓</span>':'<span class="chip no" style="margin-left:6px">à remplir</span>');
+    if(!force && $("#adhForm").contains(document.activeElement)) return;
+    const prev=a || Object.values(myProfile.adhesion||{}).sort((x,z)=>String(z.date).localeCompare(x.date))[0] || {};
+    const nm=(me()&&me().nom||"").trim().split(/\s+/);
+    const set=(id,v)=>{ $(id).value=v||""; };
+    set("#aNom", prev.nom||nm.slice(1).join(" ")); set("#aPrenom", prev.prenom||nm[0]); set("#aNaiss", prev.naissance); set("#aLieuN", prev.lieuNaissance); set("#aAdr", prev.adresse); set("#aCp", prev.cp); set("#aVille", prev.ville); set("#aTel", prev.tel||pr.tel); set("#aMail", prev.email); set("#aUrg", prev.urgence); set("#aTee", prev.tshirt||pr.taille); set("#aFait", prev.faitA); set("#aSign", a?prev.signature:"");
+    if(prev.statut) $("#aStatut").value=prev.statut; if(prev.reglement) $("#aRegl").value=prev.reglement;
+    $("#aEng").checked=!!(a&&a.engagement); $("#aRgpd").checked=!!(a&&a.rgpd); $("#aImg").checked=!!prev.droitImage;
+  }
+  $("#aAnnee").addEventListener("change", ()=>fillAdhesion(true));
+  $("#adhForm").addEventListener("submit", async e=>{ e.preventDefault();
+    const v=id=>$(id).value; const adh={annee:v("#aAnnee"),statut:v("#aStatut"),nom:v("#aNom"),prenom:v("#aPrenom"),naissance:v("#aNaiss"),lieuNaissance:v("#aLieuN"),adresse:v("#aAdr"),cp:v("#aCp"),ville:v("#aVille"),tel:v("#aTel"),email:v("#aMail"),urgence:v("#aUrg"),tshirt:v("#aTee"),reglement:v("#aRegl"),faitA:v("#aFait"),signature:v("#aSign"),engagement:$("#aEng").checked,rgpd:$("#aRgpd").checked,droitImage:$("#aImg").checked};
+    try{ const r=await rpc("adhesion_save",{token:teamToken,pilot_token:pilotToken,adh}); myProfile=Object.assign({},myProfile,{adhesion:r.adhesion}); fillAdhesion(true); setMsg("#meMsg","Adhésion "+adh.annee+" envoyée. Merci ! Pense à régler la cotisation."+(config.paiementInfo?" Les infos de paiement sont juste au-dessus.":"")); }
+    catch(err){ setMsg("#meMsg",err.message,true); } });
   const cotisYearDefault = () => { const d=new Date(); return d.getMonth()>=8 ? d.getFullYear()+1 : d.getFullYear(); };
   let profLoading=false;
   async function loadProfile(){
     if(profLoading || !pilotToken) return; profLoading=true;
-    try{ myProfile = await rpc("my_profile",{token:teamToken,pilot_token:pilotToken}); fillProfile(true); }catch(e){} finally{ profLoading=false; }
+    try{ myProfile = await rpc("my_profile",{token:teamToken,pilot_token:pilotToken}); fillProfile(true); fillAdhesion(true); }catch(e){} finally{ profLoading=false; }
   }
   function fillProfile(force){
     if(!myProfile) return; const pr=myProfile.profil||{};
@@ -1165,7 +1426,7 @@ details.sec[open]>summary::before{content:"▾ "}
     $("#adminPanel").hidden=!isAdmin(); $("#newsAdmin").hidden=!isAdmin(); $("#adminAccess").hidden=isAdmin(); $("#navAdmin").hidden=!isAdmin();
     if(!isAdmin()) $("#resPanel").hidden=true;
     if(!isAdmin() && location.hash==="#admin") location.hash="calendrier";
-    renderMe(); renderCal(); renderNews(); renderBudget(); renderAdmin(); renderRank();
+    renderMe(); renderCal(); renderNews(); renderBudget(); renderAdmin(); renderRank(); if(raceCid) renderRace();
   }
 
   // ---------- Events ----------
@@ -1186,10 +1447,12 @@ details.sec[open]>summary::before{content:"▾ "}
       if(await saveMe({equipes}, "Équipe changée : "+sel.value+".")) delete pendingTeam[cid];
     }
   });
-  $("#races").addEventListener("toggle", e => { const d=e.target; if(d.dataset && d.dataset.logi){ d.open ? openLogi.add(d.dataset.logi) : openLogi.delete(d.dataset.logi); } if(d.dataset && d.dataset.frais){ d.open ? openFrais.add(d.dataset.frais) : openFrais.delete(d.dataset.frais); }
+  $("#races").addEventListener("toggle", e => { const d=e.target; if(d.dataset && d.dataset.logi){ d.open ? openLogi.add(d.dataset.logi) : openLogi.delete(d.dataset.logi); } if(d.dataset && d.dataset.chkd){ d.open ? openLogi.add("chk:"+d.dataset.chkd) : openLogi.delete("chk:"+d.dataset.chkd); } if(d.dataset && d.dataset.frais){ d.open ? openFrais.add(d.dataset.frais) : openFrais.delete(d.dataset.frais); }
     if(d.dataset && d.dataset.comm){ d.open ? openComm.add(d.dataset.comm) : openComm.delete(d.dataset.comm); if(d.open){ const ms=d.querySelector(".msgs"); if(ms) ms.scrollTop=ms.scrollHeight; } }
     if(d.dataset && d.dataset.photos){ const had=openPhotos.has(d.dataset.photos); d.open ? openPhotos.add(d.dataset.photos) : openPhotos.delete(d.dataset.photos); if(d.open && !had){ renderCal(); } } }, true);
-  $("#races").addEventListener("change", e => { const f=e.target.closest("input[data-pup]"); if(f && f.files && f.files.length){ uploadPhotos(f.dataset.pup, [...f.files].slice(0,30)); } });
+  $("#races").addEventListener("change", async e => { const ck=e.target.closest("input[data-chk]"); if(ck){ const cid=ck.dataset.chk, items=[...document.querySelectorAll('input[data-chk="'+CSS.escape(cid)+'"]:checked')].map(i=>i.value);
+      try{ applyData(await rpc("my_check",{token:teamToken,pilot_token:pilotToken,course_id:cid,items})); }catch(err){ setMsg("#globalMsg",err.message,true); } return; }
+    const f=e.target.closest("input[data-pup]"); if(f && f.files && f.files.length){ uploadPhotos(f.dataset.pup, [...f.files].slice(0,30)); } });
   let pendingDel=null;
   $("#races").addEventListener("click", async e => {
     const b=e.target.closest("button"); if(!b) return;
@@ -1205,6 +1468,8 @@ details.sec[open]>summary::before{content:"▾ "}
     }
     if(b.dataset.logisave){ const id=b.dataset.logisave; b.disabled=true;
       try{ const r=await rpc("my_logi",{token:teamToken,pilot_token:pilotToken,course_id:id,logi:{places:Number($("#lp-"+id).value),depart:$("#ld-"+id).value,besoin:$("#lb-"+id).checked}}); applyData(r.data); setMsg("#globalMsg","Covoiturage mis à jour."); }catch(err){ setMsg("#globalMsg",err.message,true); } finally{ b.disabled=false; } return; }
+    if(b.dataset.race){ return openRace(b.dataset.race); }
+    if(b.dataset.poster){ return showPoster(b.dataset.poster); }
     if(b.dataset.csend){ const id=b.dataset.csend, ta=$("#ct-"+CSS.escape(id)), t=ta.value.trim(); if(!t) return; b.disabled=true;
       try{ applyData(await rpc("comment_add",{token:teamToken,pilot_token:pilotToken||"",course_id:id,texte:t})); const t2=$("#ct-"+CSS.escape(id)); if(t2) t2.value=""; const ms=document.querySelector('details[data-comm="'+CSS.escape(id)+'"] .msgs'); if(ms) ms.scrollTop=ms.scrollHeight; }catch(err){ setMsg("#globalMsg",err.message,true); } finally{ b.disabled=false; } return; }
     if(b.dataset.cdel){ if(b.textContent!=="Confirmer ?"){ b.textContent="Confirmer ?"; setTimeout(()=>{ b.textContent="Supprimer"; },4000); return; }
@@ -1225,7 +1490,7 @@ details.sec[open]>summary::before{content:"▾ "}
       if(b.textContent!=="Confirmer ?"){ b.textContent="Confirmer ?"; setTimeout(()=>{ b.textContent="Supprimer"; },4000); return; }
       try{ applyData(await rpc("frais_delete",{token:teamToken,pilot_token:pilotToken||"",frais_id:b.dataset.fdel})); setMsg("#globalMsg","Frais supprimé."); }catch(err){ setMsg("#globalMsg",err.message,true); } return; }
     if(b.dataset.alogi){ const id=b.dataset.alogi; b.disabled=true;
-      try{ applyData(await rpc("admin_save_logistique",{token:teamToken,course_id:id,info:{rdv:$("#ar-"+id).value,hebergement:$("#ah-"+id).value,relais:$("#aR-"+id).value}})); setMsg("#globalMsg","Infos logistiques enregistrées."); }catch(err){ setMsg("#globalMsg",err.message,true); } finally{ b.disabled=false; } return; }
+      try{ applyData(await rpc("admin_save_logistique",{token:teamToken,course_id:id,info:{rdv:$("#ar-"+id).value,hebergement:$("#ah-"+id).value,relais:$("#aR-"+id).value,ville:$("#av-"+id).value}})); setMsg("#globalMsg","Infos logistiques enregistrées."); }catch(err){ setMsg("#globalMsg",err.message,true); } finally{ b.disabled=false; } return; }
     if(b.dataset.del){
       if(pendingDel!==b.dataset.del){ pendingDel=b.dataset.del; b.textContent="Confirmer ?"; setTimeout(()=>{ if(pendingDel===b.dataset.del){ pendingDel=null; b.textContent="Supprimer"; } },4000); return; }
       pendingDel=null;
@@ -1311,7 +1576,8 @@ details.sec[open]>summary::before{content:"▾ "}
     $("#resTitle").textContent="Résultat : "+(c.titre||c.lieu)+(c.equipe?" · "+shortTeam(c.equipe):"");
     $("#resPos").value=c.position||""; $("#resPts").value=(c.points&&c.points!==999)?c.points:""; $("#resCom").value=c.commentaire||""; $("#resNews").checked=!c.resultat;
     const done = new Set((c.participants||[]).map(p=>p.pid).filter(Boolean));
-    const pre = c.resultat ? done : new Set(answers(c.id).yes.map(p=>p.id));
+    const rl=relays[c.id], fromRelay = rl ? new Set([...(rl.history||[]).map(h=>h.pid), ...(rl.current&&rl.current.pid?[rl.current.pid]:[])]) : null;
+    const pre = c.resultat ? done : (fromRelay && fromRelay.size ? fromRelay : new Set(answers(c.id).yes.map(p=>p.id)));
     $("#resPilots").innerHTML = Object.values(pilots).sort((a,b)=>a.nom.localeCompare(b.nom,"fr")).map(p=>'<label class="check"><input type="checkbox" value="'+esc(p.id)+'"'+(pre.has(p.id)?" checked":"")+'> '+esc(p.nom)+'</label>').join("") || '<span class="note">Aucun pilote inscrit.</span>';
     $("#resInv").value = (c.participants||[]).filter(p=>!p.pid).map(p=>p.nom).join(", ");
     setMsg("#resMsg",""); $("#resPanel").hidden=false; $("#resPanel").scrollIntoView({behavior:"smooth",block:"start"});
@@ -1344,7 +1610,8 @@ details.sec[open]>summary::before{content:"▾ "}
   async function loadAdmin(){
     if(!isAdmin() || adminLoading) return; adminLoading=true;
     try{
-      const [ps, cfg] = await Promise.all([rpc("admin_pilots",{token:teamToken}), rpc("admin_get_config",{token:teamToken})]);
+      const [ps, cfg, vit] = await Promise.all([rpc("admin_pilots",{token:teamToken}), rpc("admin_get_config",{token:teamToken}), rpc("admin_vitrine_set",{token:teamToken,cfg:{}})]);
+      if(!$("#vitForm").contains(document.activeElement)){ $("#vTexte").value=vit.vitrine_texte||""; $("#vContact").value=vit.vitrine_contact||""; $("#vCheck").value=vit.checklist||""; }
       adminPilots=ps;
       if(!$("#cfgCodeForm").contains(document.activeElement)){ $("#cTeam").value=cfg.team_code||""; $("#cAdmin").value=cfg.admin_code||""; }
       if(!$("#cfgPayForm").contains(document.activeElement)){ $("#cPayInfo").value=cfg.paiement_info||""; $("#cCotis").value=cfg.cotisation_montant||""; }
@@ -1353,6 +1620,7 @@ details.sec[open]>summary::before{content:"▾ "}
   }
   function renderAdmin(){
     if(!isAdmin() || !adminPilots || $("#viewAdmin").hidden) return;
+    renderGear();
     if($("#pilotTable").contains(document.activeElement)) return;
     const y=$("#cotisYear").value, mt=Number(config.cotisation||0);
     const list=adminPilots.map(a=>Object.assign({},a,pilots[a.id]?{nom:pilots[a.id].nom,equipePref:pilots[a.id].equipePref}:{}));
@@ -1360,11 +1628,24 @@ details.sec[open]>summary::before{content:"▾ "}
     $("#cotisStats").innerHTML='<div class="stat"><b>'+paid+' / '+list.length+'</b><span>Cotisations '+esc(y)+'</span></div>'+(mt?'<div class="stat"><b>'+euro(paid*mt)+'</b><span>Encaissé</span></div><div class="stat"><b>'+euro((list.length-paid)*mt)+'</b><span>Reste</span></div>':'');
     $("#pilotTable").innerHTML = list.length ? '<thead><tr><th>Pilote</th><th>Cotis.</th><th>Code perso</th></tr></thead><tbody>'+list.map(p=>{ const pr=p.profil||{}, ok=p.cotis&&p.cotis[y];
       const prof=[pr.poids?pr.poids+" kg":"", pr.taille?"Combi "+pr.taille:"", pr.licence?"Lic. "+pr.licence:"", pr.tel||""].filter(Boolean).join(" · ") || "—";
-      return '<tr><td style="white-space:normal"><b>'+esc(p.nom)+'</b>'+(p.equipePref?' <span class="sub2">· '+esc(shortTeam(p.equipePref))+'</span>':'')+'<div class="sub2">'+esc(prof)+'</div></td><td><button type="button" class="paybtn'+(ok?" ok":"")+'" data-cotis="'+esc(p.id)+'" data-v="'+(ok?"0":"1")+'">'+(ok?"Payée ✓":"À payer")+'</button></td>'+
+      return '<tr><td style="white-space:normal"><b>'+esc(p.nom)+'</b>'+(p.equipePref?' <span class="sub2">· '+esc(shortTeam(p.equipePref))+'</span>':'')+'<div class="sub2">'+esc(prof)+'</div>'+(p.adhesion&&p.adhesion[y]?'<div class="sub2" style="color:var(--ok)">Adhésion '+esc(y)+' remplie'+(p.adhesion[y].droitImage?' · droit à l\'image ✓':'')+'</div>':'<div class="sub2" style="color:var(--no)">Adhésion '+esc(y)+' non remplie</div>')+'</td><td><button type="button" class="paybtn'+(ok?" ok":"")+'" data-cotis="'+esc(p.id)+'" data-v="'+(ok?"0":"1")+'">'+(ok?"Payée ✓":"À payer")+'</button></td>'+
         '<td><span class="pinbox" id="pin-'+esc(p.id)+'"><button type="button" class="btn-ghost mini" data-pinreset="'+esc(p.id)+'">Nouveau code</button></span><div style="margin-top:4px"><button type="button" class="paybtn'+(p.isAdmin?" ok":"")+'" data-padmin="'+esc(p.id)+'" data-v="'+(p.isAdmin?"0":"1")+'">'+(p.isAdmin?"Admin ✓":"Rendre admin")+'</button></div></td></tr>'; }).join("")+'</tbody>'
       : '<tbody><tr><td>Aucun pilote inscrit.</td></tr></tbody>';
   }
   $("#cotisYear").addEventListener("change", renderAdmin);
+  function renderGear(){
+    if(!isAdmin() || $("#viewAdmin").hidden || $("#gearTable").contains(document.activeElement)) return;
+    const ps=Object.values(pilots).sort((a,b)=>a.nom.localeCompare(b.nom,"fr"));
+    $("#gearTable").innerHTML = materiel.length ? '<thead><tr><th>Matériel</th><th>Prêté à</th><th></th></tr></thead><tbody>'+materiel.map(x=>'<tr><td style="white-space:normal"><b>'+esc(x.nom)+'</b><div class="sub2">'+esc(x.categorie)+(x.taille?' · '+esc(x.taille):'')+(x.depuis?' · depuis le '+esc(fmtDay(x.depuis)):'')+'</div></td><td><select data-gear="'+esc(x.id)+'" aria-label="Prêter '+esc(x.nom)+'"><option value="">Au local</option>'+ps.map(p=>'<option value="'+esc(p.id)+'"'+(p.id===x.pilotId?" selected":"")+'>'+esc(p.nom)+'</option>').join("")+'</select></td><td><button type="button" class="btn-ghost mini" data-gdel="'+esc(x.id)+'">Supprimer</button></td></tr>').join("")+'</tbody>' : '<tbody><tr><td>Aucun matériel enregistré.</td></tr></tbody>';
+  }
+  $("#gearTable").addEventListener("change", async e=>{ const s2=e.target.closest("select[data-gear]"); if(!s2) return; const x=materiel.find(m=>m.id===s2.dataset.gear); if(!x) return;
+    try{ applyData(await rpc("admin_materiel_save",{token:teamToken,item_id:x.id,item:Object.assign({},x,{pilotId:s2.value})})); s2.blur(); renderGear(); setMsg("#gearMsg", s2.value?x.nom+" prêté à "+nomOf(s2.value)+".":x.nom+" rendu au local."); }catch(err){ setMsg("#gearMsg",err.message,true); } });
+  $("#gearTable").addEventListener("click", async e=>{ const b=e.target.closest("button[data-gdel]"); if(!b) return; if(b.textContent!=="Confirmer ?"){ b.textContent="Confirmer ?"; return; }
+    try{ applyData(await rpc("admin_materiel_delete",{token:teamToken,item_id:b.dataset.gdel})); renderGear(); }catch(err){ setMsg("#gearMsg",err.message,true); } });
+  $("#gearForm").addEventListener("submit", async e=>{ e.preventDefault();
+    try{ applyData(await rpc("admin_materiel_save",{token:teamToken,item_id:"m"+Date.now().toString(36),item:{nom:$("#gNom").value,categorie:$("#gCat").value,taille:$("#gTaille").value}})); $("#gNom").value=""; $("#gTaille").value=""; renderGear(); setMsg("#gearMsg","Matériel ajouté."); }catch(err){ setMsg("#gearMsg",err.message,true); } });
+  $("#vitForm").addEventListener("submit", async e=>{ e.preventDefault();
+    try{ await rpc("admin_vitrine_set",{token:teamToken,cfg:{vitrine_texte:$("#vTexte").value,vitrine_contact:$("#vContact").value,checklist:$("#vCheck").value}}); setMsg("#vitMsg","Enregistré."); refresh(true); }catch(err){ setMsg("#vitMsg",err.message,true); } });
   $("#pilotTable").addEventListener("click", async e => {
     const b=e.target.closest("button"); if(!b) return;
     if(b.dataset.cotis){ b.disabled=true; try{ adminPilots=await rpc("admin_set_cotis",{token:teamToken,pilot_id:b.dataset.cotis,annee:$("#cotisYear").value,paye:b.dataset.v==="1"}); renderAdmin(); }catch(err){ setMsg("#pilotMsg",err.message,true); b.disabled=false; } return; }
@@ -1401,6 +1682,11 @@ details.sec[open]>summary::before{content:"▾ "}
       const y=$("#cotisYear").value, rows=[["Pilote","Équipe préférée","Poids (kg)","Licence","Taille combi","Téléphone","Cotisation "+y]];
       for(const p of (adminPilots||[])){ const pr=p.profil||{}; rows.push([(pilots[p.id]||p).nom,p.equipePref||"",num(pr.poids),pr.licence||"",pr.taille||"",pr.tel||"",p.cotis&&p.cotis[y]?"Payée":"À payer"]); }
       csv("rk7-pilotes-"+stamp+".csv", rows);
+    } else if(b.dataset.export==="adhesions"){
+      const y=$("#cotisYear").value, cols=["nom","prenom","statut","naissance","lieuNaissance","adresse","cp","ville","tel","email","urgence","tshirt","reglement","faitA","signature","date"];
+      const rows=[["Pilote (appli)","Nom","Prénom","Statut","Naissance","Lieu de naissance","Adresse","CP","Ville","Téléphone","E-mail","Contact d'urgence","T-shirt","Règlement","Fait à","Signature","Date","Droit à l'image","Cotisation "+y]];
+      for(const p of (adminPilots||[])){ const a=(p.adhesion||{})[y]; rows.push([(pilots[p.id]||p).nom].concat(a?cols.map(k=>a[k]||""):cols.map(()=>"")).concat([a?(a.droitImage?"Oui":"Non"):"", p.cotis&&p.cotis[y]?"Payée":"À payer"])); }
+      csv("rk7-adhesions-"+y+"-"+stamp+".csv", rows);
     } else if(b.dataset.export==="frais"){
       const rows=[["Course","Date","Type","Détail","Montant (€)","Payé par","Partagé entre","Part par pilote (€)","Ajouté le"]];
       for(const f of frais){ const c=courses.find(x=>x.id===f.courseId)||{}; rows.push([(c.titre||c.lieu||"")+(c.equipe?" ("+c.equipe+")":""),c.date||"",f.categorie,f.libelle||"",num(f.montant),nomOf(f.payeur),f.participants.map(nomOf).join(", "),num(Number(f.montant)/f.participants.length),String(f.createdAt||"").slice(0,10)]); }
@@ -1481,9 +1767,10 @@ details.sec[open]>summary::before{content:"▾ "}
 
   // Mise à jour automatique toutes les 30 s quand la page est visible
   setInterval(()=>{ if(teamToken && document.visibilityState==="visible") refresh(); }, 30000);
+  setInterval(()=>{ if(teamToken && raceCid && document.visibilityState==="visible") refresh(true); }, 10000);
   document.addEventListener("visibilitychange", ()=>{ if(teamToken && document.visibilityState==="visible") refresh(); });
 
-  if(teamToken){ showApp(); refresh(); } else showGate();
+  if(teamToken){ showApp(); loadCached(); refresh(); } else showGate();
 })();
 </script>
 </body>
