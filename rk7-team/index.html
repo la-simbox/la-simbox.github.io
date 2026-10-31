@@ -174,6 +174,8 @@ table.team th.p,table.team td.s{text-align:center}
 .gate input{background:#1B1B19;border-color:#3A3833;color:var(--band-ink);text-align:center;letter-spacing:.12em;text-transform:uppercase;font-size:18px}
 .gate .msg{color:var(--band-muted)}
 .gate .msg.err{color:#E59673}
+.swscalc{border:1px solid var(--gold);background:var(--gold-soft);border-radius:10px;padding:10px 12px;font-size:14px;display:flex;flex-direction:column;gap:2px}
+.swscalc b.big{font-family:var(--display);font-size:24px;color:var(--gold)}
 .gor{display:flex;align-items:center;gap:10px;color:var(--band-muted);font-size:13px;text-transform:uppercase;letter-spacing:.12em}
 .gor::before,.gor::after{content:"";flex:1;height:1px;background:#3A3833}
 .gpart{display:block;border:1px solid var(--band-gold);color:var(--band-gold);border-radius:6px;padding:12px;font-weight:700;font-size:17px;text-decoration:none}
@@ -855,6 +857,7 @@ button:active:not(:disabled){transform:scale(.97)}
         <div class="field"><label for="fEquipage">Pilotes par kart</label>
           <select id="fEquipage"><option value="">Non précisé</option><option value="1">1 pilote</option><option value="2">2 pilotes</option><option value="3">3 pilotes</option><option value="4">4 pilotes</option><option value="5">5 pilotes</option><option value="6">6 pilotes</option></select></div>
         <div class="field"><label for="fEquipe">Équipe imposée</label><select id="fEquipe"></select></div>
+        <div class="field"><label for="fNbEq">Équipes engagées (toutes)</label><input id="fNbEq" type="number" min="1" max="200" step="1" inputmode="numeric" placeholder="Ex. 18"></div>
         <div class="field"><label for="fLimite">Date limite de réservation</label><input id="fLimite" type="date"></div>
         <div class="field wide"><label for="fNote">Infos (championnat, relais, matériel…)</label><input id="fNote" type="text" maxlength="160" placeholder="SWS, relais de 30 min, lest 85 kg"></div>
       </div>
@@ -870,7 +873,10 @@ button:active:not(:disabled){transform:scale(.97)}
     <h2 id="resTitle">Résultat de la course</h2>
     <form id="resForm" class="form-grid">
       <div class="field"><label for="resPos">Classement</label><input id="resPos" type="text" maxlength="20" placeholder="3e / 24"></div>
+      <div class="field"><label for="resNb">Équipes au départ</label><input id="resNb" type="number" min="1" max="200" step="1" inputmode="numeric" placeholder="Ex. 18"></div>
+      <div class="field"><label for="resGh">Pilotes fantômes (sans compte SWS)</label><input id="resGh" type="number" min="0" max="10" step="1" inputmode="numeric" value="0"></div>
       <div class="field"><label for="resPts">Points SWS</label><input id="resPts" type="number" min="0" step="1" inputmode="numeric"></div>
+      <div class="swscalc wide" id="resCalc" hidden></div>
       <div class="field wide"><span class="lab">Pilotes ayant roulé</span><div class="checks" id="resPilots"></div></div>
       <div class="field wide"><label for="resInv">Autres pilotes (invités, séparés par des virgules)</label><input id="resInv" type="text" maxlength="200"></div>
       <div class="field wide"><label for="resCom">Commentaire pour la news (facultatif)</label><textarea id="resCom" maxlength="1500" style="min-height:80px" placeholder="Belle remontée en fin de course…"></textarea></div>
@@ -1230,7 +1236,7 @@ button:active:not(:disabled){transform:scale(.97)}
         dateBlock+
         '<div class="info"><div class="chips"><span class="chip">'+esc(c.type||"Endurance")+'</span>'+(c.equipe?'<span class="chip">'+esc(c.equipe)+'</span>':"")+state+full+limChip+'</div>'+
           '<h3>'+esc(c.titre||c.lieu)+'</h3>'+
-          '<div class="meta">'+(c.titre?'<span>'+ico("pin")+'<b>'+esc(c.lieu)+'</b></span>':'')+(!c.date?'<span>'+ico("cal")+'<b>'+(c.terminee?"Date non renseignée":"Date à confirmer")+'</b></span>':'')+'<span>'+ico("clock")+'<b>'+esc(c.duree||"—")+'</b></span>'+(c.heure?'<span>'+ico("flag")+'Départ <b>'+esc(c.heure)+'</b></span>':"")+(eq&&c.terminee?'<span>'+ico("users")+'<b>'+eq+'</b> pilotes</span>':"")+(c.points&&c.points!==999?'<span>'+ico("star")+'<b>'+c.points+'</b> pts</span>':"")+(c.dateFin&&c.dateFin>c.date?'<span>'+ico("cal")+'<b>'+esc(shortDate(c))+'</b></span>':"")+'</div>'+seatsHtml(c, yes)+crewLine(c)+(()=>{ const so=soutiens.filter(x=>x.courseId===c.id); return so.length?'<div class="sub2" style="font-size:13px">💛 Soutenue par <b>'+esc(so.map(x=>x.nom).join(", "))+'</b></div>':''; })()+
+          '<div class="meta">'+(c.titre?'<span>'+ico("pin")+'<b>'+esc(c.lieu)+'</b></span>':'')+(!c.date?'<span>'+ico("cal")+'<b>'+(c.terminee?"Date non renseignée":"Date à confirmer")+'</b></span>':'')+'<span>'+ico("clock")+'<b>'+esc(c.duree||"—")+'</b></span>'+(c.heure?'<span>'+ico("flag")+'Départ <b>'+esc(c.heure)+'</b></span>':"")+(eq&&c.terminee?'<span>'+ico("users")+'<b>'+eq+'</b> pilotes</span>':"")+(c.points&&c.points!==999?'<span>'+ico("star")+'<b>'+c.points+'</b> pts SWS</span>':"")+(c.terminee&&c.nbEquipes?'<span>'+ico("flag")+'<b>'+c.nbEquipes+'</b> équipes</span>':"")+(c.dateFin&&c.dateFin>c.date?'<span>'+ico("cal")+'<b>'+esc(shortDate(c))+'</b></span>':"")+'</div>'+seatsHtml(c, yes)+crewLine(c)+swsLine(c)+(()=>{ const so=soutiens.filter(x=>x.courseId===c.id); return so.length?'<div class="sub2" style="font-size:13px">💛 Soutenue par <b>'+esc(so.map(x=>x.nom).join(", "))+'</b></div>':''; })()+
           (c.note?'<div class="note">'+esc(c.note)+'</div>':"")+resHtml+partHtml+chipsYes+chipsMaybe+chipsNo+(()=>{ const x=raceBtn(c, mine)+jeuxHtml(c)+checkHtml(c, mine)+logiHtml(c, mine)+fraisHtml(c, mine)+commHtml(c)+photosHtml(c, mine); return x?'<div class="extras">'+x+'</div>':''; })()+'</div>'+
         '<div class="actions">'+price+action+tools+'</div></article>';
     }
@@ -1844,6 +1850,16 @@ button:active:not(:disabled){transform:scale(.97)}
   function avatarHtml(p, cls){ const nm=(p&&p.nom)||"?"; return '<span class="avt'+(cls?' '+cls:'')+'">'+(p&&p.avatar?'<img data-dbimg="'+esc(p.avatar)+'" alt="Photo de '+esc(nm)+'">':esc(initials(nm)))+'</span>'; }
   // ---------- Profil pilote ----------
   const normN = t => String(t||"").trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+  // ---------- Points SWS Endurance (règlement SWS 2026, annexe 1 §4) ----------
+  function swsHours(d){ const m=/(\d+(?:[.,]\d+)?)\s*h\s*(\d{1,2})?/i.exec(String(d||"")); if(!m) return Number(d)||0; return parseFloat(m[1].replace(",","."))+(m[2]?Number(m[2])/60:0); }
+  function swsBonus(H){ const T=[[25,160],[22,140],[19,120],[16,100],[13,80],[10,60],[7,40],[4,20],[2,10]]; for(const [h,b] of T) if(H>=h) return b; return 0; }
+  function swsEnds(N){ return N<=15 ? {first:1000+N,last:N} : N<=25 ? {first:1016,last:16} : {first:1017,last:17}; }
+  const swsFactor = g => g>0 ? Math.max(0, 0.9-0.05*(g-1)) : 1;
+  function swsPts(N,pos,H,g){ const e=swsEnds(N), p=Math.max(1,Math.min(N,pos)); const place=Math.round(N<=1?e.first:e.last+(e.first-e.last)*(1-Math.log(p)/Math.log(N))), bonus=swsBonus(H), factor=swsFactor(g||0); return {place,bonus,factor,total:Math.round((place+bonus)*factor)}; }
+  function swsRange(N,H,g){ const e=swsEnds(N), b=swsBonus(H), f=swsFactor(g||0); return {hi:Math.round((e.first+b)*f), lo:Math.round((e.last+b)*f), bonus:b}; }
+  function swsLine(c){ const N=Number(c.nbEquipes)||0; if(!N || c.terminee) return "";
+    if(N<6) return '<div class="sub2" style="font-size:13px">🏁 '+N+' équipe'+(N>1?'s':'')+' engagée'+(N>1?'s':'')+' · moins de 6 : ne compte pas au classement SWS</div>';
+    const r=swsRange(N,swsHours(c.duree),0); return '<div class="sub2" style="font-size:13px">🏁 <b>'+N+' équipes</b> engagées · SWS : <b>'+r.hi+' pts</b> au vainqueur, '+r.lo+' au dernier (bonus durée +'+r.bonus+')</div>'; }
   // ---------- Jeux : Pilote du jour + pronostics ----------
   const pronoPts = (g, real) => { if(!g||!real) return 0; const d=Math.abs(g-real); return d===0?10:d===1?5:d===2?3:d<=5?1:0; };
   function mvpWinners(cid){ const m=jeux.mvp&&jeux.mvp[cid]; if(!m||!m.counts) return {ids:[],n:0,tot:0}; const e=Object.entries(m.counts); const n=Math.max(0,...e.map(x=>x[1])); return {ids:n?e.filter(x=>x[1]===n).map(x=>x[0]):[], n, tot:e.reduce((a,x)=>a+x[1],0)}; }
@@ -2169,14 +2185,14 @@ button:active:not(:disabled){transform:scale(.97)}
     editingId=id;
     $("#fDate").value=c.date||""; $("#fSaison").value=c.date?"":(c.saison||""); $("#fTitre").value=c.titre||""; $("#fPrixEq").value=(c.prixEquipage!=null?c.prixEquipage:""); $("#fDateFin").value=c.dateFin||""; $("#fHeure").value=c.heure||"";
     $("#fLieu").value=c.lieu||""; $("#fDuree").value=c.duree||""; $("#fPrix").value=hasPrice(c)?c.prix:"";
-    $("#fEquipage").value=c.equipage?String(c.equipage):""; $("#fEquipe").value=c.equipe||""; $("#fNote").value=c.note||""; $("#fLimite").value=c.limite||"";
+    $("#fEquipage").value=c.equipage?String(c.equipage):""; $("#fEquipe").value=c.equipe||""; $("#fNbEq").value=c.nbEquipes||""; $("#fNote").value=c.note||""; $("#fLimite").value=c.limite||"";
     $("#formTitle").textContent="Modifier la course"; $("#saveRace").textContent="Enregistrer les modifications";
     openForm(true); $("#adminPanel").scrollIntoView({behavior:"smooth",block:"start"});
   }
   form.addEventListener("submit", async e => {
     e.preventDefault();
     const data={ titre:$("#fTitre").value, saison:$("#fSaison").value, prixEquipage:$("#fPrixEq").value===""?null:Number($("#fPrixEq").value), date:$("#fDate").value, dateFin:$("#fDateFin").value, heure:$("#fHeure").value, lieu:$("#fLieu").value, duree:$("#fDuree").value,
-      prix:$("#fPrix").value===""?null:Number($("#fPrix").value), equipage:$("#fEquipage").value, equipe:$("#fEquipe").value, note:$("#fNote").value, limite:$("#fLimite").value };
+      prix:$("#fPrix").value===""?null:Number($("#fPrix").value), equipage:$("#fEquipage").value, equipe:$("#fEquipe").value, nbEquipes:$("#fNbEq").value, note:$("#fNote").value, limite:$("#fLimite").value };
     const id = editingId || ((data.date||data.saison||"c")+"-"+Math.random().toString(36).slice(2,8));
     $("#saveRace").disabled=true;
     try{ applyData(await api("admin/courses/"+id,{method:"PUT",json:data})); setMsg("#adminMsg", editingId?"Course modifiée.":"Course ajoutée au calendrier."); resetForm(); openForm(false);
@@ -2236,7 +2252,7 @@ button:active:not(:disabled){transform:scale(.97)}
   function openResult(id){
     const c=courses.find(x=>x.id===id); if(!c) return; resId=id;
     $("#resTitle").textContent="Résultat : "+(c.titre||c.lieu)+(c.equipe?" · "+shortTeam(c.equipe):"");
-    $("#resPos").value=c.position||""; $("#resPts").value=(c.points&&c.points!==999)?c.points:""; $("#resCom").value=c.commentaire||""; $("#resNews").checked=!c.resultat;
+    $("#resPos").value=c.position||""; $("#resPts").value=(c.points&&c.points!==999)?c.points:""; $("#resNb").value=c.nbEquipes||""; $("#resGh").value=c.fantomes||0; ptsTouched=!!(c.points&&c.points!==999); calcRes(); $("#resCom").value=c.commentaire||""; $("#resNews").checked=!c.resultat;
     const done = new Set((c.participants||[]).map(p=>p.pid).filter(Boolean));
     const rl=relays[c.id], fromRelay = rl ? new Set([...(rl.history||[]).map(h=>h.pid), ...(rl.current&&rl.current.pid?[rl.current.pid]:[])]) : null;
     const pre = c.resultat ? done : (fromRelay && fromRelay.size ? fromRelay : new Set(answers(c.id).yes.map(p=>p.id)));
@@ -2244,13 +2260,27 @@ button:active:not(:disabled){transform:scale(.97)}
     $("#resInv").value = (c.participants||[]).filter(p=>!p.pid).map(p=>p.nom).join(", ");
     setMsg("#resMsg",""); $("#resPanel").hidden=false; $("#resPanel").scrollIntoView({behavior:"smooth",block:"start"});
   }
+  let ptsTouched=false;
+  function calcRes(){
+    const c=courses.find(x=>x.id===resId); if(!c) return; const box=$("#resCalc");
+    const m=/^\s*(\d+)\D*(?:\/\s*(\d+))?/.exec($("#resPos").value||""), pos=m?Number(m[1]):null;
+    if(m&&m[2]&&!$("#resNb").value) $("#resNb").value=m[2];
+    const N=Number($("#resNb").value)||0, g=Number($("#resGh").value)||0, H=swsHours(c.duree);
+    if(!N){ box.hidden=true; return; } box.hidden=false;
+    if(N<6){ box.innerHTML='<b>Moins de 6 équipes : le résultat ne compte pas pour le classement SWS.</b>'; return; }
+    if(!pos){ const r=swsRange(N,H,g); box.innerHTML='Avec '+N+' équipes : de <b>'+r.lo+'</b> (dernier) à <b>'+r.hi+'</b> pts (vainqueur). Indique le classement pour le calcul exact.'; return; }
+    const x=swsPts(N,pos,H,g); if(!ptsTouched) $("#resPts").value=x.total;
+    box.innerHTML='<span>Points SWS estimés</span><b class="big">'+x.total+' pts</b><span class="sub2">P'+Math.min(pos,N)+' sur '+N+' équipes = '+x.place+' pts + bonus durée '+x.bonus+' pts ('+esc(c.duree||"?")+')'+(g?' × '+Math.round(x.factor*100)+' % ('+g+' fantôme'+(g>1?'s':'')+')':'')+'</span><span class="sub2">Le barème SWS fixe le 1er et le dernier ; entre les deux, la formule exacte n\'est pas publiée : vérifie avec le chiffre affiché par SWS et corrige si besoin.</span>';
+  }
+  ["#resPos","#resNb","#resGh"].forEach(k=>$(k).addEventListener("input",calcRes));
+  $("#resPts").addEventListener("input",()=>{ ptsTouched=$("#resPts").value!==""; if(!ptsTouched) calcRes(); });
   $("#resCancel").addEventListener("click",()=>{ $("#resPanel").hidden=true; resId=null; });
   $("#resForm").addEventListener("submit", async e => {
     e.preventDefault(); if(!resId) return;
     const pil=[...$("#resPilots").querySelectorAll("input:checked")].map(i=>i.value);
     const inv=$("#resInv").value.split(",").map(t=>t.trim()).filter(Boolean);
     $("#resSave").disabled=true;
-    try{ applyData(await rpc("admin_save_result",{token:teamToken,course_id:resId,result:{position:$("#resPos").value,points:$("#resPts").value,pilotes:pil,invites:inv,commentaire:$("#resCom").value,news:$("#resNews").checked}}));
+    try{ applyData(await rpc("admin_save_result",{token:teamToken,course_id:resId,result:{position:$("#resPos").value,points:$("#resPts").value,nbEquipes:$("#resNb").value,fantomes:$("#resGh").value,pilotes:pil,invites:inv,commentaire:$("#resCom").value,news:$("#resNews").checked}}));
       $("#resPanel").hidden=true; resId=null; setMsg("#globalMsg","Résultat enregistré : la course est dans « Passées » et le bilan est à jour."); }
     catch(err){ setMsg("#resMsg",err.message,true); }
     finally{ $("#resSave").disabled=false; }
