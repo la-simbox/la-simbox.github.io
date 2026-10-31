@@ -496,7 +496,7 @@ button:active:not(:disabled){transform:scale(.97)}
       <button type="button" id="navProfil"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.4 4.2-7 8-7s7 2.6 8 7"/></svg><span>Profil</span></button>
       <button type="button" id="navAdmin" hidden><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2 2M14 9l2 2"/></svg><span>Admin</span></button>
     </nav>
-      <details class="swsmenu" id="swsMenu"><summary><span class="lg">Équipes </span>SWS</summary><div class="menu"><div class="mh">Nos équipes sur Sodi World Series</div><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-pro-17003.html" target="_blank" rel="noopener">RK7 Team Pro <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-racing-18095.html" target="_blank" rel="noopener">RK7 Team Racing <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-sport-25694.html" target="_blank" rel="noopener">RK7 Team Sport <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-11270.html" target="_blank" rel="noopener">RK7 Team <span>↗</span></a><a class="sws-endu" data-p="france-c8/" href="https://www.sodiwseries.com/fr-fr/rankings/global/2026/france-c8/endurance-cup-2" target="_blank" rel="noopener">Classement Endurance France <span>↗</span></a><a class="sws-endu" data-p="" href="https://www.sodiwseries.com/fr-fr/rankings/global/2026/endurance-cup-2" target="_blank" rel="noopener">Classement Endurance mondial <span>↗</span></a><a class="all" href="https://www.sodiwseries.com/fr-fr/" target="_blank" rel="noopener">Site SWS <span>↗</span></a><a class="all" href="equipe.html" target="_blank" rel="noopener">Notre vitrine publique <span>↗</span></a></div></details>
+      <details class="swsmenu" id="swsMenu"><summary><span class="lg">Équipes </span>SWS</summary><div class="menu"><div class="mh">Nos équipes sur Sodi World Series</div><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-pro-17003.html" target="_blank" rel="noopener">RK7 Team Pro <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-racing-18095.html" target="_blank" rel="noopener">RK7 Team Racing <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-sport-25694.html" target="_blank" rel="noopener">RK7 Team Sport <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-11270.html" target="_blank" rel="noopener">RK7 Team <span>↗</span></a><a class="sws-endu" data-p="france-c8/" href="https://www.sodiwseries.com/fr-fr/rankings/global/2026/france-c8/endurance-cup-2" target="_blank" rel="noopener">Classement Endurance France <span>↗</span></a><a class="sws-endu" data-p="" href="https://www.sodiwseries.com/fr-fr/rankings/global/2026/endurance-cup-2" target="_blank" rel="noopener">Classement Endurance mondial <span>↗</span></a><a class="all" href="https://www.sodiwseries.com/fr-fr/" target="_blank" rel="noopener">Site SWS <span>↗</span></a><a class="all" href="equipe.html" target="_blank" rel="noopener">Notre vitrine publique <span>↗</span></a><a class="all" href="partenaires.html" target="_blank" rel="noopener">Espace partenaires <span>↗</span></a></div></details>
   </div>
 </header>
 
@@ -714,6 +714,13 @@ button:active:not(:disabled){transform:scale(.97)}
     </form>
     <p class="msg" id="gearMsg"></p>
   </section>
+  <section class="panel" id="partPanel">
+    <h2>Espace partenaires <span class="chip" id="partNew" hidden></span></h2>
+    <p class="msg">Page sans code à envoyer à vos partenaires : ils voient le calendrier (sans nom de pilote ni prix), ajoutent les courses à leur agenda et peuvent proposer une offre ou laisser un mot de soutien. Tu reçois une notification à chaque message.</p>
+    <div class="row" style="gap:8px;flex-wrap:wrap"><a class="btn-gold" style="text-decoration:none;border-radius:6px;padding:8px 12px;font-weight:600" href="partenaires.html" target="_blank" rel="noopener">Ouvrir l'espace partenaires ↗</a><button type="button" class="btn-ghost" id="partCopy">Copier le lien</button></div>
+    <div id="partList" style="display:flex;flex-direction:column;gap:8px;margin-top:8px"></div>
+    <p class="msg" id="partMsg"></p>
+  </section>
   <section class="panel">
     <h2>Vitrine publique et checklist</h2>
     <p class="msg">La vitrine est une page sans code d'accès, à partager aux sponsors : <a id="vitLink" href="equipe.html" target="_blank" rel="noopener">voir la vitrine</a>. Elle affiche les chiffres de l'équipe, le palmarès, le calendrier et les photos que tu marques « Vitrine », sans aucun nom de pilote.</p>
@@ -924,7 +931,7 @@ button:active:not(:disabled){transform:scale(.97)}
   let proposals=[], profilePid=null, editProp=null;
   let treso=null, accData=null, backups=null, visited=false, onbSkip=false;
   let relays={}, materiel=[], clockSkew=0, raceCid=null, raceTimer=null, wxCache={};
-  let jeux={mvp:{},pronos:{}}, myPronos={}, pronoLoaded=false;
+  let soutiens=[]; let jeux={mvp:{},pronos:{}}, myPronos={}, pronoLoaded=false;
   let comments=[], photos=[], openComm=new Set(), openPhotos=new Set(), elevTried=false, lbList=[], lbIdx=0;
   let frais=[], openFrais=new Set(), allFrais=new Set(), config={}, adminPilots=null, myProfile=null, openLogi=new Set(), resId=null;
   let courses=[], news=[], pilots={}, loaded=false, view="up", mode=ls.get("rk7-mode")==="grid"?"grid":"list", editingId=null, editingNews=null;
@@ -1039,7 +1046,7 @@ button:active:not(:disabled){transform:scale(.97)}
   }
   function applyData(d){
     if(!d || !d.courses) return;
-    courses=d.courses; news=d.news||[]; config=d.config||{}; frais=d.frais||[]; if(d.roc) roc=d.roc; proposals=d.proposals||[]; comments=d.comments||[]; photos=d.photos||[]; relays=d.relays||{}; materiel=d.materiel||[]; if(d.jeux) jeux=d.jeux; if(d.now) clockSkew=d.now-Date.now();
+    courses=d.courses; news=d.news||[]; config=d.config||{}; frais=d.frais||[]; if(d.roc) roc=d.roc; proposals=d.proposals||[]; comments=d.comments||[]; photos=d.photos||[]; relays=d.relays||{}; materiel=d.materiel||[]; if(d.jeux) jeux=d.jeux; soutiens=d.soutiens||[]; if(d.now) clockSkew=d.now-Date.now();
     if(!d.__cached){ try{ localStorage.setItem("rk7-data", JSON.stringify(Object.assign({}, d, {__at:Date.now()}))); }catch(e){} $("#offline").hidden=true; } window.__bilans=d.bilans||[]; pilots={}; (d.pilots||[]).forEach(p=>pilots[p.id]=p);
     if(myId && !pilots[myId]){ logoutPilot(); }
     loaded=true; renderAll(); tryElevate();
@@ -1216,7 +1223,7 @@ button:active:not(:disabled){transform:scale(.97)}
         dateBlock+
         '<div class="info"><div class="chips"><span class="chip">'+esc(c.type||"Endurance")+'</span>'+(c.equipe?'<span class="chip">'+esc(c.equipe)+'</span>':"")+state+full+limChip+'</div>'+
           '<h3>'+esc(c.titre||c.lieu)+'</h3>'+
-          '<div class="meta">'+(c.titre?'<span>'+ico("pin")+'<b>'+esc(c.lieu)+'</b></span>':'')+(!c.date?'<span>'+ico("cal")+'<b>'+(c.terminee?"Date non renseignée":"Date à confirmer")+'</b></span>':'')+'<span>'+ico("clock")+'<b>'+esc(c.duree||"—")+'</b></span>'+(c.heure?'<span>'+ico("flag")+'Départ <b>'+esc(c.heure)+'</b></span>':"")+(eq&&c.terminee?'<span>'+ico("users")+'<b>'+eq+'</b> pilotes</span>':"")+(c.points&&c.points!==999?'<span>'+ico("star")+'<b>'+c.points+'</b> pts</span>':"")+(c.dateFin&&c.dateFin>c.date?'<span>'+ico("cal")+'<b>'+esc(shortDate(c))+'</b></span>':"")+'</div>'+seatsHtml(c, yes)+crewLine(c)+
+          '<div class="meta">'+(c.titre?'<span>'+ico("pin")+'<b>'+esc(c.lieu)+'</b></span>':'')+(!c.date?'<span>'+ico("cal")+'<b>'+(c.terminee?"Date non renseignée":"Date à confirmer")+'</b></span>':'')+'<span>'+ico("clock")+'<b>'+esc(c.duree||"—")+'</b></span>'+(c.heure?'<span>'+ico("flag")+'Départ <b>'+esc(c.heure)+'</b></span>':"")+(eq&&c.terminee?'<span>'+ico("users")+'<b>'+eq+'</b> pilotes</span>':"")+(c.points&&c.points!==999?'<span>'+ico("star")+'<b>'+c.points+'</b> pts</span>':"")+(c.dateFin&&c.dateFin>c.date?'<span>'+ico("cal")+'<b>'+esc(shortDate(c))+'</b></span>':"")+'</div>'+seatsHtml(c, yes)+crewLine(c)+(()=>{ const so=soutiens.filter(x=>x.courseId===c.id); return so.length?'<div class="sub2" style="font-size:13px">💛 Soutenue par <b>'+esc(so.map(x=>x.nom).join(", "))+'</b></div>':''; })()+
           (c.note?'<div class="note">'+esc(c.note)+'</div>':"")+resHtml+partHtml+chipsYes+chipsMaybe+chipsNo+(()=>{ const x=raceBtn(c, mine)+jeuxHtml(c)+checkHtml(c, mine)+logiHtml(c, mine)+fraisHtml(c, mine)+commHtml(c)+photosHtml(c, mine); return x?'<div class="extras">'+x+'</div>':''; })()+'</div>'+
         '<div class="actions">'+price+action+tools+'</div></article>';
     }
@@ -2254,12 +2261,30 @@ button:active:not(:disabled){transform:scale(.97)}
 
   // ---------- Onglet Admin ----------
   (function(){ const y=cotisYearDefault(); $("#cotisYear").innerHTML=[y-1,y,y+1].map(v=>'<option'+(v===y?" selected":"")+'>'+v+'</option>').join(""); })();
-  let adminLoading=false;
+  let adminLoading=false, partnerList=[];
+  const PTYPE={soutien:"💛 Soutien",sponsor:"🤝 Sponsoring",materiel:"🛠 Matériel",offre:"🏷 Offre",visibilite:"📣 Visibilité"}, PSTAT=[["nouveau","Nouveau"],["en_cours","En discussion"],["accepte","Accepté"],["refuse","Refusé"],["archive","Archivé"]];
+  function renderPartners(){
+    const box=$("#partList"); if(!box || box.contains(document.activeElement)&&document.activeElement.tagName==="SELECT") return;
+    const nw=partnerList.filter(o=>o.statut==="nouveau").length; $("#partNew").hidden=!nw; $("#partNew").textContent=nw+" nouveau"+(nw>1?"x":"");
+    box.innerHTML = partnerList.length ? partnerList.map(o=>{ const c=courses.find(x=>x.id===o.courseId);
+      return '<div class="teamrow"><h3 style="font-size:17px"><span>'+esc(o.entreprise||o.nom)+(o.entreprise&&o.nom!==o.entreprise?' <span class="sub2">· '+esc(o.nom)+'</span>':'')+'</span><span class="chip'+(o.statut==="nouveau"?" maybe":o.statut==="accepte"?" ok":"")+'">'+esc(PTYPE[o.type]||o.type)+'</span></h3>'+
+        '<div class="sub2">'+esc(new Date(o.at).toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"}))+(c?' · '+esc(c.titre||c.lieu):'')+(o.valeur?' · <b>'+esc(o.valeur)+'</b>':'')+'</div>'+
+        (o.message?'<div style="white-space:pre-line">'+esc(o.message)+'</div>':'')+
+        ((o.email||o.tel)?'<div class="row" style="gap:10px;flex-wrap:wrap">'+(o.email?'<a href="mailto:'+esc(o.email)+'?subject='+encodeURIComponent("RK7 Team · votre proposition")+'">'+esc(o.email)+'</a>':'')+(o.tel?'<a href="tel:'+esc(o.tel.replace(/[\s.-]/g,""))+'">'+esc(o.tel)+'</a>':'')+'</div>':'')+
+        '<div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><select data-pstat="'+esc(o.id)+'" aria-label="Statut">'+PSTAT.map(x=>'<option value="'+x[0]+'"'+(o.statut===x[0]?' selected':'')+'>'+x[1]+'</option>').join("")+'</select>'+
+        (o.mur?'<label style="display:inline-flex;gap:6px;align-items:center;font-size:14px"><input type="checkbox" data-pvis="'+esc(o.id)+'"'+(o.visible?' checked':'')+'> Afficher sur le mur des soutiens</label>':'<span class="sub2">Ne souhaite pas apparaître publiquement</span>')+
+        '<button type="button" class="btn-link" data-pdel2="'+esc(o.id)+'">Supprimer</button></div></div>'; }).join("") : '<p class="note">Aucun message de partenaire pour l\'instant. Envoie-leur le lien !</p>';
+  }
+  async function savePartner(id, patch, ok){ try{ partnerList=await rpc("admin_partner_save",{token:teamToken,offer_id:id,patch}); renderPartners(); setMsg("#partMsg",ok); refresh(true); }catch(err){ setMsg("#partMsg",err.message,true); } }
+  $("#partList").addEventListener("change", e=>{ const s=e.target.closest("[data-pstat]"); if(s){ s.blur(); return savePartner(s.dataset.pstat,{statut:s.value},"Statut mis à jour."); }
+    const v=e.target.closest("[data-pvis]"); if(v) savePartner(v.dataset.pvis,{visible:v.checked}, v.checked?"Affiché sur le mur des soutiens. Les pilotes sont prévenus.":"Retiré du mur."); });
+  $("#partList").addEventListener("click", e=>{ const b=e.target.closest("[data-pdel2]"); if(!b) return; if(b.textContent!=="Confirmer ?"){ b.textContent="Confirmer ?"; return; } savePartner(b.dataset.pdel2,{delete:"1"},"Message supprimé."); });
+  $("#partCopy").addEventListener("click", ()=>{ const u=new URL("partenaires.html", location.href).href.split("#")[0]; const t=document.createElement("textarea"); t.value=u; document.body.appendChild(t); t.select(); let ok=false; try{ ok=document.execCommand("copy"); }catch(e){} t.remove(); setMsg("#partMsg", ok?"Lien copié : "+u:"Le lien : "+u); });
   async function loadAdmin(){
     if(!isAdmin() || adminLoading) return; adminLoading=true;
     try{
       const [ps, cfg, vit, tr, acc, bk] = await Promise.all([rpc("admin_pilots",{token:teamToken}), rpc("admin_get_config",{token:teamToken}), rpc("admin_vitrine_set",{token:teamToken,cfg:{}}), rpc("admin_treso_get",{token:teamToken}), rpc("admin_visits",{token:teamToken}), rpc("admin_backups",{token:teamToken})]);
-      treso=tr; accData=acc; backups=bk;
+      treso=tr; accData=acc; backups=bk; rpc("admin_partners",{token:teamToken}).then(r=>{ partnerList=r||[]; renderPartners(); }).catch(()=>{});
       if(!$("#vitForm").contains(document.activeElement)){ $("#vTexte").value=vit.vitrine_texte||""; $("#vContact").value=vit.vitrine_contact||""; $("#vCheck").value=vit.checklist||""; }
       adminPilots=ps;
       if(!$("#cfgCodeForm").contains(document.activeElement)){ $("#cTeam").value=cfg.team_code||""; $("#cAdmin").value=cfg.admin_code||""; }
