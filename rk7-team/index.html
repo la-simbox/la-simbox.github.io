@@ -114,8 +114,13 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .price{font-family:var(--display);font-weight:700;font-size:26px;text-align:right;font-variant-numeric:tabular-nums;line-height:1}
 .price.na{font-size:18px;color:var(--muted)}
 .price small{display:block;font-family:var(--body);font-weight:500;font-size:12px;color:var(--muted)}
-.duo{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.duo button{padding:9px 8px}
+.duo{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.btn-maybe{background:var(--wait-soft);color:var(--ink);border-color:var(--wait)}
+.pilot.maybe .av{background:var(--wait-soft);color:var(--wait)}
+.s .maybe{background:var(--gold-soft);color:var(--gold)}
+.chip.maybe{background:var(--wait-soft);color:var(--ink)}
+.duo button{padding:9px 4px;font-size:14px}
+@media (min-width:621px){.actions{min-width:250px}}
 .empty{text-align:center;color:var(--muted);padding:28px 16px;border:1px dashed var(--line);border-radius:10px}
 .grid-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
 table.team{border-collapse:collapse;width:100%;font-size:14px}
@@ -1026,20 +1031,21 @@ button:active:not(:disabled){transform:scale(.97)}
     }
     if(value) dispo[cid]=value; else { delete dispo[cid]; delete equipes[cid]; }
     if(value!=="oui") delete equipes[cid];
-    const ok = await saveMe({dispo, equipes}, value==="oui" ? "Place réservée en "+equipes[cid]+" : "+c.lieu+", "+shortDate(c)+"." : value==="non" ? "Noté : pas disponible le "+shortDate(c)+"." : "Réponse effacée.");
+    const ok = await saveMe({dispo, equipes}, value==="oui" ? "Place réservée en "+equipes[cid]+" : "+c.lieu+", "+shortDate(c)+"." : value==="non" ? "Noté : pas disponible le "+shortDate(c)+"." : value==="peut" ? "Noté : présence possible le "+shortDate(c)+". Pense à confirmer dès que tu sais." : "Réponse effacée.");
     if(ok) delete pendingTeam[cid];
   }
 
   // ---------- Rendering ----------
   function answers(cid){
-    const yes=[], no=[];
+    const yes=[], no=[], maybe=[];
     for(const p of Object.values(pilots)){
       const a = p.dispo && p.dispo[cid];
       if(a==="oui") yes.push({id:p.id, nom:p.nom, equipe:teamOf(p.id,cid)});
       else if(a==="non") no.push({id:p.id, nom:p.nom});
+      else if(a==="peut") maybe.push({id:p.id, nom:p.nom});
     }
     yes.sort((a,b)=>TEAMS.indexOf(a.equipe)-TEAMS.indexOf(b.equipe));
-    return {yes,no};
+    return {yes,no,maybe};
   }
   function teamSelect(c){
     if(c.equipe) return '<div class="msg">Équipe : <b>'+esc(c.equipe)+'</b></div>';
@@ -1063,12 +1069,13 @@ button:active:not(:disabled){transform:scale(.97)}
     for(const c of list){
       const d=c.date?parse(c.date):null, mk=groupOf(c);
       if(mk!==lastMonth){ html+='<div class="month">'+esc(mk)+'</div>'; lastMonth=mk; }
-      const {yes,no}=answers(c.id), mine=myDispo(c.id), eq=Number(c.equipage)||0;
-      let state=""; if(mine==="oui") state='<span class="chip ok">Ma place réservée</span>'; else if(mine==="non") state='<span class="chip no">Pas dispo</span>';
+      const {yes,no,maybe}=answers(c.id), mine=myDispo(c.id), eq=Number(c.equipage)||0;
+      let state=""; if(mine==="oui") state='<span class="chip ok">Ma place réservée</span>'; else if(mine==="non") state='<span class="chip no">Pas dispo</span>'; else if(mine==="peut") state='<span class="chip maybe">Présence possible</span>';
       const full = eq && yes.length>=eq ? '<span class="chip ok">Équipage complet</span>' : "";
       const closed = isClosed(c) && !c.terminee;
       const limChip = (!c.terminee && c.limite) ? (closed ? '<span class="chip no">Réservations fermées</span>' : '<span class="chip">Réponse avant le '+esc(fmtDay(c.limite))+'</span>') : "";
       const chipsYes = yes.length ? '<div class="pilots"><span class="lbl">Disponibles</span>'+yes.map(p=>pilotChip(p,c.id,"",past)).join("")+'</div>' : "";
+      const chipsMaybe = maybe.length ? '<div class="pilots"><span class="lbl">Peut-être</span>'+maybe.map(p=>pilotChip(p,c.id,"maybe",past)).join("")+'</div>' : "";
       const chipsNo = no.length ? '<div class="pilots"><span class="lbl">Pas dispo</span>'+no.map(p=>pilotChip(p,c.id,"no",past)).join("")+'</div>' : "";
       let action="";
       if(!past && !c.terminee){
@@ -1076,6 +1083,7 @@ button:active:not(:disabled){transform:scale(.97)}
         else if(!me()) action='<p class="msg">Connecte-toi dans « Mon espace pilote » pour réserver.</p>';
         else action = teamSelect(c)+'<div class="duo">'+
           '<button type="button" class="'+(mine==="oui"?"btn-gold":"btn-ghost")+'" data-set="oui" data-cid="'+esc(c.id)+'" aria-pressed="'+(mine==="oui")+'">'+(mine==="oui"?"Réservé":"Réserver")+'</button>'+
+          '<button type="button" class="'+(mine==="peut"?"btn-maybe":"btn-ghost")+'" data-set="peut" data-cid="'+esc(c.id)+'" aria-pressed="'+(mine==="peut")+'">Peut-être</button>'+
           '<button type="button" class="'+(mine==="non"?"btn-danger":"btn-ghost")+'" data-set="non" data-cid="'+esc(c.id)+'" aria-pressed="'+(mine==="non")+'">Pas dispo</button></div>'+
           (mine?'<button type="button" class="btn-ghost" style="padding:4px 8px;font-size:13px" data-set="" data-cid="'+esc(c.id)+'">Effacer ma réponse</button>':"");
       }
@@ -1093,7 +1101,7 @@ button:active:not(:disabled){transform:scale(.97)}
         '<div class="info"><div class="chips"><span class="chip">'+esc(c.type||"Endurance")+'</span>'+(c.equipe?'<span class="chip">'+esc(c.equipe)+'</span>':"")+state+full+limChip+'</div>'+
           '<h3>'+esc(c.titre||c.lieu)+'</h3>'+
           '<div class="meta">'+(c.titre?'<span>'+ico("pin")+'<b>'+esc(c.lieu)+'</b></span>':'')+(!c.date?'<span>'+ico("cal")+'<b>'+(c.terminee?"Date non renseignée":"Date à confirmer")+'</b></span>':'')+'<span>'+ico("clock")+'<b>'+esc(c.duree||"—")+'</b></span>'+(c.heure?'<span>'+ico("flag")+'Départ <b>'+esc(c.heure)+'</b></span>':"")+(eq&&c.terminee?'<span>'+ico("users")+'<b>'+eq+'</b> pilotes</span>':"")+(c.points&&c.points!==999?'<span>'+ico("star")+'<b>'+c.points+'</b> pts</span>':"")+(c.dateFin&&c.dateFin>c.date?'<span>'+ico("cal")+'<b>'+esc(shortDate(c))+'</b></span>':"")+'</div>'+seatsHtml(c, yes)+
-          (c.note?'<div class="note">'+esc(c.note)+'</div>':"")+resHtml+partHtml+chipsYes+chipsNo+(()=>{ const x=raceBtn(c, mine)+checkHtml(c, mine)+logiHtml(c, mine)+fraisHtml(c, mine)+commHtml(c)+photosHtml(c, mine); return x?'<div class="extras">'+x+'</div>':''; })()+'</div>'+
+          (c.note?'<div class="note">'+esc(c.note)+'</div>':"")+resHtml+partHtml+chipsYes+chipsMaybe+chipsNo+(()=>{ const x=raceBtn(c, mine)+checkHtml(c, mine)+logiHtml(c, mine)+fraisHtml(c, mine)+commHtml(c)+photosHtml(c, mine); return x?'<div class="extras">'+x+'</div>':''; })()+'</div>'+
         '<div class="actions">'+price+action+tools+'</div></article>';
     }
     return html;
@@ -1413,11 +1421,11 @@ button:active:not(:disabled){transform:scale(.97)}
   function renderGrid(list){
     const ps = Object.values(pilots).sort((a,b)=>a.nom.localeCompare(b.nom,"fr"));
     if(!ps.length) return '<div class="empty">Aucun pilote n\'a encore créé son profil. Le tableau se remplit dès qu\'un pilote répond.</div>';
-    let h='<div class="legend"><span><i style="background:var(--ok-soft);border:1px solid var(--ok)"></i>Disponible (équipe)</span><span><i style="background:var(--no-soft);border:1px solid var(--no)"></i>Pas disponible</span><span><i style="background:var(--wait-soft);border:1px solid var(--wait)"></i>En attente</span></div>';
+    let h='<div class="legend"><span><i style="background:var(--ok-soft);border:1px solid var(--ok)"></i>Disponible (équipe)</span><span><i style="background:var(--gold-soft);border:1px solid var(--gold)"></i>Peut-être</span><span><i style="background:var(--no-soft);border:1px solid var(--no)"></i>Pas disponible</span><span><i style="background:var(--wait-soft);border:1px solid var(--wait)"></i>En attente</span></div>';
     h+='<div class="grid-wrap"><table class="team"><thead><tr><th>Date</th><th>Lieu</th><th>Durée</th><th>Prix/pilote</th>'+ps.map(p=>'<th class="p">'+esc(p.nom)+'</th>').join("")+'</tr></thead><tbody>';
     for(const c of list){
       h+='<tr><td class="num">'+esc(shortDate(c))+'</td><td>'+esc(c.titre||c.lieu)+(c.equipe?' <span class="tm" style="color:var(--gold)">'+esc(shortTeam(c.equipe))+'</span>':'')+'</td><td>'+esc(c.duree||"—")+'</td><td class="num">'+(()=>{ const pp=prixPilote(c, answers(c.id).yes.length); return pp!=null?euro(pp):'Pas d\'infos'; })()+'</td>'+
-        ps.map(p=>{ const a=dispoOf(p.id,c.id); return '<td class="s">'+(a==="oui"?'<span class="ok">'+esc(shortTeam(c.equipe||teamOf(p.id,c.id))||"Dispo")+'</span>':a==="non"?'<span class="no">Non</span>':'<span class="wait">?</span>')+'</td>'; }).join("")+'</tr>';
+        ps.map(p=>{ const a=dispoOf(p.id,c.id); return '<td class="s">'+(a==="oui"?'<span class="ok">'+esc(shortTeam(c.equipe||teamOf(p.id,c.id))||"Dispo")+'</span>':a==="non"?'<span class="no">Non</span>':a==="peut"?'<span class="maybe">Peut-être</span>':'<span class="wait">?</span>')+'</td>'; }).join("")+'</tr>';
     }
     return h+'</tbody></table></div>';
   }
@@ -2052,7 +2060,7 @@ button:active:not(:disabled){transform:scale(.97)}
     if(b.dataset.export==="resa"){
       const rows=[["Saison","Course","Date","Équipe course","Pilote","Roule pour","Réponse","Part pilote (€)","Payé"]];
       for(const c of courses.filter(c=>!c.terminee).sort((a,b)=>sortKey(a).localeCompare(sortKey(b)))){ const y=answers(c.id).yes.length, pp=prixPilote(c,y);
-        for(const p of Object.values(pilots)){ const a=dispoOf(p.id,c.id); if(!a) continue; rows.push([seasonOf(c),c.titre||c.lieu,c.date||"à confirmer",c.equipe||"",p.nom,a==="oui"?teamOf(p.id,c.id):"",a==="oui"?"Réservé":"Pas dispo",a==="oui"?num(pp):"",a==="oui"?(isPaid(p.id,c.id)?"Oui":"Non"):""]); } }
+        for(const p of Object.values(pilots)){ const a=dispoOf(p.id,c.id); if(!a) continue; rows.push([seasonOf(c),c.titre||c.lieu,c.date||"à confirmer",c.equipe||"",p.nom,a==="oui"?teamOf(p.id,c.id):"",a==="oui"?"Réservé":a==="peut"?"Peut-être":"Pas dispo",a==="oui"?num(pp):"",a==="oui"?(isPaid(p.id,c.id)?"Oui":"Non"):""]); } }
       csv("rk7-reservations-"+stamp+".csv", rows);
     } else if(b.dataset.export==="pilotes"){
       const y=$("#cotisYear").value, rows=[["Pilote","Équipe préférée","Poids (kg)","Licence","Taille combi","Téléphone","Cotisation "+y]];
