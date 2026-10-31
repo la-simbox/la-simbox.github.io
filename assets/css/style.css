@@ -178,6 +178,7 @@ p { margin: 0 0 1em; }
   font-weight: 500;
   letter-spacing: .06em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 .nav a:hover { color: var(--ink); }
 
@@ -646,7 +647,7 @@ p { margin: 0 0 1em; }
 
 /* ---------------------------------------------------------- mobile ------- */
 
-@media (max-width: 860px) {
+@media (max-width: 1180px) {
   .nav-toggle { display: grid; place-items: center; }
 
   .nav {
@@ -794,8 +795,9 @@ p { margin: 0 0 1em; }
   .jour-badge { position: static; grid-column: 1; grid-row: 2; justify-self: start; margin-top: .3rem; }
 }
 
-@media (max-width: 1060px) and (min-width: 861px) {
-  .nav ul { gap: 1.1rem; }
+@media (max-width: 1360px) and (min-width: 1181px) {
+  .nav ul { gap: 1.15rem; }
+  .nav a { font-size: 1rem; }
 }
 
 /* ------------------------------------------------ devis événementiel ----- */
@@ -887,26 +889,91 @@ p { margin: 0 0 1em; }
   gap: 1.25rem;
   align-items: stretch;
 }
-.podium { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
-.podium-ligne {
+/* Podium à marches : 2e, 1er, 3e */
+.podium-scene {
   display: grid;
-  grid-template-columns: 3rem minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: clamp(.4rem, 1.5vw, 1rem);
+  max-width: 44rem;
+  margin: 0 auto 2.5rem;
+}
+.marche { display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 0; }
+.marche-nom {
+  font: 700 clamp(1rem, 2.6vw, 1.5rem)/1.1 var(--font-display);
+  text-transform: uppercase; letter-spacing: .02em;
+  max-width: 100%; overflow-wrap: anywhere;
+}
+.marche-temps {
+  margin: .3rem 0 .6rem;
+  font: 600 clamp(.85rem, 2vw, 1.1rem)/1 var(--font-display);
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.marche-bloc {
+  width: 100%;
+  display: grid; place-items: center;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  font: 800 italic clamp(2.6rem, 7vw, 4.5rem)/1 var(--font-display);
+  color: var(--ink-soft);
+}
+.marche-1 .marche-bloc {
+  height: clamp(9rem, 22vw, 13rem);
+  background: linear-gradient(to bottom, rgba(240,150,0,.28), var(--surface) 70%);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.marche-2 .marche-bloc { height: clamp(6.5rem, 16vw, 9.5rem); }
+.marche-3 .marche-bloc { height: clamp(4.5rem, 11vw, 6.5rem); }
+.marche-1 .marche-temps { color: var(--gold); }
+.marche-couronne {
+  margin-bottom: .45rem;
+  padding: .25rem .55rem;
+  border-radius: 4px;
+  background: var(--gold);
+  color: #140c00;
+  font: 700 .72rem/1 var(--font-display);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+/* Tableau du classement */
+.classement-wrap { min-width: 0; overflow-x: auto; }
+.classement {
+  width: 100%;
+  border-collapse: collapse;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
 }
-.podium-rang {
-  font: 800 italic 2rem/1 var(--font-display);
+.classement caption {
+  caption-side: top;
+  text-align: left;
+  padding: 0 0 .75rem;
   color: var(--ink-soft);
-  text-align: center;
+  font-size: .9rem;
 }
-.podium-nom { font: 700 1.35rem/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .02em; min-width: 0; overflow-wrap: anywhere; }
-.podium-temps { font: 700 1.5rem/1 var(--font-display); font-variant-numeric: tabular-nums; }
-.podium-1 { border-color: var(--gold); }
-.podium-1 .podium-rang, .podium-1 .podium-temps { color: var(--gold); }
+.classement th, .classement td { padding: .85rem 1rem; text-align: left; white-space: nowrap; }
+.classement thead th {
+  font: 600 .78rem/1 var(--font-display);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--line);
+}
+.classement tbody tr + tr { border-top: 1px solid var(--line); }
+.classement tbody th { font: 700 1.15rem/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .02em; }
+.classement tbody td:first-child { font: 800 italic 1.3rem/1 var(--font-display); color: var(--ink-soft); width: 3.5rem; }
+.classement tbody td:nth-child(3) { font: 700 1.15rem/1 var(--font-display); }
+.classement tbody td:last-child { color: var(--ink-soft); }
+.classement .pos-1 { background: rgba(240,150,0,.08); }
+.classement .pos-1 td:first-child, .classement .pos-1 td:nth-child(3) { color: var(--gold); }
+.classement-note { margin: .75rem 0 0; color: var(--ink-soft); font-size: .9rem; }
 
 .defi-special {
   display: flex; flex-direction: column; align-items: flex-start; gap: .75rem;
