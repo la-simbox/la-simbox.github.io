@@ -1067,7 +1067,7 @@ button:active:not(:disabled){transform:scale(.97)}
   }
   function teamSelect(c){
     if(c.equipe) return '<div class="msg">Équipe : <b>'+esc(c.equipe)+'</b></div>';
-    const cur = pendingTeam[c.id] || (me() && me().equipes && me().equipes[c.id]) || (me() && me().equipePref) || officialTeamOf(myId) || "";
+    const cur = pendingTeam[c.id] || (me() && me().equipes && me().equipes[c.id]) || (me() && me().equipePref) || officialTeamOf(myId) || subTeamOf(myId) || "";
     return '<label class="field"><span class="lab">Rouler pour</span><select data-team-cid="'+esc(c.id)+'" id="team-'+esc(c.id)+'">'+
       '<option value=""'+(cur?"":" selected")+'>Choisir une équipe</option>'+TEAMS.map(t=>'<option'+(t===cur?" selected":"")+'>'+esc(t)+'</option>').join("")+'</select></label>';
   }
@@ -1750,7 +1750,7 @@ button:active:not(:disabled){transform:scale(.97)}
     const maxH=Math.max(0,...past.map(x=>Number(x.c.heures)||0)), tracks=new Set(past.map(x=>x.c.lieu)).size;
     const bd=[]; if(past.some(x=>podiumOf(x.c.position)===1)) bd.push("🥇 Victoire"); else if(pod) bd.push("🏆 Podium"); if(maxH>=24) bd.push("🌙 24 heures"); else if(maxH>=12) bd.push("⏱ 12 heures"); if(heures>=100) bd.push("💯 100 h"); else if(heures>=50) bd.push("50 h"); if(past.length>=20) bd.push("🔥 20 courses"); else if(past.length>=10) bd.push("10 courses"); if(tracks>=4) bd.push("🧭 "+tracks+" pistes");
     const since=p.since?new Date(p.since).toLocaleDateString("fr-FR",{month:"long",year:"numeric"}):"";
-    $("#pfCard").innerHTML='<div class="pfh">'+avatarHtml(p)+'<div style="min-width:0;flex:1 1 180px"><h2>'+esc(p.nom)+'</h2><div class="sub2" style="font-size:14px">'+(p.id&&officialTeamOf(p.id)?'<span class="chip ok" style="margin-right:6px">Équipage officiel · '+esc(shortTeam(officialTeamOf(p.id)))+'</span>':'')+esc(p.equipePref||officialTeamOf(p.id)||"RK7 Team")+(since?' · dans l\'appli depuis '+esc(since):'')+'</div>'+(bd.length?'<div class="badges" style="margin-top:6px">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+
+    $("#pfCard").innerHTML='<div class="pfh">'+avatarHtml(p)+'<div style="min-width:0;flex:1 1 180px"><h2>'+esc(p.nom)+'</h2><div class="sub2" style="font-size:14px">'+(p.id&&officialTeamOf(p.id)?'<span class="chip ok" style="margin-right:6px">Équipage officiel · '+esc(shortTeam(officialTeamOf(p.id)))+'</span> ':p.id&&subTeamOf(p.id)?'<span class="chip maybe" style="margin-right:6px">Renfort · '+esc(shortTeam(subTeamOf(p.id)))+'</span> ':'')+esc(p.equipePref||officialTeamOf(p.id)||"RK7 Team")+(since?' · dans l\'appli depuis '+esc(since):'')+'</div>'+(bd.length?'<div class="badges" style="margin-top:6px">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+
       (self?'<div class="row" style="margin-top:8px;gap:8px"><label class="btn-ghost mini" style="cursor:pointer;border:1px solid var(--line);border-radius:6px;font-weight:600">'+(p.avatar?'Changer ma photo':'Ajouter ma photo')+'<input type="file" accept="image/*" hidden id="avIn"></label>'+(p.avatar?'<button type="button" class="btn-link" id="avDel">Retirer</button>':'')+'</div>':'')+
       (!self?'<button type="button" class="btn-link" style="margin-top:6px" data-back>← Retour</button>':'')+'</div></div>'+
       '<div class="stats"><div class="stat"><b>'+past.length+'</b><span>Courses</span></div><div class="stat"><b>'+Math.round(heures)+' h</b><span>En piste</span></div><div class="stat"><b>'+pod+'</b><span>Podiums</span></div><div class="stat"><b>'+seasons+'</b><span>Saison'+(seasons>1?'s':'')+'</span></div>'+(self&&spent?'<div class="stat"><b>'+euro(spent)+'</b><span>Investi</span></div>':'')+'</div>';
@@ -1795,26 +1795,30 @@ button:active:not(:disabled){transform:scale(.97)}
     }catch(err){ setMsg("#propMsg",err.message,true); } });
   // ---------- Équipages officiels ----------
   const crews = () => (config.equipages && typeof config.equipages==="object") ? config.equipages : {};
-  function crewMembers(team){ return (crews()[team]||[]).map(nm=>({nom:nm, p:pilotByName(nm)})); }
+  function crewMembers(team){ return (crews()[team]||[]).filter(nm=>!String(nm).startsWith("+")).map(nm=>({nom:nm, p:pilotByName(nm)})); }
+  function crewSubs(team){ return (crews()[team]||[]).filter(nm=>String(nm).startsWith("+")).map(nm=>{ const n=String(nm).slice(1).trim(); return {nom:n, p:pilotByName(n), sub:true}; }); }
+  function subTeamOf(pid){ if(!pid||!pilots[pid]) return ""; for(const t of TEAMS){ if(crewSubs(t).some(m=>m.p&&m.p.id===pid)) return t; } return ""; }
   function officialTeamOf(pid){ if(!pid||!pilots[pid]) return ""; for(const t of TEAMS){ if(crewMembers(t).some(m=>m.p&&m.p.id===pid)) return t; } return ""; }
   function crewLine(c){
     if(!c.equipe || c.terminee) return ""; const mem=crewMembers(c.equipe); if(!mem.length) return "";
-    const st=m=>m.p?dispoOf(m.p.id,c.id):null, ok=mem.filter(m=>st(m)==="oui").length;
-    return '<div class="crew"><span class="lbl">Équipage officiel '+ok+'/'+mem.length+'</span>'+mem.map(m=>{ const a=st(m), ic=a==="oui"?"✓":a==="non"?"✗":a==="peut"?"?":"…";
+    const st=m=>m.p?dispoOf(m.p.id,c.id):null, ok=mem.filter(m=>st(m)==="oui").length, subs=crewSubs(c.equipe);
+    const all=mem.concat(subs.length?[{lbl:true}]:[], subs);
+    return '<div class="crew"><span class="lbl">Équipage officiel '+ok+'/'+mem.length+'</span>'+all.map(m=>{ if(m.lbl) return '<span class="lbl">Renfort</span>'; const a=st(m), ic=a==="oui"?"✓":a==="non"?"✗":a==="peut"?"?":"…";
       const elsewhere = m.p && a==="oui" && teamOf(m.p.id,c.id) && teamOf(m.p.id,c.id)!==c.equipe ? ' (roule en '+shortTeam(teamOf(m.p.id,c.id))+')' : '';
       return '<span class="m '+(a||"")+'" title="'+esc(m.nom)+(m.p?'':' (pas encore de profil)')+'">'+(m.p?avatarHtml(m.p,"sm"):'<span class="avt sm">'+esc(initials(m.nom))+'</span>')+esc(m.nom.split(" ")[0])+' <i>'+ic+'</i>'+esc(elsewhere)+'</span>'; }).join("")+'</div>';
   }
   function renderCrewBox(){
     const box=$("#crewBox"); if(!box) return; const teams=TEAMS.filter(t=>crewMembers(t).length);
-    box.innerHTML = teams.length ? '<div class="k" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Équipages officiels</div>'+teams.map(t=>'<div class="teamrow"><h3><span>'+esc(t)+'</span><span class="sub2">'+crewMembers(t).length+' pilotes</span></h3><div class="mem">'+crewMembers(t).map(m=>m.p?'<a href="#profil/'+esc(m.p.id)+'">'+avatarHtml(m.p,"sm")+esc(m.p.nom)+'</a>':'<span class="x"><span class="avt sm">'+esc(initials(m.nom))+'</span>'+esc(m.nom)+' <span class="sub2">· pas encore de profil</span></span>').join("")+'</div></div>').join("") : "";
+    box.innerHTML = teams.length ? '<div class="k" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Équipages officiels</div>'+teams.map(t=>'<div class="teamrow"><h3><span>'+esc(t)+'</span><span class="sub2">'+crewMembers(t).length+' titulaires'+(crewSubs(t).length?' + '+crewSubs(t).length+' renfort'+(crewSubs(t).length>1?'s':''):'')+'</span></h3><div class="mem">'+crewMembers(t).concat(crewSubs(t)).map(m=>(m.p?'<a href="#profil/'+esc(m.p.id)+'">'+avatarHtml(m.p,"sm")+esc(m.p.nom)+'</a>':'<span class="x"><span class="avt sm">'+esc(initials(m.nom))+'</span>'+esc(m.nom)+'</span>').replace(/<\/(a|span)>$/, (m.sub?' <span class="chip maybe">renfort</span>':'')+(m.p?'':' <span class="sub2">· pas encore de profil</span>')+'</$1>')).join("")+'</div></div>').join("") : "";
   }
   function renderCrewForm(){
     if(!isAdmin() || $("#viewAdmin").hidden || $("#crewForm").contains(document.activeElement)) return;
     $("#pilotNames").innerHTML=Object.values(pilots).map(p=>'<option value="'+esc(p.nom)+'">').join("");
-    $("#crewForm").innerHTML=TEAMS.map((t,i)=>'<div class="field wide"><label for="crew'+i+'">'+esc(t)+'</label><input id="crew'+i+'" data-team="'+esc(t)+'" list="pilotNames" placeholder="Noms séparés par des virgules" value="'+esc((crews()[t]||[]).join(", "))+'"></div>').join("")+'<div class="row-end wide"><button class="btn-gold" type="submit">Enregistrer les équipages</button></div>';
+    $("#crewForm").innerHTML=TEAMS.map((t,i)=>'<div class="field"><label for="crew'+i+'">'+esc(t)+' · titulaires</label><input id="crew'+i+'" data-team="'+esc(t)+'" list="pilotNames" placeholder="Noms séparés par des virgules" value="'+esc(crewMembers(t).map(m=>m.nom).join(", "))+'"></div><div class="field"><label for="sub'+i+'">'+esc(t)+' · renforts</label><input id="sub'+i+'" data-sub="'+esc(t)+'" list="pilotNames" placeholder="Pilotes renfort" value="'+esc(crewSubs(t).map(m=>m.nom).join(", "))+'"></div>').join("")+'<div class="row-end wide"><button class="btn-gold" type="submit">Enregistrer les équipages</button></div>';
   }
   $("#crewForm").addEventListener("submit", async e=>{ e.preventDefault(); const eq={};
-    $("#crewForm").querySelectorAll("input[data-team]").forEach(inp=>{ eq[inp.dataset.team]=inp.value.split(",").map(x=>x.trim()).filter(Boolean); });
+    $("#crewForm").querySelectorAll("input[data-team]").forEach(inp=>{ eq[inp.dataset.team]=inp.value.split(",").map(x=>x.trim().replace(/^\+/,"")).filter(Boolean); });
+    $("#crewForm").querySelectorAll("input[data-sub]").forEach(inp=>{ eq[inp.dataset.sub]=(eq[inp.dataset.sub]||[]).concat(inp.value.split(",").map(x=>x.trim().replace(/^\+/,"")).filter(Boolean).map(x=>"+"+x)); });
     try{ await rpc("admin_vitrine_set",{token:teamToken,cfg:{equipages:eq}}); document.activeElement && document.activeElement.blur(); await refresh(true); renderCrewForm(); setMsg("#crewMsg","Équipages enregistrés."); }catch(err){ setMsg("#crewMsg",err.message,true); } });
   function renderAll(){
     $("#adminPanel").hidden=!isAdmin(); $("#newsAdmin").hidden=!isAdmin(); $("#adminAccess").hidden=isAdmin(); $("#navAdmin").hidden=!isAdmin();
