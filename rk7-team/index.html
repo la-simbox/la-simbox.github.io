@@ -381,7 +381,7 @@ button:active:not(:disabled){transform:scale(.97)}
       <button type="button" id="navRank"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v4M9 20h6M10 17h4"/></svg><span>Classement</span></button>
       <button type="button" id="navAdmin" hidden><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2 2M14 9l2 2"/></svg><span>Admin</span></button>
     </nav>
-      <details class="swsmenu" id="swsMenu"><summary><span class="lg">Équipes </span>SWS</summary><div class="menu"><div class="mh">Nos équipes sur Sodi World Series</div><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-pro-17003.html" target="_blank" rel="noopener">RK7 Team Pro <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-racing-18095.html" target="_blank" rel="noopener">RK7 Team Racing <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-sport-25694.html" target="_blank" rel="noopener">RK7 Team Sport <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-11270.html" target="_blank" rel="noopener">RK7 Team <span>↗</span></a><a class="all" href="https://www.sodiwseries.com/fr-fr/" target="_blank" rel="noopener">Site SWS <span>↗</span></a><a class="all" href="equipe.html" target="_blank" rel="noopener">Notre vitrine publique <span>↗</span></a></div></details>
+      <details class="swsmenu" id="swsMenu"><summary><span class="lg">Équipes </span>SWS</summary><div class="menu"><div class="mh">Nos équipes sur Sodi World Series</div><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-pro-17003.html" target="_blank" rel="noopener">RK7 Team Pro <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-racing-18095.html" target="_blank" rel="noopener">RK7 Team Racing <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-sport-25694.html" target="_blank" rel="noopener">RK7 Team Sport <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-11270.html" target="_blank" rel="noopener">RK7 Team <span>↗</span></a><a class="sws-endu" href="https://www.sodiwseries.com/fr-fr/rankings/global/2026/endurance-cup-2" target="_blank" rel="noopener">Classement Endurance SWS <span>↗</span></a><a class="all" href="https://www.sodiwseries.com/fr-fr/" target="_blank" rel="noopener">Site SWS <span>↗</span></a><a class="all" href="equipe.html" target="_blank" rel="noopener">Notre vitrine publique <span>↗</span></a></div></details>
   </div>
 </header>
 
@@ -439,6 +439,7 @@ button:active:not(:disabled){transform:scale(.97)}
       <button type="button" class="btn-gold" id="bilanBtn">Bilan de la saison</button>
       <div class="field" style="flex:0 0 120px"><label for="rankSeason">Saison</label><select id="rankSeason"></select></div>
     </div>
+    <a class="box gold sws-endu" href="https://www.sodiwseries.com/fr-fr/rankings/global/2026/endurance-cup-2" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink);flex-direction:row;justify-content:space-between;align-items:center"><span><b style="font-family:var(--display);font-size:18px">Classement Endurance SWS</b><br><span class="sub2">Le classement mondial des équipes en Endurance CUP, sur le site Sodi World Series</span></span><span style="font-size:22px;color:var(--gold)">↗</span></a>
     <div class="podium" id="rankPodium"></div>
     <div class="stats" id="rankStats"></div>
     <div class="grid-wrap"><table class="team rank" id="rankTable"></table></div>
@@ -1480,6 +1481,7 @@ button:active:not(:disabled){transform:scale(.97)}
       return '<tr'+(r.pid&&r.pid===myId?' style="background:var(--gold-soft)"':'')+'><td class="r">'+(i+1)+'</td><td style="white-space:normal"><b>'+esc(r.nom)+'</b>'+(bd.length?'<div class="badges">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+'</td><td class="num"><b>'+H(r.heures)+'</b><div class="mbar"><i style="width:'+Math.round(r.heures/Math.max(1,arr[0].heures)*100)+'%"></i></div></td><td class="num">'+r.courses+'</td></tr>'; }).join("")+'</tbody>';
   }
   $("#rankSeason").addEventListener("change", renderRank);
+  document.querySelectorAll("a.sws-endu").forEach(a=>{ a.href="https://www.sodiwseries.com/fr-fr/rankings/global/"+new Date().getFullYear()+"/endurance-cup-2"; });
   function seasonStats(Y){
     const list=courses.filter(c=>c.terminee && seasonOf(c)===Y && (c.participants||[]).length);
     const norm=t=>String(t||"").trim().toLowerCase(), P={};
