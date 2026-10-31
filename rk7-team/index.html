@@ -540,6 +540,7 @@ button:active:not(:disabled){transform:scale(.97)}
         <div class="field"><label for="rcPrix">Tarif (affiché)</label><input id="rcPrix" maxlength="160" placeholder="ex. 600 € par équipe"></div>
         <div class="field"><label for="rcContact">Contact</label><input id="rcContact" maxlength="160"></div>
         <div class="field wide"><label for="rcTexte">Présentation (aussi sur la vitrine publique)</label><textarea id="rcTexte" maxlength="800" style="min-height:80px"></textarea></div>
+        <div class="field wide"><label for="rcProg">Déroulé (une ligne par étape : heure | étape)</label><textarea id="rcProg" maxlength="800" style="min-height:110px"></textarea></div>
         <div class="field wide"><label for="rcRoles">Postes de bénévoles (un par ligne)</label><textarea id="rcRoles" style="min-height:110px"></textarea></div>
         <div class="row-end wide"><button class="btn-gold" type="submit">Enregistrer</button></div>
       </form>
@@ -1894,6 +1895,7 @@ button:active:not(:disabled){transform:scale(.97)}
       '<div class="top">'+(c.date?'<div class="cd">'+(dd>0?'J-'+dd:dd===0?'GO':'✓')+'<small>'+esc(longDate(c.date))+'</small></div>':'<div class="cd" style="font-size:30px">'+esc(c.periode||"Date à venir")+'</div>')+'</div>'+
       '<div class="meta"><span>'+ico("clock")+'<b>'+esc(c.heure||"")+'</b></span><span>'+ico("pin")+'<b>'+esc(c.lieu||"")+'</b></span><span>'+ico("flag")+'<b>'+esc(c.format||"")+'</b></span>'+(c.prix?'<span>'+ico("euro")+'<b>'+esc(c.prix)+'</b></span>':'')+'</div>'+
       (c.texte?'<p style="margin:0;color:var(--band-muted);max-width:60ch">'+esc(c.texte)+'</p>':'')+
+      (c.programme?'<div style="display:flex;flex-direction:column;gap:4px"><span class="k">Déroulé de la matinée</span>'+String(c.programme).split("\n").filter(Boolean).map(l=>{ const [h,...t]=l.split("|"); return '<div style="display:grid;grid-template-columns:96px 1fr;gap:10px;border-bottom:1px solid #2a2823;padding:4px 0"><b style="font-family:var(--display);color:var(--band-gold);font-size:17px">'+esc(h.trim())+'</b><span>'+esc(t.join("|").trim())+'</span></div>'; }).join("")+'</div>':'')+
       '<div class="pbar" style="height:8px;background:#2a2823;border-radius:4px;overflow:hidden"><i style="display:block;height:100%;width:'+Math.min(100,Math.round(ins.length/Math.max(1,obj)*100))+'%;background:var(--band-gold)"></i></div><span class="sub2" style="color:var(--band-muted)">'+ins.length+' entreprise'+(ins.length>1?'s':'')+' inscrite'+(ins.length>1?'s':'')+' sur un objectif de '+obj+(pil?' · '+pil+' pilotes':'')+(c.contact?' · Contact : '+esc(c.contact):'')+'</span>';
     $("#rocHero").className="hero";
     $("#rocRoles").innerHTML=(roc.roles||[]).map(r=>{ const mine=myId&&r.pilots.includes(myId);
@@ -1901,7 +1903,7 @@ button:active:not(:disabled){transform:scale(.97)}
     $("#rocStats").innerHTML='<div class="stat"><b>'+ins.length+' / '+obj+'</b><span>Inscrites</span></div><div class="stat"><b>'+ents.filter(e=>e.statut==="contactee").length+'</b><span>Contactées</span></div><div class="stat"><b>'+ents.filter(e=>e.statut==="a_contacter").length+'</b><span>À contacter</span></div>';
     $("#rocEnts").innerHTML = ents.length ? ents.map(e=>'<div class="hi" style="grid-template-columns:minmax(0,1fr) auto"><span><b>'+esc(e.nom)+'</b>'+(e.pilotes?'<br><span class="sub2">'+e.pilotes+' pilotes</span>':'')+(e.suggestedBy?'<br><span class="sub2">piste de '+esc(nomOf(e.suggestedBy))+'</span>':'')+'</span><span class="chip '+(RS[e.statut]||["",""])[1]+'">'+esc((RS[e.statut]||[e.statut])[0])+'</span></div>').join("") : '<p class="note">Aucune entreprise pour l\'instant. Tu connais une boîte qui pourrait venir ? Propose-la !</p>';
     $("#rocAdmin").hidden=!isAdmin();
-    if(isAdmin()){ if(!$("#rocCfgForm").contains(document.activeElement)){ $("#rcEd").value=c.edition||""; $("#rcDate").value=c.date||""; $("#rcPer").value=c.periode||""; $("#rcHeure").value=c.heure||""; $("#rcObj").value=c.objectif||""; $("#rcLieu").value=c.lieu||""; $("#rcFormat").value=c.format||""; $("#rcPrix").value=c.prix||""; $("#rcContact").value=c.contact||""; $("#rcTexte").value=c.texte||""; $("#rcRoles").value=(roc.roles||[]).map(r=>r.role).join("\n"); }
+    if(isAdmin()){ if(!$("#rocCfgForm").contains(document.activeElement)){ $("#rcEd").value=c.edition||""; $("#rcDate").value=c.date||""; $("#rcPer").value=c.periode||""; $("#rcHeure").value=c.heure||""; $("#rcObj").value=c.objectif||""; $("#rcLieu").value=c.lieu||""; $("#rcFormat").value=c.format||""; $("#rcPrix").value=c.prix||""; $("#rcContact").value=c.contact||""; $("#rcTexte").value=c.texte||""; $("#rcProg").value=c.programme||""; $("#rcRoles").value=(roc.roles||[]).map(r=>r.role).join("\n"); }
       if(rocEnts===null){ rocEnts=[]; rpc("admin_roc_ents",{token:teamToken}).then(r=>{ rocEnts=r; renderRocTable(); }).catch(()=>{}); } else renderRocTable(); }
   }
   function renderRocTable(){
@@ -1914,7 +1916,7 @@ button:active:not(:disabled){transform:scale(.97)}
   $("#rocSugForm").addEventListener("submit", async e=>{ e.preventDefault();
     try{ applyData(await rpc("roc_suggest",{token:teamToken,pilot_token:pilotToken||"",item:{nom:$("#rsNom").value,contact:$("#rsContact").value,note:$("#rsNote").value}})); rocEnts=null; $("#rocSugForm").reset(); $("#rocSugForm").hidden=true; setMsg("#rocMsg","Merci ! Florent est prévenu."); renderRoc(); }catch(err){ setMsg("#rocMsg",err.message,true); } });
   $("#rocCfgForm").addEventListener("submit", async e=>{ e.preventDefault();
-    const cfg={edition:$("#rcEd").value,date:$("#rcDate").value,periode:$("#rcPer").value,heure:$("#rcHeure").value,objectif:$("#rcObj").value,lieu:$("#rcLieu").value,format:$("#rcFormat").value,prix:$("#rcPrix").value,contact:$("#rcContact").value,texte:$("#rcTexte").value};
+    const cfg={edition:$("#rcEd").value,date:$("#rcDate").value,periode:$("#rcPer").value,heure:$("#rcHeure").value,objectif:$("#rcObj").value,lieu:$("#rcLieu").value,format:$("#rcFormat").value,prix:$("#rcPrix").value,contact:$("#rcContact").value,texte:$("#rcTexte").value,programme:$("#rcProg").value};
     try{ applyData(await rpc("admin_roc_set",{token:teamToken,cfg,roles:$("#rcRoles").value.split("\n").map(x=>x.trim()).filter(Boolean)})); setMsg("#rocAdmMsg","Infos enregistrées."); }catch(err){ setMsg("#rocAdmMsg",err.message,true); } });
   function fillEnt(x){ $("#reId").value=x?x.id:""; $("#reNom").value=x?x.nom:""; $("#reStatut").value=x?x.statut:"a_contacter"; $("#reContact").value=x?x.contact:""; $("#reTel").value=x?x.tel:""; $("#reMail").value=x?x.email:""; $("#rePil").value=x&&x.pilotes?x.pilotes:""; $("#reMt").value=x&&x.montant!=null?x.montant:""; $("#reNote").value=x?x.note:""; }
   $("#reNew").addEventListener("click",()=>{ fillEnt(null); $("#reNom").focus(); });
