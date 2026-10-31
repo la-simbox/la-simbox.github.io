@@ -1008,3 +1008,20 @@ p { margin: 0 0 1em; }
 .refs td { text-align: right; font: 700 1.1rem/1 var(--font-display); }
 .refs thead th:last-child { text-align: right; }
 .refs tbody tr:first-child td { color: var(--red-bright); }
+.refs tbody th { white-space: normal; padding-right: 1rem; }
+.defi-prix { color: var(--ink) !important; font-size: 1.05rem; }
+.defi-prix strong { font: 700 1.6rem/1 var(--font-display); color: var(--gold); margin-right: .25rem; }
+.defi-lot {
+  width: 100%;
+  padding: 1rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid var(--gold);
+  background: rgba(240,150,0,.08);
+}
+.defi-lot-titre {
+  margin: 0 0 .35rem !important;
+  font: 700 1.15rem/1.1 var(--font-display);
+  text-transform: uppercase; letter-spacing: .03em;
+  color: var(--gold) !important;
+}
+.defi-lot strong { color: var(--ink); }
