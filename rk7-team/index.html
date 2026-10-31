@@ -324,6 +324,23 @@ details.sec[open]>summary::before{content:"▾ "}
 .welc .st span.t{flex:1;min-width:0}
 .welc .prog{height:6px;border-radius:3px;background:var(--wait-soft);overflow:hidden}
 .welc .prog i{display:block;height:100%;background:var(--gold)}
+/* --- Profil pilote + propositions de courses --- */
+.pfh{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.avt{width:96px;height:96px;border-radius:50%;flex:0 0 auto;background:var(--band);color:var(--band-gold);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:36px;overflow:hidden;border:3px solid var(--gold)}
+.avt img{width:100%;height:100%;object-fit:cover;display:block}
+.avt.sm{width:28px;height:28px;font-size:12px;border-width:2px}
+.pfh h2{font-size:30px!important;margin:0}
+.pfh h2::before{display:none!important}
+.hist{display:flex;flex-direction:column;gap:6px}
+.hi{display:grid;grid-template-columns:70px minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg)}
+.hi .d{font-family:var(--display);font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;line-height:1.1}
+.hi b{font-family:var(--display);font-size:18px;font-weight:600}
+.hi .r{font-family:var(--display);font-weight:700;font-size:20px;color:var(--gold);text-align:right}
+.hi.up{border-color:var(--gold)}
+.rank a.pl{color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.prop{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.prop h3{margin:0;font-family:var(--display);font-size:20px}
+.prop .acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .settle{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;padding:4px 0}
 /* --- Look v3 : bandeau course, barre d'onglets en bas sur mobile, tuiles --- */
 header.band{position:relative;z-index:20;isolation:isolate}
@@ -424,6 +441,7 @@ button:active:not(:disabled){transform:scale(.97)}
       <button type="button" id="navNews"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11v16H6a2 2 0 0 1-2-2V5a1 1 0 0 1 1-1z"/><path d="M16 8h3v10a2 2 0 0 1-2 2"/><path d="M8 8h5M8 12h5M8 16h3"/></svg><span>News</span></button>
       <button type="button" id="navBudget"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6.5A7 7 0 1 0 17 17.5"/><path d="M4 10.5h9M4 13.5h9"/></svg><span>Budget</span></button>
       <button type="button" id="navRank"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v4M9 20h6M10 17h4"/></svg><span>Classement</span></button>
+      <button type="button" id="navProfil"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.4 4.2-7 8-7s7 2.6 8 7"/></svg><span>Profil</span></button>
       <button type="button" id="navAdmin" hidden><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2 2M14 9l2 2"/></svg><span>Admin</span></button>
     </nav>
       <details class="swsmenu" id="swsMenu"><summary><span class="lg">Équipes </span>SWS</summary><div class="menu"><div class="mh">Nos équipes sur Sodi World Series</div><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-pro-17003.html" target="_blank" rel="noopener">RK7 Team Pro <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-racing-18095.html" target="_blank" rel="noopener">RK7 Team Racing <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-sport-25694.html" target="_blank" rel="noopener">RK7 Team Sport <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-11270.html" target="_blank" rel="noopener">RK7 Team <span>↗</span></a><a class="sws-endu" data-p="france-c8/" href="https://www.sodiwseries.com/fr-fr/rankings/global/2026/france-c8/endurance-cup-2" target="_blank" rel="noopener">Classement Endurance France <span>↗</span></a><a class="sws-endu" data-p="" href="https://www.sodiwseries.com/fr-fr/rankings/global/2026/endurance-cup-2" target="_blank" rel="noopener">Classement Endurance mondial <span>↗</span></a><a class="all" href="https://www.sodiwseries.com/fr-fr/" target="_blank" rel="noopener">Site SWS <span>↗</span></a><a class="all" href="equipe.html" target="_blank" rel="noopener">Notre vitrine publique <span>↗</span></a></div></details>
@@ -475,6 +493,12 @@ button:active:not(:disabled){transform:scale(.97)}
     <div class="stats" id="budPastStats"></div>
     <div class="grid-wrap"><table class="team" id="budPastTable"></table></div>
   </section>
+</main>
+
+<main class="wrap" id="viewProfil" hidden>
+  <section class="panel" id="pfCard"></section>
+  <section class="panel" id="pfHist"></section>
+  <div id="pfMeSlot" style="display:flex;flex-direction:column;gap:20px"></div>
 </main>
 
 <main class="wrap" id="viewRank" hidden>
@@ -728,6 +752,24 @@ button:active:not(:disabled){transform:scale(.97)}
     <p class="msg" id="resMsg"></p>
   </section>
 
+  <section class="panel" id="propPanel">
+    <div class="row" style="justify-content:space-between;align-items:center"><h2>Courses proposées</h2><button type="button" class="btn-gold" id="propNewBtn">Proposer une course</button></div>
+    <form id="propForm" class="form-grid" hidden>
+      <div class="field wide"><label for="pLieu">Circuit</label><input id="pLieu" maxlength="80" required placeholder="Le Mans, RKC, JPR…"></div>
+      <div class="field"><label for="pTitre">Nom de la course (facultatif)</label><input id="pTitre" maxlength="60" placeholder="12H du Mans"></div>
+      <div class="field"><label for="pDuree">Durée</label><input id="pDuree" maxlength="20" placeholder="6h"></div>
+      <div class="field"><label for="pDate">Date (si connue)</label><input id="pDate" type="date"></div>
+      <div class="field"><label for="pSaison">Sinon, saison</label><input id="pSaison" type="number" min="2026" max="2100" placeholder="2027"></div>
+      <div class="field"><label for="pPrix">Prix pour l'équipage (€)</label><input id="pPrix" inputmode="decimal" placeholder="690"></div>
+      <div class="field"><label for="pEq">Pilotes par équipage</label><input id="pEq" type="number" min="1" max="8" placeholder="3"></div>
+      <div class="field wide"><label for="pLien">Lien (inscription, règlement…)</label><input id="pLien" type="url" maxlength="300" placeholder="https://"></div>
+      <div class="field wide"><label for="pMsg">Pourquoi cette course ?</label><textarea id="pMsg" maxlength="500" style="min-height:70px" placeholder="Super circuit, bonne ambiance, on peut viser le podium…"></textarea></div>
+      <div class="row-end wide"><button type="button" class="btn-ghost" id="propCancel">Annuler</button><button class="btn-gold" type="submit">Envoyer la proposition</button></div>
+    </form>
+    <div id="propList" class="list"></div>
+    <p class="msg" id="propMsg"></p>
+  </section>
+
   <div class="bar">
     <div class="tabs">
       <button class="tab" id="tabUp" aria-pressed="true" type="button">À venir</button>
@@ -764,6 +806,7 @@ button:active:not(:disabled){transform:scale(.97)}
   const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ v==null?localStorage.removeItem(k):localStorage.setItem(k,v); }catch(e){} } };
 
   let teamToken = ls.get("rk7-token"), role = ls.get("rk7-role") || "team", pilotToken = ls.get("rk7-pilot"), myId = ls.get("rk7-pid");
+  let proposals=[], profilePid=null, editProp=null;
   let treso=null, accData=null, backups=null, visited=false, onbSkip=false;
   let relays={}, materiel=[], clockSkew=0, raceCid=null, raceTimer=null, wxCache={};
   let comments=[], photos=[], openComm=new Set(), openPhotos=new Set(), elevTried=false, lbList=[], lbIdx=0;
@@ -876,7 +919,7 @@ button:active:not(:disabled){transform:scale(.97)}
   }
   function applyData(d){
     if(!d || !d.courses) return;
-    courses=d.courses; news=d.news||[]; config=d.config||{}; frais=d.frais||[]; comments=d.comments||[]; photos=d.photos||[]; relays=d.relays||{}; materiel=d.materiel||[]; if(d.now) clockSkew=d.now-Date.now();
+    courses=d.courses; news=d.news||[]; config=d.config||{}; frais=d.frais||[]; proposals=d.proposals||[]; comments=d.comments||[]; photos=d.photos||[]; relays=d.relays||{}; materiel=d.materiel||[]; if(d.now) clockSkew=d.now-Date.now();
     if(!d.__cached){ try{ localStorage.setItem("rk7-data", JSON.stringify(Object.assign({}, d, {__at:Date.now()}))); }catch(e){} $("#offline").hidden=true; } window.__bilans=d.bilans||[]; pilots={}; (d.pilots||[]).forEach(p=>pilots[p.id]=p);
     if(myId && !pilots[myId]){ logoutPilot(); }
     loaded=true; renderAll(); tryElevate();
@@ -972,7 +1015,7 @@ button:active:not(:disabled){transform:scale(.97)}
   });
 
   async function answer(cid, value){
-    if(!me()){ setMsg("#meMsg","Connecte-toi ou crée ton profil pilote pour répondre.",true); $("#mePanel").scrollIntoView({behavior:"smooth",block:"start"}); return; }
+    if(!me()){ setMsg("#meMsg","Connecte-toi ou crée ton profil pilote pour répondre.",true); location.hash="profil"; return; }
     const c = courses.find(x=>x.id===cid); if(!c) return;
     const dispo = Object.assign({}, me().dispo||{}), equipes = Object.assign({}, me().equipes||{});
     if(value==="oui"){
@@ -1061,7 +1104,7 @@ button:active:not(:disabled){transform:scale(.97)}
     if(c.terminee) return "";
     const eq=Number(c.equipage)||0, n=Math.max(eq, yes.length); if(!n) return "";
     let h='<div class="seats" aria-label="'+yes.length+' pilote(s) inscrit(s) sur '+(eq||yes.length)+' places">';
-    for(let i=0;i<n;i++){ const p=yes[i]; h+= p ? '<span class="seat'+(p.id===myId?' me':'')+'" title="'+esc(p.nom)+'">'+esc(initials(p.nom))+'</span>' : '<span class="seat free" title="Place libre">+</span>'; }
+    for(let i=0;i<n;i++){ const p=yes[i]; h+= p ? '<span class="seat'+(p.id===myId?' me':'')+'" title="'+esc(p.nom)+'" style="overflow:hidden">'+(pilots[p.id]&&pilots[p.id].avatar?'<img data-dbimg="'+esc(pilots[p.id].avatar)+'" alt="'+esc(p.nom)+'" style="width:100%;height:100%;object-fit:cover">':esc(initials(p.nom)))+'</span>' : '<span class="seat free" title="Place libre">+</span>'; }
     return h+'<span class="lbl2">'+(eq ? yes.length+' / '+eq+(yes.length>=eq?' · complet':' place'+(eq>1?'s':'')) : yes.length+' inscrit'+(yes.length>1?'s':''))+'</span></div>';
   }
   function daysTo(d){ const a=parse(d), t=parse(today()); return Math.round((a-t)/864e5); }
@@ -1536,7 +1579,7 @@ button:active:not(:disabled){transform:scale(.97)}
     $("#rankStats").innerHTML='<div class="stat"><b>'+list.length+'</b><span>Courses</span></div><div class="stat"><b>'+H(totH)+'</b><span>De course</span></div><div class="stat"><b>'+arr.length+'</b><span>Pilotes</span></div>'+(pods?'<div class="stat"><b>'+pods+'</b><span>Podiums</span></div>':'');
     $("#rankTitle").textContent="Classement "+cur;
     $("#rankTable").innerHTML='<thead><tr><th>#</th><th>Pilote</th><th>Heures</th><th>Courses</th></tr></thead><tbody>'+arr.map((r,i)=>{ const bd=badges(r);
-      return '<tr'+(r.pid&&r.pid===myId?' style="background:var(--gold-soft)"':'')+'><td class="r">'+(i+1)+'</td><td style="white-space:normal"><b>'+esc(r.nom)+'</b>'+(bd.length?'<div class="badges">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+'</td><td class="num"><b>'+H(r.heures)+'</b><div class="mbar"><i style="width:'+Math.round(r.heures/Math.max(1,arr[0].heures)*100)+'%"></i></div></td><td class="num">'+r.courses+'</td></tr>'; }).join("")+'</tbody>';
+      return '<tr'+(r.pid&&r.pid===myId?' style="background:var(--gold-soft)"':'')+'><td class="r">'+(i+1)+'</td><td style="white-space:normal"><a class="pl" href="#profil/'+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return pp?esc(pp.id):'n:'+encodeURIComponent(r.nom); })()+'">'+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return pp?avatarHtml(pp,"sm"):''; })()+'<b>'+esc(r.nom)+'</b></a>'+(bd.length?'<div class="badges">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+'</td><td class="num"><b>'+H(r.heures)+'</b><div class="mbar"><i style="width:'+Math.round(r.heures/Math.max(1,arr[0].heures)*100)+'%"></i></div></td><td class="num">'+r.courses+'</td></tr>'; }).join("")+'</tbody>';
   }
   $("#rankSeason").addEventListener("change", renderRank);
   document.querySelectorAll("a.sws-endu").forEach(a=>{ a.href="https://www.sodiwseries.com/fr-fr/rankings/global/"+new Date().getFullYear()+"/"+(a.dataset.p||"")+"endurance-cup-2"; });
@@ -1654,11 +1697,81 @@ button:active:not(:disabled){transform:scale(.97)}
       const u=URL.createObjectURL(new Blob([txt],{type:"application/json"})), a=document.createElement("a"); a.href=u; a.download="rk7-sauvegarde-"+String(d&&d.at||new Date().toISOString()).slice(0,10)+".json"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),5000); }
     catch(err){ alertMsg(err.message); } finally{ b.disabled=false; } });
   function alertMsg(m){ setMsg("#pilotMsg", m, true); }
+  // ---------- Avatars ----------
+  function avatarHtml(p, cls){ const nm=(p&&p.nom)||"?"; return '<span class="avt'+(cls?' '+cls:'')+'">'+(p&&p.avatar?'<img data-dbimg="'+esc(p.avatar)+'" alt="Photo de '+esc(nm)+'">':esc(initials(nm)))+'</span>'; }
+  // ---------- Profil pilote ----------
+  const normN = t => String(t||"").trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+  function partOf(c, pid, nom){
+    const n=normN(nom), list=c.participants||[];
+    let hit=list.find(x=>x.pid===pid) || list.find(x=>normN(x.nom)===n);
+    if(!hit && n.length>=3){ const cand=list.filter(x=>normN(x.nom).startsWith(n+" ")); if(cand.length===1) hit=cand[0]; }
+    return hit||null;
+  }
+  function pilotByName(nm){ const n=normN(nm); const all=Object.values(pilots); return all.find(p=>normN(p.nom)===n) || (()=>{ const c=all.filter(p=>n.startsWith(normN(p.nom)+" ") && normN(p.nom).length>=3); return c.length===1?c[0]:null; })(); }
+  function profileOf(key){
+    if(key && key.startsWith("n:")){ const nm=decodeURIComponent(key.slice(2)), hit=pilotByName(nm); return hit || {id:null, nom:nm}; }
+    const id=key||myId; return id && pilots[id] ? pilots[id] : null;
+  }
+  function renderProfil(){
+    if(!loaded || $("#viewProfil").hidden) return;
+    const p=profileOf(profilePid), self=!!(p && p.id && p.id===myId);
+    $("#pfMeSlot").hidden=!(self || !p);
+    if(!p){ $("#pfCard").innerHTML='<h2>Mon profil</h2><p class="msg">Crée ou ouvre ton profil pilote ci-dessous.</p>'; $("#pfHist").hidden=true; return; }
+    $("#pfHist").hidden=false;
+    const past=courses.filter(c=>c.terminee).map(c=>({c,pt:partOf(c,p.id,p.nom)})).filter(x=>x.pt).sort((a,b)=>sortKey(b.c).localeCompare(sortKey(a.c)));
+    const up=p.id?courses.filter(c=>isUpcoming(c) && p.dispo && p.dispo[c.id]==="oui").sort((a,b)=>sortKey(a).localeCompare(sortKey(b))):[];
+    const heures=past.reduce((a,x)=>a+(Number(x.c.heures)||0),0), pod=past.filter(x=>{ const q=podiumOf(x.c.position); return q&&q<=3; }).length, seasons=new Set(past.map(x=>seasonOf(x.c))).size, spent=past.reduce((a,x)=>a+(Number(x.pt.part)||0),0);
+    const maxH=Math.max(0,...past.map(x=>Number(x.c.heures)||0)), tracks=new Set(past.map(x=>x.c.lieu)).size;
+    const bd=[]; if(past.some(x=>podiumOf(x.c.position)===1)) bd.push("🥇 Victoire"); else if(pod) bd.push("🏆 Podium"); if(maxH>=24) bd.push("🌙 24 heures"); else if(maxH>=12) bd.push("⏱ 12 heures"); if(heures>=100) bd.push("💯 100 h"); else if(heures>=50) bd.push("50 h"); if(past.length>=20) bd.push("🔥 20 courses"); else if(past.length>=10) bd.push("10 courses"); if(tracks>=4) bd.push("🧭 "+tracks+" pistes");
+    const since=p.since?new Date(p.since).toLocaleDateString("fr-FR",{month:"long",year:"numeric"}):"";
+    $("#pfCard").innerHTML='<div class="pfh">'+avatarHtml(p)+'<div style="min-width:0;flex:1 1 180px"><h2>'+esc(p.nom)+'</h2><div class="sub2" style="font-size:14px">'+esc(p.equipePref||"RK7 Team")+(since?' · dans l\'appli depuis '+esc(since):'')+'</div>'+(bd.length?'<div class="badges" style="margin-top:6px">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+
+      (self?'<div class="row" style="margin-top:8px;gap:8px"><label class="btn-ghost mini" style="cursor:pointer;border:1px solid var(--line);border-radius:6px;font-weight:600">'+(p.avatar?'Changer ma photo':'Ajouter ma photo')+'<input type="file" accept="image/*" hidden id="avIn"></label>'+(p.avatar?'<button type="button" class="btn-link" id="avDel">Retirer</button>':'')+'</div>':'')+
+      (!self?'<button type="button" class="btn-link" style="margin-top:6px" data-back>← Retour</button>':'')+'</div></div>'+
+      '<div class="stats"><div class="stat"><b>'+past.length+'</b><span>Courses</span></div><div class="stat"><b>'+Math.round(heures)+' h</b><span>En piste</span></div><div class="stat"><b>'+pod+'</b><span>Podiums</span></div><div class="stat"><b>'+seasons+'</b><span>Saison'+(seasons>1?'s':'')+'</span></div>'+(self&&spent?'<div class="stat"><b>'+euro(spent)+'</b><span>Investi</span></div>':'')+'</div>';
+    const row=(c,right,cls,sub)=>'<div class="hi'+(cls?' '+cls:'')+'"><span class="d">'+(c.date?esc(fmtDay(c.date))+'<br>'+c.date.slice(0,4):'Saison<br>'+seasonOf(c))+'</span><span><b>'+esc(c.titre||c.lieu)+'</b><br><span class="sub2">'+esc([c.titre?c.lieu:"", c.equipe?shortTeam(c.equipe):"", c.duree].filter(Boolean).join(" · "))+(sub?' · '+sub:'')+'</span></span><span class="r">'+right+'</span></div>';
+    $("#pfHist").innerHTML='<h2>Historique des courses</h2>'+
+      (up.length?'<div class="k" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">À venir</div><div class="hist">'+up.map(c=>row(c, self ? (isPaid(p.id,c.id)?'<span class="chip ok">payé</span>':'<span class="chip no">à payer</span>') : '<span class="chip">inscrit</span>', "up", esc(shortTeam(teamOf(p.id,c.id))||""))).join("")+'</div>':'')+
+      '<div class="k" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:6px">Courses disputées</div>'+
+      (past.length?'<div class="hist">'+past.map(x=>row(x.c, x.c.position?esc("P"+(podiumOf(x.c.position)||"")):(x.c.heures?esc(x.c.heures+" h"):'✓'), "", self&&x.pt.part?euro(x.pt.part):"")).join("")+'</div>':'<p class="note">Pas encore de course terminée'+(self?' : la première arrive vite !':'.')+'</p>');
+    loadDbImages();
+  }
+  $("#pfCard").addEventListener("change", async e=>{ const f=e.target.closest("#avIn"); if(!f||!f.files||!f.files[0]) return;
+    try{ setMsg("#meMsg","Envoi de la photo…"); const b64=await resizeTo(f.files[0],400,0.82); applyData(await rpc("my_avatar",{token:teamToken,pilot_token:pilotToken,b64})); setMsg("#meMsg","Photo de profil mise à jour."); }catch(err){ setMsg("#meMsg",err.message,true); } });
+  $("#pfCard").addEventListener("click", async e=>{ const b=e.target.closest("button"); if(!b) return;
+    if(b.id==="avDel"){ try{ applyData(await rpc("my_avatar",{token:teamToken,pilot_token:pilotToken,b64:""})); }catch(err){ setMsg("#meMsg",err.message,true); } }
+    if(b.dataset.back!==undefined) history.back(); });
+  // ---------- Propositions de courses ----------
+  function renderProps(){
+    const list=proposals.filter(x=>x.status==="ouverte" || isAdmin());
+    $("#propList").innerHTML = list.length ? list.map(x=>{ const mine=myId&&x.votes.includes(myId), n=x.votes.length, eq=Number(x.equipage)||0, pp=x.prixEquipage!=null?Number(x.prixEquipage)/Math.max(eq||1, n||1):null, canDel=isAdmin()||(myId&&x.pilotId===myId);
+      return '<div class="prop"><div class="row" style="justify-content:space-between;gap:6px"><h3>'+esc(x.titre||x.lieu)+'</h3>'+(x.status!=="ouverte"?'<span class="chip '+(x.status==="acceptee"?"ok":"no")+'">'+(x.status==="acceptee"?"retenue":"non retenue")+'</span>':'')+'</div>'+
+        '<div class="meta">'+(x.titre?'<span>'+ico("pin")+'<b>'+esc(x.lieu)+'</b></span>':'')+'<span>'+ico("cal")+'<b>'+esc(x.date?longDate(x.date):(x.saison?"Saison "+x.saison:"Date à définir"))+'</b></span>'+(x.duree?'<span>'+ico("clock")+'<b>'+esc(x.duree)+'</b></span>':'')+(pp!=null?'<span>'+ico("euro")+'≈ <b>'+euro(pp)+'</b> / pilote</span>':'')+'</div>'+
+        (x.message?'<div class="note">« '+esc(x.message)+' »</div>':'')+
+        '<div class="sub2">Proposée par '+esc(x.pilotId?nomOf(x.pilotId):"RK7 Team")+(x.lien?' · <a href="'+esc(x.lien)+'" target="_blank" rel="noopener">voir le lien ↗</a>':'')+'</div>'+
+        '<div class="acts"><button type="button" class="'+(mine?"btn-gold":"btn-ghost")+' mini" data-pvote="'+esc(x.id)+'" data-v="'+(mine?"0":"1")+'" aria-pressed="'+mine+'">'+(mine?"✓ Intéressé":"Ça m'intéresse")+'</button><span class="sub2">'+n+' intéressé'+(n>1?'s':'')+(n?' : '+x.votes.map(nomOf).map(esc).join(", "):'')+'</span>'+
+        (isAdmin()&&x.status==="ouverte"?'<button type="button" class="btn-gold mini" data-pacc="'+esc(x.id)+'">Ajouter au calendrier</button><button type="button" class="btn-ghost mini" data-pref="'+esc(x.id)+'">Refuser</button>':'')+
+        (canDel?'<button type="button" class="btn-link" style="font-size:13px" data-pdel="'+esc(x.id)+'">Supprimer</button>':'')+'</div></div>'; }).join("")
+      : '<p class="note">Une course te tente ? Propose-la : les autres pilotes disent si ça les intéresse et Florent décide de l\'ajouter au calendrier.</p>';
+  }
+  $("#propNewBtn").addEventListener("click", ()=>{ if(!me() && !isAdmin()){ location.hash="profil"; return; } $("#propForm").hidden=!$("#propForm").hidden; if(!$("#propForm").hidden) $("#pLieu").focus(); });
+  $("#propCancel").addEventListener("click", ()=>{ $("#propForm").reset(); $("#propForm").hidden=true; });
+  $("#propForm").addEventListener("submit", async e=>{ e.preventDefault();
+    const item={lieu:$("#pLieu").value,titre:$("#pTitre").value,duree:$("#pDuree").value,date:$("#pDate").value,saison:$("#pSaison").value,prixEquipage:$("#pPrix").value,equipage:$("#pEq").value,lien:$("#pLien").value,message:$("#pMsg").value};
+    try{ applyData(await rpc("proposal_save",{token:teamToken,pilot_token:pilotToken||"",prop_id:"p"+Date.now().toString(36),item})); $("#propForm").reset(); $("#propForm").hidden=true; setMsg("#propMsg","Proposition envoyée : les pilotes sont prévenus."); }catch(err){ setMsg("#propMsg",err.message,true); } });
+  $("#propList").addEventListener("click", async e=>{ const b=e.target.closest("button"); if(!b) return;
+    try{
+      if(b.dataset.pvote){ if(!me()){ location.hash="profil"; return; } applyData(await rpc("proposal_vote",{token:teamToken,pilot_token:pilotToken,prop_id:b.dataset.pvote,oui:b.dataset.v==="1"})); }
+      if(b.dataset.pdel){ if(b.textContent!=="Confirmer ?"){ b.textContent="Confirmer ?"; return; } applyData(await rpc("proposal_delete",{token:teamToken,pilot_token:pilotToken||"",prop_id:b.dataset.pdel})); }
+      if(b.dataset.pref){ applyData(await rpc("admin_proposal_status",{token:teamToken,prop_id:b.dataset.pref,status:"refusee"})); }
+      if(b.dataset.pacc){ const x=proposals.find(q=>q.id===b.dataset.pacc); if(!x) return;
+        resetForm(); $("#fTitre").value=x.titre||""; $("#fLieu").value=x.lieu||""; $("#fDuree").value=x.duree||""; $("#fDate").value=x.date||""; $("#fSaison").value=x.date?"":(x.saison||""); $("#fPrixEq").value=x.prixEquipage!=null?x.prixEquipage:""; $("#fEquipage").value=x.equipage?String(Math.min(6,Number(x.equipage))):""; $("#fNote").value=(x.message||"").slice(0,160);
+        editProp=x.id; openForm(true); $("#adminPanel").scrollIntoView({behavior:"smooth",block:"start"}); setMsg("#adminMsg","Vérifie les infos puis « Enregistrer la course » : la proposition sera marquée comme retenue."); }
+    }catch(err){ setMsg("#propMsg",err.message,true); } });
   function renderAll(){
     $("#adminPanel").hidden=!isAdmin(); $("#newsAdmin").hidden=!isAdmin(); $("#adminAccess").hidden=isAdmin(); $("#navAdmin").hidden=!isAdmin();
     if(!isAdmin()) $("#resPanel").hidden=true;
     if(!isAdmin() && location.hash==="#admin") location.hash="calendrier";
-    renderMe(); renderCal(); renderNews(); renderBudget(); renderAdmin(); renderRank(); if(raceCid) renderRace(); renderOnboard(); renderWelcome();
+    renderMe(); renderCal(); renderNews(); renderBudget(); renderAdmin(); renderRank(); if(raceCid) renderRace(); renderOnboard(); renderWelcome(); renderProps(); renderProfil();
   }
 
   // ---------- Events ----------
@@ -1750,7 +1863,8 @@ button:active:not(:disabled){transform:scale(.97)}
       prix:$("#fPrix").value===""?null:Number($("#fPrix").value), equipage:$("#fEquipage").value, equipe:$("#fEquipe").value, note:$("#fNote").value, limite:$("#fLimite").value };
     const id = editingId || ((data.date||data.saison||"c")+"-"+Math.random().toString(36).slice(2,8));
     $("#saveRace").disabled=true;
-    try{ applyData(await api("admin/courses/"+id,{method:"PUT",json:data})); setMsg("#adminMsg", editingId?"Course modifiée.":"Course ajoutée au calendrier."); resetForm(); openForm(false); }
+    try{ applyData(await api("admin/courses/"+id,{method:"PUT",json:data})); setMsg("#adminMsg", editingId?"Course modifiée.":"Course ajoutée au calendrier."); resetForm(); openForm(false);
+      if(editProp){ const pid2=editProp; editProp=null; try{ applyData(await rpc("admin_proposal_status",{token:teamToken,prop_id:pid2,status:"acceptee"})); }catch(e){} } }
     catch(err){ setMsg("#adminMsg",err.message,true); }
     finally{ $("#saveRace").disabled=false; }
   });
@@ -2014,22 +2128,26 @@ button:active:not(:disabled){transform:scale(.97)}
   if(pushSupported){ navigator.serviceWorker.register("sw.js").then(r=>{ swReg=r; notifStatus(); }).catch(()=>notifStatus()); } else notifStatus();
 
   function route(){
-    const v = location.hash==="#news" ? "news" : location.hash==="#budget" ? "budget" : location.hash==="#classement" ? "rank" : (location.hash==="#admin" && isAdmin()) ? "admin" : "cal";
-    $("#viewNews").hidden=v!=="news"; $("#viewCal").hidden=v!=="cal"; $("#viewBudget").hidden=v!=="budget"; $("#viewAdmin").hidden=v!=="admin"; $("#viewRank").hidden=v!=="rank";
+    const pf = /^#profil/.test(location.hash); profilePid = pf ? (decodeURIComponent(location.hash.split("/")[1]||"")||null) : null; if(profilePid && !profilePid.startsWith("n:")) profilePid=location.hash.split("/")[1];
+    const v = location.hash==="#news" ? "news" : location.hash==="#budget" ? "budget" : location.hash==="#classement" ? "rank" : pf ? "profil" : (location.hash==="#admin" && isAdmin()) ? "admin" : "cal";
+    $("#viewNews").hidden=v!=="news"; $("#viewCal").hidden=v!=="cal"; $("#viewBudget").hidden=v!=="budget"; $("#viewAdmin").hidden=v!=="admin"; $("#viewRank").hidden=v!=="rank"; $("#viewProfil").hidden=v!=="profil";
+    $("#navProfil").setAttribute("aria-current", v==="profil"?"page":"false"); if(v==="profil") renderProfil();
     $("#navRank").setAttribute("aria-current", v==="rank"?"page":"false"); if(v==="rank") renderRank();
     $("#navAdmin").setAttribute("aria-current", v==="admin"?"page":"false");
     if(v==="admin") loadAdmin();
     $("#navCal").setAttribute("aria-current", v==="cal"?"page":"false");
     $("#navNews").setAttribute("aria-current", v==="news"?"page":"false");
     $("#navBudget").setAttribute("aria-current", v==="budget"?"page":"false");
-    $("#viewTitle").textContent = v==="news" ? "News RK7" : v==="budget" ? "Budget" : v==="admin" ? "Admin" : v==="rank" ? "Classement" : "Calendrier";
-    $("#viewSub").textContent = v==="rank" ? "Les heures de roulage, courses et podiums de chaque pilote sur la saison." : v==="admin" ? "Pilotes, cotisations, codes d'accès et exports." : v==="news" ? "Les résultats, annonces et infos de l'équipe." : v==="budget" ? "Prévois tes dépenses de la saison et retrouve le bilan de la saison passée." : "Toutes les courses de l'équipe avec lieu, durée et prix par pilote. Indique tes disponibilités pour réserver ta place.";
+    $("#viewTitle").textContent = v==="news" ? "News RK7" : v==="budget" ? "Budget" : v==="admin" ? "Admin" : v==="rank" ? "Classement" : v==="profil" ? ((profilePid && profileOf(profilePid) && profileOf(profilePid).id!==myId) ? "Pilote" : "Mon profil") : "Calendrier";
+    $("#viewSub").textContent = v==="profil" ? "Ta photo, tes stats, ton historique de courses et ton espace pilote." : v==="rank" ? "Les heures de roulage, courses et podiums de chaque pilote sur la saison." : v==="admin" ? "Pilotes, cotisations, codes d'accès et exports." : v==="news" ? "Les résultats, annonces et infos de l'équipe." : v==="budget" ? "Prévois tes dépenses de la saison et retrouve le bilan de la saison passée." : "Toutes les courses de l'équipe avec lieu, durée et prix par pilote. Indique tes disponibilités pour réserver ta place.";
     window.scrollTo(0,0);
   }
   $("#navCal").addEventListener("click",()=>{ location.hash="calendrier"; });
   $("#navNews").addEventListener("click",()=>{ location.hash="news"; });
   $("#navBudget").addEventListener("click",()=>{ location.hash="budget"; });
   $("#navAdmin").addEventListener("click",()=>{ location.hash="admin"; });
+  $("#navProfil").addEventListener("click",()=>{ location.hash="profil"; });
+  $("#pfMeSlot").appendChild($("#mePanel"));
   $("#navRank").addEventListener("click",()=>{ location.hash="classement"; });
   window.addEventListener("hashchange", route);
   route();
