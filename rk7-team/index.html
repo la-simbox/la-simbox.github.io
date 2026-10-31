@@ -303,9 +303,44 @@ details.sec[open]>summary::before{content:"▾ "}
 .poster button{background:#1f1f1c;color:#f3f1ea;border:1px solid #3a3833}
 .poster button.btn-gold{background:var(--band-gold);color:#121210;border-color:var(--band-gold)}
 .settle{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;padding:4px 0}
+/* --- Look v3 : bandeau course, barre d'onglets en bas sur mobile, tuiles --- */
+header.band{position:relative;overflow:hidden;isolation:isolate}
+header.band::before{content:"";position:absolute;z-index:-1;right:-150px;top:-40px;width:340px;height:300px;background:linear-gradient(115deg,transparent 0 34%,var(--band-gold) 34% 46%,transparent 46% 54%,#3a3220 54% 62%,transparent 62%);transform:skewX(-18deg);opacity:.22}
+header.band::after{content:"";display:block;height:14px;opacity:.09;background:conic-gradient(#fff 25%,transparent 0 50%,#fff 0 75%,transparent 0) 0 0/14px 14px}
+header.band .wrap{position:relative}
+.swsmenu{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:22px;margin:0}
+.nav .ico{width:18px;height:18px;margin-right:6px;vertical-align:-3px}
+.panel{border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.04)}
+.panel h2,#viewRank h2{display:flex;align-items:center;gap:10px}
+.panel h2::before{content:"";flex:0 0 auto;width:20px;height:5px;background:var(--gold);transform:skewX(-25deg)}
+.stats .stat{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 12px;min-width:92px}
+.stats .stat b{font-size:24px}
+.race{border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 6px 18px rgba(0,0,0,.05);transition:transform .15s ease,box-shadow .15s ease}
+@media (hover:hover){.race:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,.05),0 12px 28px rgba(0,0,0,.08)}}
+.date{position:relative;overflow:hidden}
+.date::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--band-gold)}
+.news{border-radius:14px;overflow:hidden}
+button{transition:transform .08s ease,filter .15s ease,background .15s ease}
+button:active:not(:disabled){transform:scale(.97)}
+.month{display:flex;align-items:center;gap:10px}
+.month::after{content:"";flex:1;height:1px;background:var(--line)}
+@media (prefers-reduced-motion:reduce){.race,button{transition:none}}
 @media (max-width:620px){
-  .nav{gap:0}
-  .nav button{font-size:15px;padding:6px 7px 7px;letter-spacing:.03em}
+  body{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
+  header.band .wrap{padding-block:14px 0}
+  .brand{gap:12px}
+  .brand img{height:42px!important}
+  h1{font-size:30px}
+  .sub{font-size:14px}
+  .swsmenu{top:14px}
+  .brand{padding-right:78px}
+  .brand .eyebrow{font-size:11px;letter-spacing:.1em}
+  .swsmenu summary{font-size:13px!important;padding:3px 7px!important}
+  .swsmenu summary .lg{display:none}
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:30;margin:0;gap:0;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--band);border-top:1px solid #2a2823;padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 20px rgba(0,0,0,.25)}
+  .nav button{display:flex;flex-direction:column;align-items:center;gap:2px;font-family:var(--body);font-size:11px;font-weight:600;letter-spacing:0;text-transform:none;padding:7px 2px 6px;border-bottom:none;border-top:3px solid transparent;border-radius:0;color:var(--band-muted)}
+  .nav button .ico{width:22px;height:22px;margin:0}
+  .nav button[aria-current="page"]{color:var(--band-gold);border-top-color:var(--band-gold)}
   .swsmenu summary{font-size:14px;padding:3px 8px}
   .brand img{height:54px}
   .race{grid-template-columns:58px minmax(0,1fr)}
@@ -340,13 +375,13 @@ details.sec[open]>summary::before{content:"▾ "}
     </div>
     <p class="sub" id="viewSub"></p>
     <nav class="nav" aria-label="Rubriques">
-      <button type="button" id="navCal" aria-current="page">Calendrier</button>
-      <button type="button" id="navNews">News RK7</button>
-      <button type="button" id="navBudget">Budget</button>
-      <button type="button" id="navRank">Classement</button>
-      <button type="button" id="navAdmin" hidden>Admin</button>
-      <details class="swsmenu" id="swsMenu"><summary>Équipes SWS</summary><div class="menu"><div class="mh">Nos équipes sur Sodi World Series</div><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-pro-17003.html" target="_blank" rel="noopener">RK7 Team Pro <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-racing-18095.html" target="_blank" rel="noopener">RK7 Team Racing <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-sport-25694.html" target="_blank" rel="noopener">RK7 Team Sport <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-11270.html" target="_blank" rel="noopener">RK7 Team <span>↗</span></a><a class="all" href="https://www.sodiwseries.com/fr-fr/" target="_blank" rel="noopener">Site SWS <span>↗</span></a></div></details>
+      <button type="button" id="navCal" aria-current="page"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Calendrier</span></button>
+      <button type="button" id="navNews"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11v16H6a2 2 0 0 1-2-2V5a1 1 0 0 1 1-1z"/><path d="M16 8h3v10a2 2 0 0 1-2 2"/><path d="M8 8h5M8 12h5M8 16h3"/></svg><span>News</span></button>
+      <button type="button" id="navBudget"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6.5A7 7 0 1 0 17 17.5"/><path d="M4 10.5h9M4 13.5h9"/></svg><span>Budget</span></button>
+      <button type="button" id="navRank"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v4M9 20h6M10 17h4"/></svg><span>Classement</span></button>
+      <button type="button" id="navAdmin" hidden><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2 2M14 9l2 2"/></svg><span>Admin</span></button>
     </nav>
+      <details class="swsmenu" id="swsMenu"><summary><span class="lg">Équipes </span>SWS</summary><div class="menu"><div class="mh">Nos équipes sur Sodi World Series</div><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-pro-17003.html" target="_blank" rel="noopener">RK7 Team Pro <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-racing-18095.html" target="_blank" rel="noopener">RK7 Team Racing <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-sport-25694.html" target="_blank" rel="noopener">RK7 Team Sport <span>↗</span></a><a href="https://www.sodiwseries.com/fr-fr/teams/rk7-team-11270.html" target="_blank" rel="noopener">RK7 Team <span>↗</span></a><a class="all" href="https://www.sodiwseries.com/fr-fr/" target="_blank" rel="noopener">Site SWS <span>↗</span></a><a class="all" href="equipe.html" target="_blank" rel="noopener">Notre vitrine publique <span>↗</span></a></div></details>
   </div>
 </header>
 
@@ -401,6 +436,7 @@ details.sec[open]>summary::before{content:"▾ "}
   <section class="panel">
     <div class="row" style="justify-content:space-between;align-items:center">
       <h2 id="rankTitle">Classement interne</h2>
+      <button type="button" class="btn-gold" id="bilanBtn">Bilan de la saison</button>
       <div class="field" style="flex:0 0 120px"><label for="rankSeason">Saison</label><select id="rankSeason"></select></div>
     </div>
     <div class="podium" id="rankPodium"></div>
@@ -411,6 +447,24 @@ details.sec[open]>summary::before{content:"▾ "}
 </main>
 
 <main class="wrap" id="viewAdmin" hidden>
+  <section class="panel" id="tresoPanel">
+    <div class="row" style="justify-content:space-between;align-items:center"><h2>Trésorerie</h2><div class="field" style="flex:0 0 120px"><label for="tresoYear">Année</label><select id="tresoYear"></select></div></div>
+    <div class="stats" id="tresoStats"></div>
+    <div id="tresoTodo"></div>
+    <details class="sec"><summary>Ajouter une entrée ou une dépense</summary>
+      <form id="tresoForm" class="form-grid" style="margin-top:10px">
+        <div class="field"><label for="tJour">Date</label><input id="tJour" type="date" required></div>
+        <div class="field"><label for="tSens">Type</label><select id="tSens"><option value="entree">Entrée d'argent</option><option value="sortie">Dépense</option></select></div>
+        <div class="field"><label for="tCat">Catégorie</label><select id="tCat"><option>Sponsor</option><option>Subvention</option><option>Don</option><option>Solde reporté</option><option>Inscription course</option><option>Matériel</option><option>Déplacement</option><option>Frais bancaires</option><option>Événement</option><option>Autre</option></select></div>
+        <div class="field"><label for="tMt">Montant (€)</label><input id="tMt" inputmode="decimal" placeholder="250" required></div>
+        <div class="field wide"><label for="tLib">Libellé</label><input id="tLib" maxlength="120" placeholder="Sponsor garage Martin, kit radios…"></div>
+        <div class="row-end wide"><button class="btn-gold" type="submit">Enregistrer</button></div>
+      </form>
+    </details>
+    <div class="grid-wrap"><table class="team" id="tresoTable"></table></div>
+    <p class="sub2">Les cotisations cochées, les parts payées par les pilotes et les inscriptions marquées « payées » sont comptées automatiquement. Ajoute ici le reste : sponsors, subventions, solde de l'année précédente, achats.</p>
+    <p class="msg" id="tresoMsg"></p>
+  </section>
   <section class="panel">
     <h2>Pilotes et cotisations</h2>
     <div class="row">
@@ -430,6 +484,7 @@ details.sec[open]>summary::before{content:"▾ "}
       <button type="button" class="btn-ghost" data-export="resultats">Résultats et dépenses</button>
       <button type="button" class="btn-ghost" data-export="frais">Frais annexes</button>
       <button type="button" class="btn-ghost" data-export="adhesions">Adhésions</button>
+      <button type="button" class="btn-ghost" data-export="treso">Trésorerie</button>
     </div>
   </section>
   <section class="panel">
@@ -651,6 +706,7 @@ details.sec[open]>summary::before{content:"▾ "}
   const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ v==null?localStorage.removeItem(k):localStorage.setItem(k,v); }catch(e){} } };
 
   let teamToken = ls.get("rk7-token"), role = ls.get("rk7-role") || "team", pilotToken = ls.get("rk7-pilot"), myId = ls.get("rk7-pid");
+  let treso=null;
   let relays={}, materiel=[], clockSkew=0, raceCid=null, raceTimer=null, wxCache={};
   let comments=[], photos=[], openComm=new Set(), openPhotos=new Set(), elevTried=false, lbList=[], lbIdx=0;
   let frais=[], openFrais=new Set(), allFrais=new Set(), config={}, adminPilots=null, myProfile=null, openLogi=new Set(), resId=null;
@@ -1227,9 +1283,11 @@ details.sec[open]>summary::before{content:"▾ "}
   }
   async function showPoster(cid){
     const c=courses.find(x=>x.id===cid); if(!c) return;
-    const cv=await makePoster(c), el=document.createElement("div"); el.className="poster"; el.id="poster"; el.setAttribute("role","dialog"); el.setAttribute("aria-label","Affiche Instagram");
+    showPosterCanvas(await makePoster(c), "rk7-"+String(c.titre||c.lieu).toLowerCase().replace(/[^a-z0-9]+/g,"-")+".png");
+  }
+  function showPosterCanvas(cv, name){
+    const el=document.createElement("div"); el.className="poster"; el.id="poster"; el.setAttribute("role","dialog"); el.setAttribute("aria-label","Affiche Instagram");
     el.appendChild(cv); const bar=document.createElement("div"); bar.className="bar2"; bar.innerHTML='<button type="button" class="btn-gold" data-pdl>Télécharger</button>'+(navigator.canShare?'<button type="button" data-psh>Partager</button>':'')+'<button type="button" data-px>Fermer ✕</button>'; el.appendChild(bar); document.body.appendChild(el);
-    const name="rk7-"+String(c.titre||c.lieu).toLowerCase().replace(/[^a-z0-9]+/g,"-")+".png";
     el.addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b){ if(e.target===el) el.remove(); return; }
       if(b.dataset.px!==undefined) el.remove();
       if(b.dataset.pdl!==undefined) cv.toBlob(bl=>{ const u=URL.createObjectURL(bl), a=document.createElement("a"); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),5000); },"image/png");
@@ -1422,6 +1480,54 @@ details.sec[open]>summary::before{content:"▾ "}
       return '<tr'+(r.pid&&r.pid===myId?' style="background:var(--gold-soft)"':'')+'><td class="r">'+(i+1)+'</td><td style="white-space:normal"><b>'+esc(r.nom)+'</b>'+(bd.length?'<div class="badges">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+'</td><td class="num"><b>'+H(r.heures)+'</b><div class="mbar"><i style="width:'+Math.round(r.heures/Math.max(1,arr[0].heures)*100)+'%"></i></div></td><td class="num">'+r.courses+'</td></tr>'; }).join("")+'</tbody>';
   }
   $("#rankSeason").addEventListener("change", renderRank);
+  function seasonStats(Y){
+    const list=courses.filter(c=>c.terminee && seasonOf(c)===Y && (c.participants||[]).length);
+    const norm=t=>String(t||"").trim().toLowerCase(), P={};
+    for(const c of list) for(const pt of c.participants){ const nom=(pt.pid&&pilots[pt.pid]&&pilots[pt.pid].nom)||pt.nom, k=norm(nom); const r=P[k]||(P[k]={nom,courses:0,heures:0}); r.courses++; r.heures+=Number(c.heures)||0; }
+    const ps=Object.values(P), byC=ps.slice().sort((a,b)=>b.courses-a.courses||b.heures-a.heures)[0], byH=ps.slice().sort((a,b)=>b.heures-a.heures)[0];
+    const pos=list.map(c=>({c,p:podiumOf(c.position)})).filter(x=>x.p), best=pos.sort((a,b)=>a.p-b.p)[0];
+    const longest=list.slice().sort((a,b)=>(Number(b.heures)||0)-(Number(a.heures)||0))[0];
+    const tracks={}; list.forEach(c=>tracks[c.lieu]=(tracks[c.lieu]||0)+1); const topTrack=Object.entries(tracks).sort((a,b)=>b[1]-a[1])[0];
+    const teams={}; list.forEach(c=>{ const t=c.equipe||"RK7 Team"; teams[t]=(teams[t]||0)+1; });
+    const heures=list.reduce((a,c)=>a+(Number(c.heures)||0),0), spend=list.reduce((a,c)=>a+(c.participants||[]).reduce((s,p)=>s+(Number(p.part)||0),0),0);
+    return {Y,list,ps,byC,byH,best,longest,topTrack,teams,heures,spend,podiums:pos.filter(x=>x.p<=3).length,circuits:Object.keys(tracks).length,photos:photos.filter(ph=>list.some(c=>c.id===ph.courseId))};
+  }
+  function openBilan(){
+    const Y=Number($("#rankSeason").value)||rankSeasons()[0]; if(!Y) return; const st=seasonStats(Y);
+    const el=document.createElement("div"); el.className="rm"; el.id="bilan"; el.setAttribute("role","dialog"); el.setAttribute("aria-label","Bilan de la saison "+Y); document.body.style.overflow="hidden";
+    const H=x=>Math.round(x).toLocaleString("fr-FR")+" h", maxT=Math.max(1,...Object.values(st.teams));
+    const tile=(v,l)=>'<div class="card" style="gap:2px"><span class="tm" style="font-size:44px">'+esc(v)+'</span><span class="k">'+esc(l)+'</span></div>';
+    const hl=(k,v,d)=>v?'<div class="q"><span><span class="k">'+esc(k)+'</span><br><b style="font-family:var(--display);font-size:22px">'+esc(v)+'</b>'+(d?'<br><span class="sub2" style="color:var(--band-muted)">'+esc(d)+'</span>':'')+'</span></div>':'';
+    el.innerHTML='<div class="in"><div class="hd"><div><span class="k">Bilan de la saison</span><br><b style="font-size:40px;font-family:var(--display)">'+Y+'</b></div><button type="button" class="btn-ghost" data-bx>Fermer ✕</button></div>'+
+      '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">'+tile(st.list.length,"Courses")+tile(H(st.heures),"De course")+tile(st.ps.length,"Pilotes")+tile(st.podiums||st.circuits, st.podiums?"Podiums":"Circuits")+'</div>'+
+      '<div class="card">'+hl("Pilote le plus assidu", st.byC&&st.byC.nom, st.byC&&st.byC.courses+" courses")+hl("Le plus d'heures en piste", st.byH&&st.byH.nom, st.byH&&H(st.byH.heures))+hl("Meilleur résultat", st.best&&("P"+st.best.p+" · "+(st.best.c.titre||st.best.c.lieu)), st.best&&st.best.c.equipe)+hl("La plus longue", st.longest&&(st.longest.titre||st.longest.lieu), st.longest&&(st.longest.duree||""))+hl("Circuit fétiche", st.topTrack&&st.topTrack[0], st.topTrack&&st.topTrack[1]+" courses")+'</div>'+
+      '<div class="card"><span class="k">Courses par équipe</span>'+Object.entries(st.teams).sort((a,b)=>b[1]-a[1]).map(([t,n])=>'<div><div style="display:flex;justify-content:space-between"><span>'+esc(t)+'</span><b>'+n+'</b></div><div class="pbar" style="height:7px"><i style="width:'+Math.round(n/maxT*100)+'%"></i></div></div>').join("")+'</div>'+
+      (st.photos.length?'<div class="card"><span class="k">En images</span><div class="gal">'+st.photos.slice(-9).map((ph,i)=>'<button type="button" tabindex="-1" style="cursor:default"><img data-dbimg="'+esc(ph.thumb)+'" alt="Photo '+(i+1)+' de la saison"></button>').join("")+'</div></div>':'')+
+      '<button type="button" class="btn-gold big" data-bposter>Affiche Instagram du bilan</button></div>';
+    document.body.appendChild(el); loadDbImages();
+    const close=()=>{ el.remove(); document.body.style.overflow=""; document.removeEventListener("keydown",esc2); }, esc2=e=>{ if(e.key==="Escape") close(); };
+    document.addEventListener("keydown",esc2);
+    el.addEventListener("click", async e=>{ const b=e.target.closest("button"); if(!b) return; if(b.dataset.bx!==undefined) close(); if(b.dataset.bposter!==undefined) showPosterCanvas(await makeSeasonPoster(st), "rk7-bilan-"+Y+".png"); });
+  }
+  $("#bilanBtn").addEventListener("click", openBilan);
+  async function makeSeasonPoster(st){
+    try{ await document.fonts.load('700 120px "Saira Condensed"'); }catch(e){}
+    const W=1080,H=1920, cv=document.createElement("canvas"); cv.width=W; cv.height=H; const g=cv.getContext("2d"), GOLD="#D4AF37", F='"Saira Condensed","Arial Narrow",Arial,sans-serif';
+    g.fillStyle="#0A0A09"; g.fillRect(0,0,W,H);
+    g.save(); g.beginPath(); g.moveTo(W*0.5,0); g.lineTo(W,0); g.lineTo(W,H*0.36); g.closePath(); g.clip(); g.translate(W*0.62,0); g.transform(1,0,-0.55,1,0,0); g.fillStyle=GOLD; g.fillRect(140,0,120,H); g.fillStyle="#3a3220"; g.fillRect(300,0,70,H); g.restore();
+    for(let y=0;y<4;y++) for(let x=0;x<27;x++) if((x+y)%2===0){ g.fillStyle="rgba(255,255,255,.07)"; g.fillRect(x*40,H-160+y*40,40,40); }
+    const logo=await loadLogo(); if(logo){ const lw=380; g.drawImage(logo,80,100,lw,lw*logo.height/logo.width); }
+    g.fillStyle=GOLD; g.font='700 60px '+F; g.fillText("BILAN DE LA SAISON", 80, 470);
+    g.fillStyle="#FFFFFF"; g.font='700 300px '+F; g.fillText(String(st.Y), 66, 740);
+    const tiles=[[st.list.length,"COURSES"],[Math.round(st.heures)+" H","DE COURSE"],[st.ps.length,"PILOTES"],[st.podiums||st.circuits, st.podiums?"PODIUMS":"CIRCUITS"]];
+    tiles.forEach((t,i)=>{ const x=80+(i%2)*470, y=820+Math.floor(i/2)*300; g.fillStyle="#171714"; g.fillRect(x,y,440,260); g.fillStyle=GOLD; g.fillRect(x,y,440,8); g.fillStyle=GOLD; g.font='700 140px '+F; g.fillText(String(t[0]), x+30, y+170); g.fillStyle="#B9B4A6"; g.font='600 44px '+F; g.fillText(t[1], x+32, y+230); });
+    g.fillStyle="#F5F3EC"; g.font='600 46px '+F; let y=1480;
+    if(st.byH){ g.fillText("PLUS D'HEURES : "+st.byH.nom.toUpperCase()+" · "+Math.round(st.byH.heures)+" H", 80, y); y+=64; }
+    if(st.best){ g.fillText("MEILLEUR RÉSULTAT : P"+st.best.p+" · "+String(st.best.c.titre||st.best.c.lieu).toUpperCase(), 80, y); y+=64; }
+    if(st.topTrack){ g.fillText("CIRCUIT FÉTICHE : "+String(st.topTrack[0]).toUpperCase(), 80, y); }
+    g.fillStyle=GOLD; g.font='600 44px '+F; g.fillText("RK7 TEAM · MORE THAN RACING", 80, H-200);
+    return cv;
+  }
   function renderAll(){
     $("#adminPanel").hidden=!isAdmin(); $("#newsAdmin").hidden=!isAdmin(); $("#adminAccess").hidden=isAdmin(); $("#navAdmin").hidden=!isAdmin();
     if(!isAdmin()) $("#resPanel").hidden=true;
@@ -1610,7 +1716,8 @@ details.sec[open]>summary::before{content:"▾ "}
   async function loadAdmin(){
     if(!isAdmin() || adminLoading) return; adminLoading=true;
     try{
-      const [ps, cfg, vit] = await Promise.all([rpc("admin_pilots",{token:teamToken}), rpc("admin_get_config",{token:teamToken}), rpc("admin_vitrine_set",{token:teamToken,cfg:{}})]);
+      const [ps, cfg, vit, tr] = await Promise.all([rpc("admin_pilots",{token:teamToken}), rpc("admin_get_config",{token:teamToken}), rpc("admin_vitrine_set",{token:teamToken,cfg:{}}), rpc("admin_treso_get",{token:teamToken})]);
+      treso=tr;
       if(!$("#vitForm").contains(document.activeElement)){ $("#vTexte").value=vit.vitrine_texte||""; $("#vContact").value=vit.vitrine_contact||""; $("#vCheck").value=vit.checklist||""; }
       adminPilots=ps;
       if(!$("#cfgCodeForm").contains(document.activeElement)){ $("#cTeam").value=cfg.team_code||""; $("#cAdmin").value=cfg.admin_code||""; }
@@ -1620,7 +1727,7 @@ details.sec[open]>summary::before{content:"▾ "}
   }
   function renderAdmin(){
     if(!isAdmin() || !adminPilots || $("#viewAdmin").hidden) return;
-    renderGear();
+    renderGear(); renderTreso();
     if($("#pilotTable").contains(document.activeElement)) return;
     const y=$("#cotisYear").value, mt=Number(config.cotisation||0);
     const list=adminPilots.map(a=>Object.assign({},a,pilots[a.id]?{nom:pilots[a.id].nom,equipePref:pilots[a.id].equipePref}:{}));
@@ -1633,6 +1740,35 @@ details.sec[open]>summary::before{content:"▾ "}
       : '<tbody><tr><td>Aucun pilote inscrit.</td></tr></tbody>';
   }
   $("#cotisYear").addEventListener("change", renderAdmin);
+  // ---------- Trésorerie ----------
+  (function(){ const y=new Date().getFullYear(); $("#tresoYear").innerHTML=[y-1,y,y+1].map(v=>'<option'+(v===y?" selected":"")+'>'+v+'</option>').join(""); $("#tJour").value=today(); })();
+  function tresoLines(Y){
+    const L=[], mt=Number(config.cotisation||0);
+    for(const p of (adminPilots||[])) if(p.cotis&&p.cotis[Y]&&mt) L.push({jour:"",sens:"entree",categorie:"Cotisation",libelle:(pilots[p.id]||p).nom,montant:mt,auto:true});
+    for(const c of courses.filter(c=>seasonOf(c)===Number(Y))){ const y=answers(c.id).yes.length, pp=prixPilote(c,y);
+      for(const p of Object.values(pilots)) if(p.payes&&p.payes[c.id]&&pp) L.push({jour:c.date||"",sens:"entree",categorie:"Part pilote",libelle:p.nom+" · "+(c.titre||c.lieu),montant:Math.round(pp*100)/100,auto:true});
+      if(c.inscPayee) L.push({jour:c.inscJour||c.date||"",sens:"sortie",categorie:"Inscription course",libelle:(c.titre||c.lieu)+(c.equipe?" · "+shortTeam(c.equipe):""),montant:Number(c.inscMontant||c.prixEquipage||0),auto:true,cid:c.id}); }
+    for(const t of (treso||[])) if(String(t.jour).slice(0,4)===String(Y)) L.push(Object.assign({},t,{montant:Number(t.montant)}));
+    return L.sort((a,b)=>String(b.jour).localeCompare(String(a.jour)));
+  }
+  function renderTreso(){
+    if(!isAdmin() || !treso || $("#viewAdmin").hidden) return;
+    const Y=$("#tresoYear").value, L=tresoLines(Y), E=L.filter(l=>l.sens==="entree").reduce((a,l)=>a+l.montant,0), S=L.filter(l=>l.sens==="sortie").reduce((a,l)=>a+l.montant,0);
+    let due=0; const dueRows=[];
+    for(const c of courses.filter(c=>seasonOf(c)===Number(Y) && !c.terminee)){ const y=answers(c.id).yes.length, pp=prixPilote(c,y)||0; for(const p of Object.values(pilots)) if(p.dispo&&p.dispo[c.id]==="oui"&&!(p.payes&&p.payes[c.id])) due+=pp; }
+    const mt=Number(config.cotisation||0); let dueC=0; for(const p of (adminPilots||[])) if(p.adhesion&&p.adhesion[Y]&&!(p.cotis&&p.cotis[Y])) dueC+=mt;
+    const toPay=courses.filter(c=>seasonOf(c)===Number(Y) && !c.inscPayee && !c.terminee && answers(c.id).yes.length>0 && c.prixEquipage);
+    const P=toPay.reduce((a,c)=>a+Number(c.prixEquipage),0);
+    $("#tresoStats").innerHTML='<div class="stat"><b style="color:var(--ok)">'+euro(E)+'</b><span>Entrées</span></div><div class="stat"><b style="color:var(--no)">'+euro(S)+'</b><span>Dépenses</span></div><div class="stat"><b>'+euro(E-S)+'</b><span>Solde '+esc(Y)+'</span></div><div class="stat"><b>'+euro(due+dueC)+'</b><span>À encaisser</span></div><div class="stat"><b>'+euro(P)+'</b><span>Inscriptions à payer</span></div>';
+    $("#tresoTodo").innerHTML = toPay.length ? '<div class="box"><h4>Inscriptions d\'équipes à régler</h4>'+toPay.map(c=>'<div class="settle"><span><b>'+esc(c.titre||c.lieu)+'</b>'+(c.equipe?' · '+esc(shortTeam(c.equipe)):'')+' · '+euro(c.prixEquipage)+' <span class="sub2">('+answers(c.id).yes.length+' inscrits)</span></span><button type="button" class="btn-ghost mini" data-insc="'+esc(c.id)+'" data-v="1">Marquer payée</button></div>').join("")+'</div>' : '';
+    $("#tresoTable").innerHTML = L.length ? '<thead><tr><th>Date</th><th>Mouvement</th><th>Montant</th></tr></thead><tbody>'+L.map(l=>'<tr><td class="num">'+(l.jour?esc(fmtDay(l.jour)):'—')+'</td><td style="white-space:normal"><b>'+esc(l.categorie)+'</b>'+(l.libelle?'<div class="sub2">'+esc(l.libelle)+'</div>':'')+(l.auto?'<div class="sub2">automatique</div>':'')+'</td><td class="num"><b style="color:'+(l.sens==="entree"?"var(--ok)":"var(--no)")+'">'+(l.sens==="entree"?"+":"−")+euro(l.montant)+'</b>'+(l.id?'<div><button type="button" class="btn-link" style="font-size:12px" data-tdel="'+esc(l.id)+'">Supprimer</button></div>':l.cid?'<div><button type="button" class="btn-link" style="font-size:12px" data-insc="'+esc(l.cid)+'" data-v="0">Annuler</button></div>':'')+'</td></tr>').join("")+'</tbody>' : '<tbody><tr><td>Aucun mouvement pour '+esc(Y)+'.</td></tr></tbody>';
+  }
+  $("#tresoYear").addEventListener("change", renderTreso);
+  $("#tresoForm").addEventListener("submit", async e=>{ e.preventDefault();
+    try{ treso=await rpc("admin_treso_save",{token:teamToken,item_id:"t"+Date.now().toString(36),item:{jour:$("#tJour").value,sens:$("#tSens").value,categorie:$("#tCat").value,libelle:$("#tLib").value,montant:$("#tMt").value}}); $("#tMt").value=""; $("#tLib").value=""; renderTreso(); setMsg("#tresoMsg","Mouvement enregistré."); }catch(err){ setMsg("#tresoMsg",err.message,true); } });
+  $("#tresoPanel").addEventListener("click", async e=>{ const b=e.target.closest("button"); if(!b) return;
+    if(b.dataset.tdel){ if(b.textContent!=="Confirmer ?"){ b.textContent="Confirmer ?"; return; } try{ treso=await rpc("admin_treso_delete",{token:teamToken,item_id:b.dataset.tdel}); renderTreso(); }catch(err){ setMsg("#tresoMsg",err.message,true); } }
+    if(b.dataset.insc){ try{ applyData(await rpc("admin_set_insc",{token:teamToken,course_id:b.dataset.insc,paid:b.dataset.v==="1",montant:null})); renderTreso(); }catch(err){ setMsg("#tresoMsg",err.message,true); } } });
   function renderGear(){
     if(!isAdmin() || $("#viewAdmin").hidden || $("#gearTable").contains(document.activeElement)) return;
     const ps=Object.values(pilots).sort((a,b)=>a.nom.localeCompare(b.nom,"fr"));
@@ -1682,6 +1818,12 @@ details.sec[open]>summary::before{content:"▾ "}
       const y=$("#cotisYear").value, rows=[["Pilote","Équipe préférée","Poids (kg)","Licence","Taille combi","Téléphone","Cotisation "+y]];
       for(const p of (adminPilots||[])){ const pr=p.profil||{}; rows.push([(pilots[p.id]||p).nom,p.equipePref||"",num(pr.poids),pr.licence||"",pr.taille||"",pr.tel||"",p.cotis&&p.cotis[y]?"Payée":"À payer"]); }
       csv("rk7-pilotes-"+stamp+".csv", rows);
+    } else if(b.dataset.export==="treso"){
+      const Y=$("#tresoYear").value, L=tresoLines(Y), rows=[["Date","Type","Catégorie","Libellé","Montant (€)","Origine"]];
+      for(const l of L) rows.push([l.jour||"",l.sens==="entree"?"Entrée":"Dépense",l.categorie,l.libelle||"",num(l.sens==="entree"?l.montant:-l.montant),l.auto?"Automatique":"Saisie"]);
+      const E=L.filter(l=>l.sens==="entree").reduce((a,l)=>a+l.montant,0), S=L.filter(l=>l.sens==="sortie").reduce((a,l)=>a+l.montant,0);
+      rows.push([]); rows.push(["","","Total entrées","",num(E)]); rows.push(["","","Total dépenses","",num(-S)]); rows.push(["","","Solde "+Y,"",num(E-S)]);
+      csv("rk7-tresorerie-"+Y+"-"+stamp+".csv", rows);
     } else if(b.dataset.export==="adhesions"){
       const y=$("#cotisYear").value, cols=["nom","prenom","statut","naissance","lieuNaissance","adresse","cp","ville","tel","email","urgence","tshirt","reglement","faitA","signature","date"];
       const rows=[["Pilote (appli)","Nom","Prénom","Statut","Naissance","Lieu de naissance","Adresse","CP","Ville","Téléphone","E-mail","Contact d'urgence","T-shirt","Règlement","Fait à","Signature","Date","Droit à l'image","Cotisation "+y]];
