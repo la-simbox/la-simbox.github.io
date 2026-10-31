@@ -51,7 +51,7 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(32px,7vw,48px);lin
 .swsmenu summary::-webkit-details-marker{display:none}
 .swsmenu summary::after{content:" ▾"}
 .swsmenu[open] summary{background:var(--band-gold);color:var(--band)}
-.swsmenu .menu{position:absolute;right:0;top:calc(100% + 6px);z-index:20;min-width:240px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.25);display:flex;flex-direction:column}
+.swsmenu .menu{position:absolute;right:0;top:calc(100% + 6px);z-index:60;max-width:calc(100vw - 32px);min-width:240px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.25);display:flex;flex-direction:column}
 .swsmenu .mh{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:6px 10px}
 .swsmenu .menu a{color:var(--ink);text-decoration:none;padding:9px 10px;border-radius:6px;display:flex;justify-content:space-between;gap:12px;font-weight:600}
 .swsmenu .menu a span{color:var(--gold)}
@@ -304,8 +304,8 @@ details.sec[open]>summary::before{content:"▾ "}
 .poster button.btn-gold{background:var(--band-gold);color:#121210;border-color:var(--band-gold)}
 .settle{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;padding:4px 0}
 /* --- Look v3 : bandeau course, barre d'onglets en bas sur mobile, tuiles --- */
-header.band{position:relative;overflow:hidden;isolation:isolate}
-header.band::before{content:"";position:absolute;z-index:-1;right:-150px;top:-40px;width:340px;height:300px;background:linear-gradient(115deg,transparent 0 34%,var(--band-gold) 34% 46%,transparent 46% 54%,#3a3220 54% 62%,transparent 62%);transform:skewX(-18deg);opacity:.22}
+header.band{position:relative;z-index:20;isolation:isolate}
+header.band::before{content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 0 calc(100% - 150px),var(--band-gold) calc(100% - 150px) calc(100% - 110px),transparent calc(100% - 110px) calc(100% - 85px),#3a3220 calc(100% - 85px) calc(100% - 60px),transparent calc(100% - 60px));opacity:.22}
 header.band::after{content:"";display:block;height:14px;opacity:.09;background:conic-gradient(#fff 25%,transparent 0 50%,#fff 0 75%,transparent 0) 0 0/14px 14px}
 header.band .wrap{position:relative}
 .swsmenu{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:22px;margin:0}
