@@ -1025,3 +1025,4 @@ p { margin: 0 0 1em; }
   color: var(--gold) !important;
 }
 .defi-lot strong { color: var(--ink); }
+.defi-lot-teaser { margin: .5rem 0 0 !important; font-size: .85rem; font-style: italic; }
