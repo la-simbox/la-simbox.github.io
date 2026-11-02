@@ -122,6 +122,7 @@ button.send:disabled{opacity:.6}
         <label><input type="radio" name="type" value="materiel"><b>🛠 Fournir du matériel</b><small>Équipement, textile, consommables</small></label>
         <label><input type="radio" name="type" value="offre"><b>🏷 Faire une offre</b><small>Réduction, service, hébergement…</small></label>
         <label><input type="radio" name="type" value="visibilite"><b>📣 Échanger de la visibilité</b><small>Réseaux, événements, communication</small></label>
+        <label><input type="radio" name="type" value="news"><b>📰 Publier une news</b><small>Votre actu dans le fil des pilotes</small></label>
       </div></div>
       <div class="f"><label for="nom">Votre nom</label><input id="nom" autocomplete="name" maxlength="80"></div>
       <div class="f"><label for="ent">Entreprise <span style="text-transform:none;letter-spacing:0">(facultatif)</span></label><input id="ent" autocomplete="organization" maxlength="80"></div>
@@ -129,9 +130,11 @@ button.send:disabled{opacity:.6}
       <div class="f pro"><label for="tel">Téléphone</label><input id="tel" type="tel" autocomplete="tel" maxlength="30"></div>
       <div class="f"><label for="course">Course concernée</label><select id="course"><option value="">Toute la saison / pas de course précise</option></select></div>
       <div class="f pro"><label for="valeur">Montant ou valeur estimée <span style="text-transform:none;letter-spacing:0">(facultatif)</span></label><input id="valeur" maxlength="80" placeholder="Ex. 300 €, 4 pneus, -15 %"></div>
+      <div class="f w nw"><label for="ntitre">Titre de la news</label><input id="ntitre" maxlength="100" placeholder="Ex. Nouveau partenariat avec la RK7 Team"></div>
+      <div class="f w nw"><label for="nphoto">Photo (facultatif)</label><input id="nphoto" type="file" accept="image/*"></div>
       <div class="f w"><label for="msg" id="msgLbl">Votre message</label><textarea id="msg" maxlength="800" placeholder="Allez les gars, on croit en vous !"></textarea></div>
       <div class="hp" aria-hidden="true"><label for="site">Site</label><input id="site" tabindex="-1" autocomplete="off"></div>
-      <label class="chk f w" style="flex-direction:row"><input type="checkbox" id="mur" checked> <span>J'accepte que mon nom (ou celui de mon entreprise) et mon message apparaissent sur le mur des soutiens, après validation par l'équipe.</span></label>
+      <label class="chk f w" id="murRow" style="flex-direction:row"><input type="checkbox" id="mur" checked> <span>J'accepte que mon nom (ou celui de mon entreprise) et mon message apparaissent sur le mur des soutiens, après validation par l'équipe.</span></label>
       <div class="f w" style="flex-direction:row;align-items:center;gap:14px;flex-wrap:wrap"><button class="send" type="submit" id="send">Envoyer</button><p class="msg" id="out" role="status"></p></div>
     </form>
   </section>
@@ -159,17 +162,22 @@ button.send:disabled{opacity:.6}
     const body=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//RK7 Team//Partenaires//FR","BEGIN:VEVENT","UID:"+c.id+"@rk7team","DTSTAMP:"+new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z","DTSTART;VALUE=DATE:"+d,"DTEND;VALUE=DATE:"+de,"SUMMARY:"+x("RK7 Team · "+c.titre),"LOCATION:"+x(c.lieu),"DESCRIPTION:"+x([c.duree,c.equipe,c.heure?"Départ "+c.heure:""].filter(Boolean).join(" · ")),"END:VEVENT","END:VCALENDAR"].join("\r\n");
     const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([body],{type:"text/calendar"})); a.download="rk7-"+c.id+".ics"; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
   }
-  function syncType(){ const t=(document.querySelector('input[name=type]:checked')||{}).value; const pro=t!=="soutien";
+  function syncType(){ const t=(document.querySelector('input[name=type]:checked')||{}).value; const pro=t!=="soutien", nw=t==="news";
     document.querySelectorAll(".f.pro").forEach(el=>el.hidden=!pro);
-    $("#msgLbl").textContent = pro ? "Décrivez votre proposition" : "Votre message pour les pilotes";
-    $("#msg").placeholder = pro ? "Ce que vous proposez, ce que vous attendez en retour…" : "Allez les gars, on croit en vous !"; }
+    document.querySelectorAll(".f.nw").forEach(el=>el.hidden=!nw); $("#murRow").hidden=nw;
+    $("#valeur").closest(".f").hidden=!pro||nw;
+    $("#msgLbl").textContent = nw ? "Texte de la news" : pro ? "Décrivez votre proposition" : "Votre message pour les pilotes";
+    $("#msg").placeholder = nw ? "Votre actualité : nouveauté, événement, offre… Elle sera publiée dans les News des pilotes après validation par l'équipe." : pro ? "Ce que vous proposez, ce que vous attendez en retour…" : "Allez les gars, on croit en vous !"; }
+  function resizePhoto(file){ return new Promise((res,rej)=>{ const im=new Image(), u=URL.createObjectURL(file); im.onload=()=>{ const k=Math.min(1,1600/Math.max(im.width,im.height)), c=document.createElement("canvas"); c.width=Math.round(im.width*k); c.height=Math.round(im.height*k); c.getContext("2d").drawImage(im,0,0,c.width,c.height); URL.revokeObjectURL(u); res(c.toDataURL("image/jpeg",0.82).split(",")[1]); }; im.onerror=()=>rej(new Error("Photo illisible, essayez un autre fichier.")); im.src=u; }); }
   $("#types").addEventListener("change", syncType); syncType();
   $("#cal").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b) return; const c=courses.find(x=>x.id===b.dataset.id); if(!c) return;
     if(b.dataset.a==="ics") return ics(c);
     $("#course").value=c.id; $("#secForm").scrollIntoView({behavior:"smooth",block:"start"}); setTimeout(()=>$("#nom").focus({preventScroll:true}),400); });
   $("#form").addEventListener("submit", async e=>{ e.preventDefault(); const out=$("#out"); out.className="msg"; out.textContent="Envoi…"; $("#send").disabled=true;
-    try{ await rpc("partner_submit",{item:{type:(document.querySelector('input[name=type]:checked')||{}).value, nom:$("#nom").value, entreprise:$("#ent").value, email:$("#email").value, tel:$("#tel").value, courseId:$("#course").value, valeur:$("#valeur").value, message:$("#msg").value, mur:$("#mur").checked, site:$("#site").value}});
-      out.className="msg ok"; out.textContent="Merci ! Votre message est bien arrivé chez l'équipe. 🏁"; $("#msg").value=""; $("#valeur").value=""; }
+    try{ const ty=(document.querySelector('input[name=type]:checked')||{}).value, ph=$("#nphoto").files&&$("#nphoto").files[0];
+      const image = ty==="news" && ph ? await resizePhoto(ph) : "";
+      await rpc("partner_submit",{item:{titre:$("#ntitre").value, image, type:ty, nom:$("#nom").value, entreprise:$("#ent").value, email:$("#email").value, tel:$("#tel").value, courseId:$("#course").value, valeur:$("#valeur").value, message:$("#msg").value, mur:$("#mur").checked, site:$("#site").value}});
+      out.className="msg ok"; out.textContent= ty==="news" ? "Merci ! Votre news est envoyée : elle apparaîtra dans les News des pilotes dès que l'équipe l'aura validée. 📰" : "Merci ! Votre message est bien arrivé chez l'équipe. 🏁"; $("#msg").value=""; $("#valeur").value=""; $("#ntitre").value=""; $("#nphoto").value=""; }
     catch(err){ out.className="msg err"; out.textContent=err.message; } finally{ $("#send").disabled=false; } });
   try{
     const d=await rpc("partner_page"); courses=d.prochaines||[];
