@@ -187,6 +187,40 @@ table.team th.p,table.team td.s{text-align:center}
 .rqn{display:flex;align-items:center;gap:10px}
 .rqn button{width:40px;height:40px;border-radius:50%;border:1px solid var(--gold);background:var(--surface);color:var(--gold);font-size:22px;font-weight:700;cursor:pointer;line-height:1}
 .rqn b{font-family:var(--display);font-size:28px;min-width:32px;text-align:center}
+/* --- Boutique, chronos, sondages, fil d'activité --- */
+.paylink{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:700;border-radius:6px;padding:8px 14px;background:var(--gold);color:var(--on-gold);white-space:nowrap}
+.shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.sitem{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);display:flex;flex-direction:column}
+.sitem img{width:100%;aspect-ratio:2/1;object-fit:cover;background:var(--bg);display:block}
+.sitem .b{padding:12px;display:flex;flex-direction:column;gap:8px}
+.sitem h3{margin:0;font-family:var(--display);font-size:22px}
+.sitem .pr{font-family:var(--display);font-size:24px;font-weight:700;color:var(--gold)}
+.sizes{display:flex;flex-wrap:wrap;gap:6px}
+.sizes button{min-width:44px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 10px}
+.sizes button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--on-gold)}
+.olist{display:flex;flex-direction:column;gap:6px}
+.olist .o{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface);flex-wrap:wrap}
+.recap{display:flex;flex-wrap:wrap;gap:6px}
+.recap span{border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-weight:600;background:var(--surface)}
+.laps{display:flex;flex-direction:column;gap:4px}
+.laps div{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums}
+.lapin{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lapin input{width:120px}
+.recs{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.rec{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface);display:flex;flex-direction:column;gap:4px}
+.rec .t{font-family:var(--display);font-size:28px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1}
+.rec .sub2 b{color:var(--ink)}
+.poll{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.poll h3{margin:0;font-size:17px}
+.popt{position:relative;display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;text-align:left;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:9px 12px;overflow:hidden;white-space:normal;font-weight:600}
+.popt i{position:absolute;left:0;top:0;bottom:0;background:var(--gold-soft);z-index:0}
+.popt span,.popt b{position:relative;z-index:1}
+.popt[aria-pressed="true"]{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.feed{display:flex;flex-direction:column;gap:2px}
+.feed .f{display:flex;gap:10px;align-items:flex-start;padding:7px 4px;border-bottom:1px solid var(--line);font-size:15px;background:none;border-left:none;border-right:none;border-top:none;text-align:left;width:100%;color:var(--ink);white-space:normal;font-weight:400;border-radius:0}
+.feed .f .w{color:var(--muted);font-size:13px;margin-left:auto;white-space:nowrap}
+.feed .f .e{flex:0 0 auto}
+.spark{display:block}
 /* --- Accueil, cartes compactes, pastilles, admin repliable --- */
 #teaser{display:none!important}
 .todo{display:flex;flex-direction:column;gap:8px}
@@ -532,6 +566,7 @@ button:active:not(:disabled){transform:scale(.97)}
     <div class="gor"><span>ou</span></div>
     <a class="gpart" href="partenaires.html">🤝 Je suis partenaire</a>
     <p class="msg" style="font-size:14px;margin-top:-6px">Calendrier des courses, propositions et messages de soutien, sans code.</p>
+    <a class="gpart" href="rejoindre.html" style="border-style:dashed">🏎 Je veux devenir pilote RK7</a>
   </form>
 </section>
 
@@ -664,9 +699,10 @@ button:active:not(:disabled){transform:scale(.97)}
 
 <main class="wrap" id="viewProfil" hidden>
   <section class="panel" id="pfCard"></section>
+  <section class="panel" id="pfLaps" hidden></section>
   <section class="panel" id="pfHist"></section>
   <div id="pfMeSlot" style="display:flex;flex-direction:column;gap:20px"></div>
-  <div class="qlinks"><a href="#budget">💶 Budget de la saison</a><a href="#news">📰 News</a><a href="equipe.html" target="_blank" rel="noopener">🌐 Vitrine</a><a href="partenaires.html" target="_blank" rel="noopener">🤝 Partenaires</a></div>
+  <div class="qlinks"><a href="#boutique">🛍 Boutique</a><a href="#budget">💶 Budget de la saison</a><a href="#news">📰 News</a><a href="equipe.html" target="_blank" rel="noopener">🌐 Vitrine</a><a href="partenaires.html" target="_blank" rel="noopener">🤝 Partenaires</a></div>
 </main>
 
 <main class="wrap" id="viewRank" hidden>
@@ -682,6 +718,7 @@ button:active:not(:disabled){transform:scale(.97)}
     <div class="stats" id="rankStats"></div>
     <div class="grid-wrap"><table class="team rank" id="rankTable"></table></div>
     <div id="jeuxBox"></div>
+    <div id="recBox"></div>
     <p class="sub2">Classé aux heures de roulage, puis au nombre de courses. Les podiums viennent des résultats saisis après chaque course.</p>
   </section>
 </main>
@@ -750,6 +787,7 @@ button:active:not(:disabled){transform:scale(.97)}
     <form id="cfgPayForm" class="form-grid">
       <div class="field wide"><label for="cPayInfo">Comment payer (affiché aux pilotes)</label><textarea id="cPayInfo" maxlength="400" style="min-height:80px" placeholder="Virement : IBAN FR76 …  ·  Lydia / PayPal : …  ·  Libellé : nom + course"></textarea></div>
       <div class="field"><label for="cCotis">Montant cotisation annuelle (€)</label><input id="cCotis" type="number" min="0" step="1"></div>
+      <div class="field wide"><label for="cPayLink">Lien de paiement en ligne (Lydia, PayPal.me, SumUp…)</label><input id="cPayLink" type="url" maxlength="300" placeholder="https://paypal.me/rk7team"><span class="sub2">Avec un lien PayPal.me, le montant se remplit tout seul. Les pilotes voient un bouton « Payer » sur ce qu'ils doivent.</span></div>
       <div class="row-end wide"><button class="btn-gold" type="submit">Enregistrer</button></div>
     </form>
     <p class="msg" id="cfgPayMsg"></p>
@@ -776,6 +814,47 @@ button:active:not(:disabled){transform:scale(.97)}
     </form>
     <p class="msg" id="gearMsg"></p>
   </section>
+  <section class="panel" id="shopAdm">
+    <h2>Boutique</h2>
+    <div class="k" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">À commander au fournisseur</div>
+    <div id="shopRecap" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div class="k" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:6px">Commandes</div>
+    <div class="olist" id="shopOrdersAdm"></div>
+    <details class="sec" id="shopItemSec"><summary>Ajouter ou modifier un article</summary>
+      <form id="shopItemForm" class="form-grid" style="margin-top:10px">
+        <input type="hidden" id="siId">
+        <div class="field"><label for="siNom">Article</label><input id="siNom" maxlength="60" required placeholder="T-shirt RK7 Team"></div>
+        <div class="field"><label for="siPrix">Prix (€)</label><input id="siPrix" inputmode="decimal" maxlength="8" placeholder="Vide = prix à venir"></div>
+        <div class="field wide"><label for="siDesc">Description</label><input id="siDesc" maxlength="300"></div>
+        <div class="field wide"><label for="siTailles">Tailles (séparées par des virgules)</label><input id="siTailles" maxlength="80" placeholder="XS, S, M, L, XL, XXL"></div>
+        <label class="check" for="siFloc"><input type="checkbox" id="siFloc"> Flocage nom + numéro</label>
+        <label class="check" for="siActif"><input type="checkbox" id="siActif" checked> En vente</label>
+        <div class="field wide"><label for="siImg">Photo</label><input id="siImg" type="file" accept="image/*"><input type="hidden" id="siImgVal"></div>
+        <div class="row-end wide"><button type="button" class="btn-ghost" id="siNew">Nouvel article</button><button class="btn-gold" type="submit">Enregistrer l'article</button></div>
+      </form>
+      <div class="olist" id="shopItemsAdm" style="margin-top:8px"></div>
+    </details>
+    <p class="msg" id="shopAdmMsg"></p>
+  </section>
+  <section class="panel" id="pollAdm">
+    <h2>Sondages</h2>
+    <form id="pollForm" class="form-grid">
+      <div class="field wide"><label for="poQ">Question</label><input id="poQ" maxlength="160" required placeholder="Quelle couleur pour les shorts ?"></div>
+      <div class="field wide"><label for="poO">Réponses possibles (une par ligne, 2 à 8)</label><textarea id="poO" style="min-height:90px" placeholder="Noir&#10;Gris&#10;Blanc"></textarea></div>
+      <label class="check" for="poM"><input type="checkbox" id="poM"> Plusieurs choix possibles</label>
+      <div class="field"><label for="poC">Fin du vote (facultatif)</label><input id="poC" type="date"></div>
+      <div class="row-end wide"><button class="btn-gold" type="submit">Lancer le sondage (notifie tout le monde)</button></div>
+    </form>
+    <div class="olist" id="pollAdmList" style="margin-top:8px"></div>
+    <p class="msg" id="pollAdmMsg"></p>
+  </section>
+  <section class="panel" id="candPanel">
+    <h2>Candidatures pilotes <span class="chip" id="candNew" hidden></span></h2>
+    <p class="msg">Les demandes envoyées depuis la page publique « Rejoins la RK7 Team » (lien sur l'écran d'accueil et la vitrine).</p>
+    <div class="row" style="gap:8px;flex-wrap:wrap"><a class="btn-ghost" style="text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-weight:600" href="rejoindre.html" target="_blank" rel="noopener">Voir la page ↗</a><button type="button" class="btn-ghost" id="candCopy">Copier le lien</button></div>
+    <div class="olist" id="candList" style="margin-top:8px"></div>
+    <p class="msg" id="candMsg"></p>
+  </section>
   <section class="panel" id="partPanel">
     <h2>Espace partenaires <span class="chip" id="partNew" hidden></span></h2>
     <p class="msg">Page sans code à envoyer à vos partenaires : ils voient le calendrier (sans nom de pilote ni prix), ajoutent les courses à leur agenda et peuvent proposer une offre ou laisser un mot de soutien. Tu reçois une notification à chaque message.</p>
@@ -799,8 +878,15 @@ button:active:not(:disabled){transform:scale(.97)}
 <main class="wrap" id="viewHome" hidden>
   <div id="homeTop" style="display:flex;flex-direction:column;gap:20px"></div>
   <section class="panel"><h2>À faire</h2><div class="todo" id="homeTodo"></div></section>
+  <section class="panel" id="homePolls" hidden><h2>Sondages</h2><div id="pollList" style="display:flex;flex-direction:column;gap:10px"></div><p class="msg" id="pollMsg"></p></section>
+  <section class="panel" id="homeFeed" hidden><h2>Fil d'activité</h2><div class="feed" id="feedList"></div><button type="button" class="btn-link" id="feedMore" style="align-self:flex-start">Voir plus</button></section>
   <section class="panel"><div class="row" style="justify-content:space-between;align-items:center"><h2>Dernières news</h2><a href="#news" style="font-weight:600;color:var(--gold)">Toutes les news →</a></div><div class="hnews" id="homeNews"></div></section>
-  <div class="qlinks"><a href="#calendrier">📅 Calendrier</a><a href="#budget">💶 Budget</a><a href="#classement">🏆 L'équipe</a><a href="#news">📰 News</a></div>
+  <div class="qlinks"><a href="#calendrier">📅 Calendrier</a><a href="#boutique">🛍 Boutique</a><a href="#budget">💶 Budget</a><a href="#classement">🏆 L'équipe</a><a href="#news">📰 News</a></div>
+</main>
+
+<main class="wrap" id="viewShop" hidden>
+  <section class="panel"><h2>Boutique RK7 Team</h2><p class="msg">Commande ta tenue aux couleurs de l'équipe : choisis ta taille, Florent regroupe les commandes auprès du fournisseur.</p><div class="shopgrid" id="shopGrid"></div><p class="msg" id="shopMsg"></p></section>
+  <section class="panel" id="myOrders" hidden><h2>Mes commandes</h2><div class="olist" id="myOrderList"></div><div id="myOrderPay"></div></section>
 </main>
 
 <main class="wrap" id="viewCal">
@@ -1004,7 +1090,7 @@ button:active:not(:disabled){transform:scale(.97)}
   let proposals=[], profilePid=null, editProp=null;
   let treso=null, accData=null, backups=null, visited=false, onbSkip=false;
   let relays={}, materiel=[], clockSkew=0, raceCid=null, raceTimer=null, wxCache={};
-  let soutiens=[]; let jeux={mvp:{},pronos:{}}, myPronos={}, pronoLoaded=false;
+  let soutiens=[], extra={shop:{items:[],orders:[]},laps:[],polls:[],activity:[]}; let jeux={mvp:{},pronos:{}}, myPronos={}, pronoLoaded=false;
   let comments=[], photos=[], openComm=new Set(), openPhotos=new Set(), elevTried=false, lbList=[], lbIdx=0;
   let frais=[], openFrais=new Set(), allFrais=new Set(), config={}, adminPilots=null, myProfile=null, openLogi=new Set(), resId=null;
   let courses=[], news=[], pilots={}, loaded=false, view="up", mode=ls.get("rk7-mode")==="grid"?"grid":"list", editingId=null, editingNews=null;
@@ -1119,7 +1205,7 @@ button:active:not(:disabled){transform:scale(.97)}
   }
   function applyData(d){
     if(!d || !d.courses) return;
-    courses=d.courses; news=d.news||[]; config=d.config||{}; frais=d.frais||[]; if(d.roc) roc=d.roc; proposals=d.proposals||[]; comments=d.comments||[]; photos=d.photos||[]; relays=d.relays||{}; materiel=d.materiel||[]; if(d.jeux) jeux=d.jeux; soutiens=d.soutiens||[]; if(d.now) clockSkew=d.now-Date.now();
+    courses=d.courses; news=d.news||[]; config=d.config||{}; frais=d.frais||[]; if(d.roc) roc=d.roc; proposals=d.proposals||[]; comments=d.comments||[]; photos=d.photos||[]; relays=d.relays||{}; materiel=d.materiel||[]; if(d.jeux) jeux=d.jeux; soutiens=d.soutiens||[]; if(d.extra) extra=d.extra; if(d.now) clockSkew=d.now-Date.now();
     if(!d.__cached){ try{ localStorage.setItem("rk7-data", JSON.stringify(Object.assign({}, d, {__at:Date.now()}))); }catch(e){} $("#offline").hidden=true; } window.__bilans=d.bilans||[]; pilots={}; (d.pilots||[]).forEach(p=>pilots[p.id]=p);
     if(myId && !pilots[myId]){ logoutPilot(); }
     loaded=true; renderAll(); tryElevate();
@@ -1299,10 +1385,10 @@ button:active:not(:disabled){transform:scale(.97)}
           '';
       }
       const isOpen=openCards.has(c.id); let actX="";
-      if(!past && !c.terminee && me() && !(closed && !isAdmin())){ if(mine==="oui") actX+=teamSelect(c); if(mine) actX+='<button type="button" class="btn-ghost" style="padding:4px 8px;font-size:13px" data-set="" data-cid="'+esc(c.id)+'">Effacer ma réponse</button>'; }
+      if(!past && !c.terminee && me() && !(closed && !isAdmin())){ if(mine==="oui") actX+=teamSelect(c); if(mine==="oui" && !isPaid(myId,c.id)){ const pp0=prixPilote(c, viewN(c)); if(pp0!=null) actX+=payBtn(pp0, c.titre||c.lieu); } if(mine) actX+='<button type="button" class="btn-ghost" style="padding:4px 8px;font-size:13px" data-set="" data-cid="'+esc(c.id)+'">Effacer ma réponse</button>'; }
       if(!past && !c.terminee && c.date) actX += '<button type="button" class="btn-ghost" style="padding:6px 10px;font-size:13px" data-ics="'+esc(c.id)+'">Ajouter à mon agenda</button>';
       if(c.terminee && !isAdmin() && myId && (c.participants||[]).some(p=>p.pid===myId)) actX += '<button type="button" class="btn-ghost" style="padding:6px 10px;font-size:13px" data-poster="'+esc(c.id)+'">Affiche Instagram</button>';
-      const tools = isAdmin() ? '<div class="owner-tools">'+(c.terminee?'<button class="btn-ghost" type="button" data-poster="'+esc(c.id)+'">Affiche</button>':'')+(c.resultat ? '<button class="btn-ghost" type="button" data-res="'+esc(c.id)+'">Résultat</button><button class="btn-ghost" type="button" data-reopen="'+esc(c.id)+'">Rouvrir</button>' : (!c.terminee ? '<button class="btn-ghost" type="button" data-res="'+esc(c.id)+'">Résultat</button>' : ''))+'<button class="btn-ghost" type="button" data-edit="'+esc(c.id)+'">Modifier</button><button class="btn-danger" type="button" data-del="'+esc(c.id)+'">Supprimer</button></div>' : "";
+      const tools = isAdmin() ? '<div class="owner-tools">'+(c.terminee?'<button class="btn-ghost" type="button" data-poster="'+esc(c.id)+'">Affiche</button><button class="btn-ghost" type="button" data-bilan="'+esc(c.id)+'">Bilan partenaires</button>':'')+(c.resultat ? '<button class="btn-ghost" type="button" data-res="'+esc(c.id)+'">Résultat</button><button class="btn-ghost" type="button" data-reopen="'+esc(c.id)+'">Rouvrir</button>' : (!c.terminee ? '<button class="btn-ghost" type="button" data-res="'+esc(c.id)+'">Résultat</button>' : ''))+'<button class="btn-ghost" type="button" data-edit="'+esc(c.id)+'">Modifier</button><button class="btn-danger" type="button" data-del="'+esc(c.id)+'">Supprimer</button></div>' : "";
       const gn=viewN(c), pp = prixPilote(c, gn), n = crewCount(c, gn);
       const price = pp!=null ? '<div class="price">'+euro(pp)+'<small>'+(c.terminee?"payé par pilote":(c.prixEquipage!=null?"par pilote (≈)":"par pilote"))+'</small>'+(c.prixEquipage!=null?'<small>Équipage '+euro(c.prixEquipage)+' ÷ '+n+'</small>':"")+'</div>' : '<div class="price na">Prix à venir<small>pas d\'infos</small></div>';
       const resHtml = (c.position || c.commentaire) ? '<div class="result">'+(c.position?'<span class="pos">'+esc(c.position)+'</span>':'')+(c.commentaire?'<span class="note">'+esc(c.commentaire)+'</span>':'')+'</div>' : "";
@@ -1315,7 +1401,7 @@ button:active:not(:disabled){transform:scale(.97)}
           '<h3>'+esc(c.titre||c.lieu)+'</h3>'+
           '<div class="meta">'+(c.titre?'<span>'+ico("pin")+'<b>'+esc(c.lieu)+'</b></span>':'')+(!c.date?'<span>'+ico("cal")+'<b>'+(c.terminee?"Date non renseignée":"Date à confirmer")+'</b></span>':'')+'<span>'+ico("clock")+'<b>'+esc(c.duree||"—")+'</b></span>'+(c.heure?'<span>'+ico("flag")+'Départ <b>'+esc(c.heure)+'</b></span>':"")+(eq&&c.terminee?'<span>'+ico("users")+'<b>'+eq+'</b> pilotes</span>':"")+(c.points&&c.points!==999?'<span>'+ico("star")+'<b>'+c.points+'</b> pts SWS</span>':"")+(c.terminee&&c.nbEquipes?'<span>'+ico("flag")+'<b>'+c.nbEquipes+'</b> équipes</span>':"")+(c.dateFin&&c.dateFin>c.date?'<span>'+ico("cal")+'<b>'+esc(shortDate(c))+'</b></span>':"")+'</div>'+seatsHtml(c, yes)+resHtml+(raceSoon(c)?'<div>'+raceBtn(c, mine)+'</div>':'')+moreBtn(c, mine, isOpen)+
           (isOpen?'<div class="detail">'+crewLine(c)+swsLine(c)+(()=>{ const so=soutiens.filter(x=>x.courseId===c.id); return so.length?'<div class="sub2" style="font-size:13px">💛 Soutenue par <b>'+esc(so.map(x=>x.nom).join(", "))+'</b></div>':''; })()+
-          (c.note?'<div class="note">'+esc(c.note)+'</div>':"")+partHtml+chipsYes+chipsMaybe+chipsNo+(()=>{ const x=(raceSoon(c)?'':raceBtn(c, mine))+jeuxHtml(c)+checkHtml(c, mine)+logiHtml(c, mine)+fraisHtml(c, mine)+commHtml(c)+photosHtml(c, mine); return x?'<div class="extras">'+x+'</div>':''; })()+'</div>':'')+'</div>'+
+          (c.note?'<div class="note">'+esc(c.note)+'</div>':"")+partHtml+chipsYes+chipsMaybe+chipsNo+(()=>{ const x=(raceSoon(c)?'':raceBtn(c, mine))+jeuxHtml(c)+lapHtml(c, mine)+checkHtml(c, mine)+logiHtml(c, mine)+fraisHtml(c, mine)+commHtml(c)+photosHtml(c, mine); return x?'<div class="extras">'+x+'</div>':''; })()+'</div>':'')+'</div>'+
         '<div class="actions">'+price+action+(isOpen?actX+tools:'')+'</div></article>';
     }
     return html;
@@ -1352,7 +1438,7 @@ button:active:not(:disabled){transform:scale(.97)}
       '<div class="meta" style="margin-top:6px"><span>'+ico("pin")+'<b>'+esc(c.lieu)+'</b></span><span>'+ico("clock")+'<b>'+esc(c.duree||"—")+'</b></span>'+(c.heure?'<span>'+ico("flag")+'Départ <b>'+esc(c.heure)+'</b></span>':'')+(pp!=null?'<span>'+ico("euro")+'<b>'+euro(pp)+'</b> / pilote</span>':'')+'</div></div></div>'+
       seatsHtml(c, yes)+'<div id="heroWx"></div>'+
       (me() && !(isClosed(c)&&!isAdmin()) ? '<div class="ans"><button type="button" class="'+(mine==="oui"?"btn-gold":"btn-ghost")+'" data-hset="oui" data-cid="'+esc(c.id)+'" aria-pressed="'+(mine==="oui")+'">'+(mine==="oui"?"✓ Réservé":"Réserver")+'</button><button type="button" class="'+(mine==="peut"?"btn-maybe":"btn-ghost")+'" data-hset="peut" data-cid="'+esc(c.id)+'" aria-pressed="'+(mine==="peut")+'">Peut-être</button><button type="button" class="'+(mine==="non"?"btn-danger":"btn-ghost")+'" data-hset="non" data-cid="'+esc(c.id)+'" aria-pressed="'+(mine==="non")+'">Pas dispo</button></div>' : '')+
-      (me()&&mine==="oui"&&pp!=null?'<span class="sub2" style="color:var(--band-muted)">Ta part : <b style="color:var(--band-ink)">'+euro(pp)+'</b> · '+(isPaid(myId,c.id)?'payée ✓':'à régler')+'</span>':'')+
+      (me()&&mine==="oui"&&pp!=null?'<span class="sub2" style="color:var(--band-muted)">Ta part : <b style="color:var(--band-ink)">'+euro(pp)+'</b> · '+(isPaid(myId,c.id)?'payée ✓':'à régler')+'</span>'+(!isPaid(myId,c.id)?payBtn(pp, c.titre||c.lieu, true):''):'')+
       '<div class="row-end">'+(raceBtn(c, mine))+'<button type="button" class="btn-ghost" style="border-color:var(--band-gold);color:var(--band-gold)" id="heroGo" data-cid="'+esc(c.id)+'">Détails de la course →</button></div>';
     if(c.date) loadWeather(c);
   }
@@ -1711,7 +1797,7 @@ button:active:not(:disabled){transform:scale(.97)}
     if(!myProfile) return; const pr=myProfile.profil||{};
     if(force || !$("#profForm").contains(document.activeElement)){ $("#pPoids").value=pr.poids??""; $("#pLicence").value=pr.licence||""; $("#pTaille").value=pr.taille||""; $("#pTel").value=pr.tel||""; }
     const y=cotisYearDefault(), ok=myProfile.cotis && myProfile.cotis[y];
-    $("#cotisState").innerHTML = 'Cotisation '+y+' : '+(ok?'<b style="color:var(--ok)">payée ✓</b>':'<b style="color:var(--no)">à régler'+(config.cotisation&&Number(config.cotisation)>0?' ('+euro(config.cotisation)+')':'')+'</b>');
+    $("#cotisState").innerHTML = 'Cotisation '+y+' : '+(ok?'<b style="color:var(--ok)">payée ✓</b>':'<b style="color:var(--no)">à régler'+(config.cotisation&&Number(config.cotisation)>0?' ('+euro(config.cotisation)+')':'')+'</b> '+payBtn(Number(config.cotisation)||0,"cotisation "+y));
   }
   const sortedNews = () => news.slice().sort((a,b)=>(b.epingle?1:0)-(a.epingle?1:0) || String(b.date).localeCompare(a.date) || (b.createdAt||0)-(a.createdAt||0));
   function renderNews(){
@@ -1806,7 +1892,7 @@ button:active:not(:disabled){transform:scale(.97)}
     $("#rankPodium").innerHTML = order.map((r,i)=>r?'<div class="'+(i===1?"p1":"")+'"><span>'+(i===1?"1er":i===0?"2e":"3e")+'</span><b>'+esc(r.nom)+'</b><span>'+H(r.heures)+'</span></div>':'<div style="visibility:hidden"></div>').join("");
     const totH=list.reduce((a,c)=>a+(Number(c.heures)||0),0), pods=list.filter(c=>{ const p=podiumOf(c.position); return p&&p<=3; }).length;
     $("#rankStats").innerHTML='<div class="stat"><b>'+list.length+'</b><span>Courses</span></div><div class="stat"><b>'+H(totH)+'</b><span>De course</span></div><div class="stat"><b>'+arr.length+'</b><span>Pilotes</span></div>'+(pods?'<div class="stat"><b>'+pods+'</b><span>Podiums</span></div>':'');
-    $("#rankTitle").textContent="Classement "+cur; renderJeuxBox(cur);
+    $("#rankTitle").textContent="Classement "+cur; renderJeuxBox(cur); renderRecords();
     $("#rankTable").innerHTML='<thead><tr><th>#</th><th>Pilote</th><th>Heures</th><th>Courses</th></tr></thead><tbody>'+arr.map((r,i)=>{ const bd=badges(r);
       return '<tr'+(r.pid&&r.pid===myId?' style="background:var(--gold-soft)"':'')+'><td class="r">'+(i+1)+'</td><td style="white-space:normal"><a class="pl" href="#profil/'+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return pp?esc(pp.id):'n:'+encodeURIComponent(r.nom); })()+'">'+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return pp?avatarHtml(pp,"sm"):''; })()+'<b>'+esc(r.nom)+'</b></a> '+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return titleChip(careerHours(pp?pp.id:r.pid, pp?pp.nom:r.nom)); })()+(bd.length?'<div class="badges">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+'</td><td class="num"><b>'+H(r.heures)+'</b><div class="mbar"><i style="width:'+Math.round(r.heures/Math.max(1,arr[0].heures)*100)+'%"></i></div></td><td class="num">'+r.courses+'</td></tr>'; }).join("")+'</tbody>';
   }
@@ -2071,7 +2157,7 @@ button:active:not(:disabled){transform:scale(.97)}
       (up.length?'<div class="k" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">À venir</div><div class="hist">'+up.map(c=>row(c, self ? (isPaid(p.id,c.id)?'<span class="chip ok">payé</span>':'<span class="chip no">à payer</span>') : '<span class="chip">inscrit</span>', "up", esc(shortTeam(teamOf(p.id,c.id))||""))).join("")+'</div>':'')+
       '<div class="k" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:6px">Courses disputées</div>'+
       (past.length?'<div class="hist">'+past.map(x=>row(x.c, x.c.position?esc("P"+(podiumOf(x.c.position)||"")):(x.c.heures?esc(x.c.heures+" h"):'✓'), "", self&&x.pt.part?euro(x.pt.part):"")).join("")+'</div>':'<p class="note">Pas encore de course terminée'+(self?' : la première arrive vite !':'.')+'</p>');
-    loadDbImages();
+    renderPfLaps(p); loadDbImages();
   }
   $("#pfCard").addEventListener("change", async e=>{ const f=e.target.closest("#avIn"); if(!f||!f.files||!f.files[0]) return;
     try{ setMsg("#meMsg","Envoi de la photo…"); const b64=await resizeTo(f.files[0],400,0.82); applyData(await rpc("my_avatar",{token:teamToken,pilot_token:pilotToken,b64})); setMsg("#meMsg","Photo de profil mise à jour."); }catch(err){ setMsg("#meMsg",err.message,true); } });
@@ -2195,8 +2281,160 @@ button:active:not(:disabled){transform:scale(.97)}
     if(b.dataset.redit){ fillEnt((rocEnts||[]).find(x=>x.id===b.dataset.redit)); $("#rocEntForm").scrollIntoView({behavior:"smooth",block:"start"}); }
     if(b.dataset.rdel){ if(b.textContent!=="Confirmer ?"){ b.textContent="Confirmer ?"; return; } try{ rocEnts=await rpc("admin_roc_ent_delete",{token:teamToken,ent_id:b.dataset.rdel}); await refresh(true); renderRocTable(); }catch(err){ setMsg("#rocAdmMsg",err.message,true); } } });
   $("#rocExport").addEventListener("click",()=>{ const rows=[["Entreprise","Statut","Contact","Téléphone","E-mail","Pilotes","Montant (€)","Note"]]; for(const e of (rocEnts||[])) rows.push([e.nom,(RS[e.statut]||[e.statut])[0],e.contact,e.tel,e.email,e.pilotes||"",e.montant!=null?String(e.montant).replace(".",","):"",e.note]); csv("rk7-course-entreprise-"+today()+".csv", rows); });
+  // ---------- Paiement en un clic ----------
+  function payUrl(amount){ const l=(config.paiementLien||"").trim(); if(!l) return ""; if(/paypal\.me\//i.test(l) && amount>0) return l.replace(/\/+$/,"")+"/"+Number(amount).toFixed(2)+"EUR"; return l; }
+  function payBtn(amount, motif, dark){ const u=payUrl(amount); if(!u || !(amount>0)) return ""; return '<a class="paylink" href="'+esc(u)+'" target="_blank" rel="noopener" title="Indique en commentaire : RK7 – '+esc((me()&&me().nom)||"ton nom")+' – '+esc(motif)+'">💳 Payer '+euro(amount)+'</a>'+(dark?'':'<span class="sub2" style="font-size:12px">Commentaire : « RK7 – '+esc((me()&&me().nom)||"ton nom")+' – '+esc(motif)+' »</span>'); }
+  // ---------- Boutique ----------
+  const shopSel={};
+  const itemOf = id => (extra.shop.items||[]).find(x=>x.id===id) || {nom:"Article", prix:null};
+  const OST={commande:["Commandé",""],paye:["Payé ✓","ok"],livre:["Livré ✓","ok"]};
+  function orderTotal(list){ let t=0, unknown=false; for(const o of list){ const it=itemOf(o.itemId); if(it.prix==null) unknown=true; else t+=Number(it.prix)*o.qte; } return {t, unknown}; }
+  function renderShop(){
+    if(!loaded || $("#viewShop").hidden) return;
+    const items=(extra.shop.items||[]).filter(i=>i.actif);
+    $("#shopGrid").innerHTML = items.length ? items.map(i=>{ const sel=shopSel[i.id]||{};
+      return '<div class="sitem">'+(i.image?(/^db:/.test(i.image)?'<img data-dbimg="'+esc(i.image.slice(3))+'" alt="'+esc(i.nom)+'">':'<img src="'+esc(i.image)+'" alt="'+esc(i.nom)+'">'):'')+'<div class="b"><h3>'+esc(i.nom)+'</h3><span class="pr">'+(i.prix!=null?euro(i.prix):'<span class="sub2" style="font-size:15px">Prix à venir</span>')+'</span>'+(i.description?'<span class="sub2">'+esc(i.description)+'</span>':'')+
+        ((i.tailles||[]).length?'<div class="lbl3">Taille</div><div class="sizes">'+i.tailles.map(t=>'<button type="button" data-sz="'+esc(i.id)+'" data-v="'+esc(t)+'" aria-pressed="'+(sel.taille===t)+'">'+esc(t)+'</button>').join("")+'</div>':'')+
+        (i.flocage?'<div class="row" style="gap:8px"><input id="fn-'+esc(i.id)+'" maxlength="20" placeholder="Nom floqué" value="'+esc(sel.nom||(me()?me().nom.split(" ").slice(-1)[0].toUpperCase():""))+'" style="flex:2"><input id="fu-'+esc(i.id)+'" maxlength="3" inputmode="numeric" placeholder="N°" value="'+esc(sel.num||"")+'" style="flex:1"></div>':'')+
+        '<div class="row" style="gap:8px;align-items:center"><label class="sub2" for="q-'+esc(i.id)+'">Qté</label><input id="q-'+esc(i.id)+'" type="number" min="1" max="10" value="1" style="width:70px"><button type="button" class="btn-gold" data-order="'+esc(i.id)+'" style="flex:1">'+(me()?'Commander':'Ouvre ton profil pour commander')+'</button></div></div></div>'; }).join("") : '<p class="note">Aucun article en vente pour l\'instant.</p>';
+    const mine=(extra.shop.orders||[]).filter(o=>o.pid===myId);
+    $("#myOrders").hidden=!mine.length;
+    $("#myOrderList").innerHTML = mine.map(o=>{ const it=itemOf(o.itemId), st=OST[o.statut]||[o.statut,""]; return '<div class="o"><span><b>'+esc(it.nom)+'</b>'+(o.taille?' · '+esc(o.taille):'')+(o.qte>1?' × '+o.qte:'')+(o.nom||o.num?' · <span class="sub2">'+esc([o.nom,o.num].filter(Boolean).join(" "))+'</span>':'')+'<br><span class="sub2">'+(it.prix!=null?euro(it.prix*o.qte):'prix à venir')+' · '+esc(ago(o.at))+'</span></span><span class="row" style="gap:6px;align-items:center"><span class="chip '+st[1]+'">'+esc(st[0])+'</span>'+(o.statut==="commande"?'<button type="button" class="btn-link" data-ocancel="'+esc(o.id)+'">Annuler</button>':'')+'</span></div>'; }).join("");
+    const due=mine.filter(o=>o.statut==="commande"), tt=orderTotal(due);
+    $("#myOrderPay").innerHTML = due.length ? '<div class="row" style="gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px"><span>Reste à régler : <b>'+(tt.t?euro(tt.t):'—')+'</b>'+(tt.unknown?' <span class="sub2">(+ articles au prix à venir)</span>':'')+'</span>'+payBtn(tt.t,"boutique")+'</div>' : '';
+    loadDbImages();
+  }
+  $("#shopGrid").addEventListener("click", async e=>{ const b=e.target.closest("button"); if(!b) return;
+    if(b.dataset.sz){ const s0=shopSel[b.dataset.sz]=shopSel[b.dataset.sz]||{}; s0.taille=b.dataset.v; b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b)); return; }
+    if(b.dataset.order){ if(!me()){ location.hash="profil"; return; } const id=b.dataset.order, it=itemOf(id), s0=shopSel[id]||{};
+      if((it.tailles||[]).length && !s0.taille){ setMsg("#shopMsg","Choisis ta taille pour : "+it.nom,true); return; }
+      const fn=document.getElementById("fn-"+id), fu=document.getElementById("fu-"+id);
+      b.disabled=true; try{ applyData(await rpc("shop_order",{token:teamToken,pilot_token:pilotToken,item_id:id,taille:s0.taille||"",qte:Number(document.getElementById("q-"+id).value)||1,flocage_nom:fn?fn.value:"",flocage_num:fu?fu.value:""})); setMsg("#shopMsg","Commande enregistrée : "+it.nom+(s0.taille?" ("+s0.taille+")":"")+". Florent est prévenu."); renderShop(); }catch(err){ setMsg("#shopMsg",err.message,true); } finally{ b.disabled=false; } } });
+  $("#myOrderList").addEventListener("click", async e=>{ const b=e.target.closest("[data-ocancel]"); if(!b) return; if(b.textContent!=="Confirmer ?"){ b.textContent="Confirmer ?"; return; }
+    try{ applyData(await rpc("shop_cancel",{token:teamToken,pilot_token:pilotToken,order_id:b.dataset.ocancel})); setMsg("#shopMsg","Commande annulée."); renderShop(); }catch(err){ setMsg("#shopMsg",err.message,true); } });
+  function renderShopAdm(){
+    if(!isAdmin() || $("#viewAdmin").hidden) return;
+    const orders=extra.shop.orders||[], items=extra.shop.items||[];
+    const by={}; for(const o of orders){ const k=o.itemId; (by[k]=by[k]||{})[o.taille||"—"]=((by[k]||{})[o.taille||"—"]||0)+o.qte; }
+    $("#shopRecap").innerHTML = Object.keys(by).length ? Object.entries(by).map(([id,sz])=>'<div><b>'+esc(itemOf(id).nom)+'</b> · '+Object.values(sz).reduce((a,x)=>a+x,0)+' au total<div class="recap" style="margin-top:4px">'+Object.entries(sz).map(([t,n])=>'<span>'+esc(t)+' : '+n+'</span>').join("")+'</div></div>').join("") : '<p class="note">Pas encore de commande.</p>';
+    $("#shopOrdersAdm").innerHTML = orders.slice().reverse().map(o=>{ const it=itemOf(o.itemId); return '<div class="o"><span><b>'+esc(nomOf(o.pid))+'</b> · '+esc(it.nom)+(o.taille?' '+esc(o.taille):'')+(o.qte>1?' × '+o.qte:'')+(o.nom||o.num?' · '+esc([o.nom,o.num].filter(Boolean).join(" ")):'')+'<br><span class="sub2">'+(it.prix!=null?euro(it.prix*o.qte):'prix à venir')+' · '+esc(ago(o.at))+'</span></span><select data-ost="'+esc(o.id)+'" aria-label="Statut de la commande">'+[["commande","Commandé"],["paye","Payé"],["livre","Livré"],["annule","Annuler la commande"]].map(x=>'<option value="'+x[0]+'"'+(o.statut===x[0]?' selected':'')+'>'+x[1]+'</option>').join("")+'</select></div>'; }).join("");
+    $("#shopItemsAdm").innerHTML = items.map(i=>'<div class="o"><span><b>'+esc(i.nom)+'</b> · '+(i.prix!=null?euro(i.prix):'prix à venir')+(i.actif?'':' · <span class="chip no">retiré</span>')+'<br><span class="sub2">'+esc((i.tailles||[]).join(", ")||"taille unique")+(i.flocage?' · flocage':'')+'</span></span><span class="row" style="gap:6px"><button type="button" class="btn-ghost mini" data-siedit="'+esc(i.id)+'">Modifier</button><button type="button" class="btn-link" data-sidel="'+esc(i.id)+'">Retirer</button></span></div>').join("");
+  }
+  function fillItem(i){ $("#siId").value=i?i.id:""; $("#siNom").value=i?i.nom:""; $("#siPrix").value=i&&i.prix!=null?i.prix:""; $("#siDesc").value=i?i.description:""; $("#siTailles").value=i?(i.tailles||[]).join(", "):"XS, S, M, L, XL, XXL"; $("#siFloc").checked=!!(i&&i.flocage); $("#siActif").checked=i?i.actif:true; $("#siImgVal").value=i?i.image:""; $("#siImg").value=""; }
+  $("#siNew").addEventListener("click",()=>{ fillItem(null); $("#siNom").focus(); });
+  $("#shopItemForm").addEventListener("submit", async e=>{ e.preventDefault(); try{
+      let img=$("#siImgVal").value; const f=$("#siImg").files&&$("#siImg").files[0];
+      if(f){ setMsg("#shopAdmMsg","Envoi de la photo…"); const up=await rpc("admin_upload_image",{token:teamToken,content_type:"image/jpeg",data_b64:await resizeImage(f)}); img=up.image; }
+      const id=$("#siId").value||("a"+Date.now().toString(36));
+      applyData(await rpc("admin_shop_item_save",{token:teamToken,item_id:id,item:{nom:$("#siNom").value,prix:$("#siPrix").value,description:$("#siDesc").value,tailles:$("#siTailles").value.split(",").map(x=>x.trim()).filter(Boolean),flocage:$("#siFloc").checked,actif:$("#siActif").checked,image:img}}));
+      fillItem(null); setMsg("#shopAdmMsg","Article enregistré."); renderShopAdm(); }catch(err){ setMsg("#shopAdmMsg",err.message,true); } });
+  $("#shopItemsAdm").addEventListener("click", async e=>{ const b=e.target.closest("button"); if(!b) return;
+    if(b.dataset.siedit){ fillItem((extra.shop.items||[]).find(x=>x.id===b.dataset.siedit)); $("#shopItemForm").scrollIntoView({behavior:"smooth",block:"start"}); }
+    if(b.dataset.sidel){ if(b.textContent!=="Confirmer ?"){ b.textContent="Confirmer ?"; return; } try{ applyData(await rpc("admin_shop_item_delete",{token:teamToken,item_id:b.dataset.sidel})); renderShopAdm(); }catch(err){ setMsg("#shopAdmMsg",err.message,true); } } });
+  $("#shopOrdersAdm").addEventListener("change", async e=>{ const s0=e.target.closest("[data-ost]"); if(!s0) return; s0.blur();
+    try{ applyData(await rpc("admin_shop_order_set",{token:teamToken,order_id:s0.dataset.ost,statut:s0.value})); setMsg("#shopAdmMsg", s0.value==="annule"?"Commande annulée.":"Commande mise à jour."); renderShopAdm(); }catch(err){ setMsg("#shopAdmMsg",err.message,true); } });
+  // ---------- Chronos et records ----------
+  function parseLap(t){ t=String(t||"").trim().replace(",","."); let m=/^(\d+):(\d{1,2})(?:\.(\d{1,3}))?$/.exec(t); if(m) return (+m[1])*60000+(+m[2])*1000+Number((m[3]||"0").padEnd(3,"0"));
+    m=/^(\d{1,3})(?:\.(\d{1,3}))?$/.exec(t); if(m) return (+m[1])*1000+Number((m[2]||"0").padEnd(3,"0")); return null; }
+  function fmtLap(ms){ if(!ms) return "—"; const mn=Math.floor(ms/60000), s=Math.floor(ms%60000/1000), c=String(ms%1000).padStart(3,"0"); return (mn?mn+":"+String(s).padStart(2,"0"):String(s))+"."+c; }
+  const normL = t => String(t||"").trim().toLowerCase();
+  function lapsWithCourse(){ return (extra.laps||[]).map(l=>({...l, c:courses.find(c=>c.id===l.courseId)})).filter(x=>x.c); }
+  function lapHtml(c, mine){
+    const dateOk = c.terminee || (c.date && c.date<=today()); if(!dateOk) return "";
+    const list=(extra.laps||[]).filter(l=>l.courseId===c.id).sort((a,b)=>a.ms-b.ms), rode=myId&&((c.participants||[]).some(p=>p.pid===myId)||mine==="oui");
+    if(!list.length && !rode) return "";
+    const my=list.find(l=>l.pid===myId), key="lap:"+c.id;
+    return '<details class="sec" data-logi="'+esc(key)+'"'+(openLogi.has(key)?" open":"")+'><summary>⏱ Chronos'+(list.length?'<em>'+fmtLap(list[0].ms)+'</em>':'')+'</summary><div class="logi">'+
+      (list.length?'<div class="laps">'+list.map((l,i)=>'<div><span>'+(i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':'')+esc(nomOf(l.pid))+'</span><b>'+fmtLap(l.ms)+'</b></div>').join("")+'</div>':'<p class="sub2">Pas encore de chrono.</p>')+
+      (rode?'<div class="lapin"><input id="lap-'+esc(c.id)+'" placeholder="Ex. 52.345" inputmode="decimal" value="'+(my?fmtLap(my.ms):'')+'" aria-label="Mon meilleur tour"><button type="button" class="btn-gold mini" data-lap="'+esc(c.id)+'">'+(my?'Modifier':'Mon meilleur tour')+'</button></div>':'')+'</div></details>';
+  }
+  function renderRecords(){
+    const box=$("#recBox"); if(!box) return; const L=lapsWithCourse(), by={};
+    for(const x of L){ const k=normL(x.c.lieu); (by[k]=by[k]||{lieu:x.c.lieu,list:[]}).list.push(x); }
+    const ks=Object.values(by); if(!ks.length){ box.innerHTML=''; return; }
+    box.innerHTML='<div class="k" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:6px 0">⏱ Records par piste</div><div class="recs">'+ks.map(g=>{ const best={}; g.list.forEach(x=>{ if(!best[x.pid]||x.ms<best[x.pid].ms) best[x.pid]=x; }); const top=Object.values(best).sort((a,b)=>a.ms-b.ms);
+      return '<div class="rec"><span class="sub2" style="text-transform:uppercase;letter-spacing:.06em;font-weight:600">'+esc(g.lieu)+'</span><span class="t">'+fmtLap(top[0].ms)+'</span><span class="sub2"><b>'+esc(nomOf(top[0].pid))+'</b> · '+esc(top[0].c.titre||"")+(top[0].c.date?' · '+esc(fmtDay(top[0].c.date)):'')+'</span>'+(top.slice(1,3).length?'<span class="sub2">'+top.slice(1,3).map((x,i)=>(i?'🥉 ':'🥈 ')+esc(nomOf(x.pid).split(" ")[0])+' '+fmtLap(x.ms)).join(" · ")+'</span>':'')+'</div>'; }).join("")+'</div>';
+  }
+  function spark(vals){ if(vals.length<2) return ""; const w=120,h=32,mn=Math.min(...vals),mx=Math.max(...vals),r=mx-mn||1; const pts=vals.map((v,i)=>(i/(vals.length-1)*w).toFixed(1)+","+((v-mn)/r*(h-6)+3).toFixed(1)).join(" ");
+    return '<svg class="spark" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="var(--gold)" stroke-width="2"/></svg>'; }
+  function renderPfLaps(p){
+    const box=$("#pfLaps"); if(!box) return; const mine=lapsWithCourse().filter(x=>x.pid===(p&&p.id)); if(!p||!p.id||!mine.length){ box.hidden=true; return; }
+    const by={}; mine.forEach(x=>{ const k=normL(x.c.lieu); (by[k]=by[k]||{lieu:x.c.lieu,list:[]}).list.push(x); });
+    const teamBest={}; lapsWithCourse().forEach(x=>{ const k=normL(x.c.lieu); if(!teamBest[k]||x.ms<teamBest[k]) teamBest[k]=x.ms; });
+    box.hidden=false; box.innerHTML='<h2>Chronos</h2><div class="recs">'+Object.entries(by).map(([k,g])=>{ const l=g.list.sort((a,b)=>sortKey(a.c).localeCompare(sortKey(b.c))), best=Math.min(...l.map(x=>x.ms));
+      return '<div class="rec"><span class="sub2" style="text-transform:uppercase;letter-spacing:.06em;font-weight:600">'+esc(g.lieu)+'</span><span class="t">'+fmtLap(best)+(best===teamBest[k]?' <span style="font-size:14px">👑 record RK7</span>':'')+'</span><span class="sub2">'+l.length+' course'+(l.length>1?'s':'')+(l.length>1?' · progression (plus bas = plus rapide)':'')+'</span>'+spark(l.map(x=>x.ms))+'</div>'; }).join("")+'</div>';
+  }
+  // ---------- Sondages ----------
+  const pollSel={};
+  function renderPolls(){
+    const box=$("#homePolls"); if(!box) return; const now=Date.now();
+    const list=(extra.polls||[]).filter(p=>!p.closed || (now-new Date(p.at).getTime())<30*864e5);
+    box.hidden=!list.length; if(!list.length) return;
+    $("#pollList").innerHTML=list.map(p=>{ const votes=p.votes||{}, n=Object.keys(votes).length, mine=votes[myId]||null, counts=p.options.map((_,i)=>Object.values(votes).filter(v=>v.includes(i)).length), mx=Math.max(1,...counts);
+      const sel=pollSel[p.id]||mine||[];
+      return '<div class="poll"><h3>📊 '+esc(p.question)+'</h3><span class="sub2">'+(p.closed?'Terminé':'En cours'+(p.closes?' · jusqu\'au '+esc(fmtDay(p.closes)):''))+' · '+n+' vote'+(n>1?'s':'')+(p.multi&&!p.closed?' · plusieurs choix possibles':'')+'</span>'+
+        p.options.map((o,i)=>{ const who=Object.entries(votes).filter(([,v])=>v.includes(i)).map(([pid])=>nomOf(pid).split(" ")[0]); return '<button type="button" class="popt" data-poll="'+esc(p.id)+'" data-i="'+i+'" aria-pressed="'+sel.includes(i)+'"'+(p.closed||!me()?' disabled':'')+' title="'+esc(who.join(", "))+'"><i style="width:'+(n?Math.round(counts[i]/mx*100):0)+'%"></i><span>'+(sel.includes(i)?'✓ ':'')+esc(o)+(who.length?' <span class="sub2" style="font-weight:400">· '+esc(who.join(", "))+'</span>':'')+'</span><b>'+counts[i]+'</b></button>'; }).join("")+
+        (p.multi&&!p.closed&&me()?'<button type="button" class="btn-gold mini" style="align-self:flex-start" data-pollsend="'+esc(p.id)+'">Valider mes choix</button>':'')+(!me()&&!p.closed?'<span class="sub2">Ouvre ton profil pilote pour voter.</span>':'')+'</div>'; }).join("");
+  }
+  async function sendPoll(id, choices){ try{ applyData(await rpc("poll_vote",{token:teamToken,pilot_token:pilotToken,poll_id:id,choices})); delete pollSel[id]; setMsg("#pollMsg","Vote enregistré."); }catch(err){ setMsg("#pollMsg",err.message,true); } }
+  $("#pollList").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b) return;
+    if(b.dataset.poll){ const p=(extra.polls||[]).find(x=>x.id===b.dataset.poll); if(!p) return; const i=Number(b.dataset.i), cur=(pollSel[p.id]||(p.votes||{})[myId]||[]).slice();
+      if(!p.multi) return sendPoll(p.id, cur.length===1&&cur[0]===i?[]:[i]);
+      const k=cur.indexOf(i); k>=0?cur.splice(k,1):cur.push(i); pollSel[p.id]=cur; renderPolls(); return; }
+    if(b.dataset.pollsend) sendPoll(b.dataset.pollsend, pollSel[b.dataset.pollsend]||((extra.polls||[]).find(x=>x.id===b.dataset.pollsend)||{votes:{}}).votes[myId]||[]); });
+  function renderPollAdm(){
+    if(!isAdmin() || $("#viewAdmin").hidden) return;
+    $("#pollAdmList").innerHTML=(extra.polls||[]).map(p=>'<div class="o"><span><b>'+esc(p.question)+'</b><br><span class="sub2">'+Object.keys(p.votes||{}).length+' vote(s) · '+(p.closed?'terminé':'en cours')+'</span></span><span class="row" style="gap:6px"><button type="button" class="btn-ghost mini" data-pact="'+(p.closed?'reopen':'close')+'" data-pid="'+esc(p.id)+'">'+(p.closed?'Rouvrir':'Clore')+'</button><button type="button" class="btn-link" data-pact="delete" data-pid="'+esc(p.id)+'">Supprimer</button></span></div>').join("");
+  }
+  $("#pollForm").addEventListener("submit", async e=>{ e.preventDefault(); try{ applyData(await rpc("admin_poll_save",{token:teamToken,poll:{question:$("#poQ").value,options:$("#poO").value.split("\n").map(x=>x.trim()).filter(Boolean),multi:$("#poM").checked,closes:$("#poC").value}})); $("#pollForm").reset(); setMsg("#pollAdmMsg","Sondage lancé : tout le monde est prévenu."); renderPollAdm(); }catch(err){ setMsg("#pollAdmMsg",err.message,true); } });
+  $("#pollAdmList").addEventListener("click", async e=>{ const b=e.target.closest("[data-pact]"); if(!b) return; if(b.dataset.pact==="delete" && b.textContent!=="Confirmer ?"){ b.textContent="Confirmer ?"; return; }
+    try{ applyData(await rpc("admin_poll_set",{token:teamToken,poll_id:b.dataset.pid,action:b.dataset.pact})); renderPollAdm(); }catch(err){ setMsg("#pollAdmMsg",err.message,true); } });
+  // ---------- Fil d'activité ----------
+  let feedN=8;
+  function feedLine(a){ const c=a.courseId&&courses.find(x=>x.id===a.courseId), cn=c?(c.titre||c.lieu):"", who=a.pid?nomOf(a.pid):"";
+    switch(a.kind){ case "comment": return ["💬", who+" a écrit dans la discussion"+(cn?" · "+cn:"")];
+      case "photo": return ["📸", who+" a posté "+(Number(a.txt)||1)+" photo"+((Number(a.txt)||1)>1?"s":"")+(cn?" · "+cn:"")];
+      case "join": return ["👋", who+" a rejoint l'appli"];
+      case "resa": return ["✅", who+" a réservé "+(cn||"une course")];
+      case "result": return ["🏁", "Résultat "+cn+(a.txt?" : "+a.txt:"")];
+      case "news": return ["📰", "Nouvelle news : "+a.txt];
+      case "lap": return ["⏱", who+" a tourné en "+fmtLap(Number(a.txt))+(c?" à "+c.lieu:"")];
+      case "shop": return ["🛍", who+" a commandé : "+a.txt]; }
+    return ["•", a.kind]; }
+  function renderFeed(){
+    const box=$("#homeFeed"); if(!box) return; const list=(extra.activity||[]).filter(a=>!a.pid||pilots[a.pid]); box.hidden=!list.length; if(!list.length) return;
+    $("#feedList").innerHTML=list.slice(0,feedN).map(a=>{ const [e,t]=feedLine(a); return '<button type="button" class="f"'+(a.courseId?' data-fc="'+esc(a.courseId)+'"':a.kind==="news"?' data-fn="1"':'')+'><span class="e">'+e+'</span><span>'+esc(t)+'</span><span class="w">'+esc(ago(a.at))+'</span></button>'; }).join("");
+    $("#feedMore").hidden=list.length<=feedN;
+  }
+  $("#feedMore").addEventListener("click",()=>{ feedN+=15; renderFeed(); });
+  $("#feedList").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b) return; if(b.dataset.fc) goCard(b.dataset.fc); else if(b.dataset.fn) location.hash="news"; });
+  // ---------- Candidatures ----------
+  let candList=[]; const CST=[["nouveau","Nouveau"],["contacte","Contacté"],["essai","Essai prévu"],["accepte","Accepté"],["refuse","Pas retenu"]];
+  function renderCand(){
+    const nw=candList.filter(c=>c.statut==="nouveau").length; $("#candNew").hidden=!nw; $("#candNew").textContent=nw+" nouvelle"+(nw>1?"s":"");
+    if($("#candList").contains(document.activeElement)&&document.activeElement.tagName==="SELECT") return;
+    $("#candList").innerHTML = candList.length ? candList.map(c=>'<div class="teamrow"><h3 style="font-size:17px"><span>'+esc([c.prenom,c.nom].filter(Boolean).join(" "))+(c.age?' <span class="sub2">· '+c.age+' ans</span>':'')+'</span><span class="sub2">'+esc(new Date(c.created_at).toLocaleDateString("fr-FR",{day:"numeric",month:"short"}))+'</span></h3>'+
+      '<div class="sub2">'+esc([c.ville,c.experience,c.source?("via "+c.source):""].filter(Boolean).join(" · "))+'</div>'+(c.dispo?'<div class="sub2">Dispos : '+esc(c.dispo)+'</div>':'')+(c.message?'<div style="white-space:pre-line">'+esc(c.message)+'</div>':'')+
+      '<div class="row" style="gap:10px;flex-wrap:wrap">'+(c.tel?'<a href="tel:'+esc(c.tel.replace(/[\s.-]/g,""))+'">'+esc(c.tel)+'</a>':'')+(c.email?'<a href="mailto:'+esc(c.email)+'?subject='+encodeURIComponent("RK7 Team · ta candidature")+'">'+esc(c.email)+'</a>':'')+'</div>'+
+      '<div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><select data-cst="'+esc(c.id)+'" aria-label="Statut">'+CST.map(x=>'<option value="'+x[0]+'"'+(c.statut===x[0]?' selected':'')+'>'+x[1]+'</option>').join("")+'</select><button type="button" class="btn-link" data-cdel2="'+esc(c.id)+'">Supprimer</button></div></div>').join("") : '<p class="note">Aucune candidature pour l\'instant.</p>';
+  }
+  async function loadCand(){ try{ candList=await rpc("admin_candidatures",{token:teamToken}); adminNew.cands=candList.filter(c=>c.statut==="nouveau").length; renderCand(); }catch(e){} }
+  async function setCand(id, patch, ok){ try{ candList=await rpc("admin_candidature_set",{token:teamToken,cand_id:id,patch}); adminNew.cands=candList.filter(c=>c.statut==="nouveau").length; renderCand(); renderHome(); setMsg("#candMsg",ok); }catch(err){ setMsg("#candMsg",err.message,true); } }
+  $("#candList").addEventListener("change", e=>{ const s0=e.target.closest("[data-cst]"); if(s0){ s0.blur(); setCand(s0.dataset.cst,{statut:s0.value},"Statut mis à jour."); } });
+  $("#candList").addEventListener("click", e=>{ const b=e.target.closest("[data-cdel2]"); if(!b) return; if(b.textContent!=="Confirmer ?"){ b.textContent="Confirmer ?"; return; } setCand(b.dataset.cdel2,{delete:"1"},"Candidature supprimée."); });
+  $("#candCopy").addEventListener("click",()=>{ const u=new URL("rejoindre.html", location.href).href.split("#")[0]; const t=document.createElement("textarea"); t.value=u; document.body.appendChild(t); t.select(); let ok=false; try{ ok=document.execCommand("copy"); }catch(e){} t.remove(); setMsg("#candMsg", ok?"Lien copié : "+u:"Le lien : "+u); });
+  // ---------- Bilan partenaires ----------
+  async function openBilanShare(cid){
+    const c=courses.find(x=>x.id===cid); if(!c) return; const u=new URL("bilan.html?c="+encodeURIComponent(cid), location.href).href.split("#")[0];
+    let mails=[]; try{ const pl=await rpc("admin_partners",{token:teamToken}); mails=[...new Set((pl||[]).filter(o=>o.email&&["accepte","en_cours"].includes(o.statut)).map(o=>o.email))]; }catch(e){}
+    const body="Bonjour,\n\nMerci pour votre soutien ! Voici le bilan de notre dernière course, "+(c.titre||c.lieu)+(c.position?" (classement : "+c.position+")":"")+" :\n"+u+"\n\nSportivement,\nFlorent – RK7 Team";
+    const el=document.createElement("div"); el.className="lb"; el.setAttribute("role","dialog"); el.setAttribute("aria-label","Bilan pour les partenaires");
+    el.innerHTML='<div style="background:var(--surface);color:var(--ink);border-radius:14px;padding:18px;max-width:440px;width:calc(100% - 32px);display:flex;flex-direction:column;gap:10px"><h3 style="margin:0;font-family:var(--display);font-size:22px">Bilan partenaires · '+esc(c.titre||c.lieu)+'</h3><p class="sub2" style="margin:0">Une page publique (sans nom de pilote) avec le résultat, les heures roulées et les photos marquées « Vitrine ».</p><input readonly value="'+esc(u)+'" onclick="this.select()">'+
+      '<div class="row" style="gap:8px;flex-wrap:wrap"><a class="btn-gold" style="text-decoration:none;border-radius:6px;padding:8px 12px;font-weight:600" href="'+esc(u)+'" target="_blank" rel="noopener">Ouvrir ↗</a><a class="btn-ghost" style="text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-weight:600" href="mailto:?bcc='+encodeURIComponent(mails.join(","))+'&subject='+encodeURIComponent("RK7 Team · bilan "+(c.titre||c.lieu))+'&body='+encodeURIComponent(body)+'">✉️ E-mail aux partenaires'+(mails.length?' ('+mails.length+')':'')+'</a><button type="button" class="btn-ghost" data-x>Fermer</button></div></div>';
+    el.addEventListener("click", e=>{ if(e.target===el||e.target.closest("[data-x]")) el.remove(); }); document.body.appendChild(el);
+  }
   // ---------- Accueil ----------
-  let adminNew={partners:0,at:0};
+  let adminNew={partners:0,at:0,cands:0};
   function todoItems(){
     const it=[]; const m=me();
     if(!m) it.push({i:"👤",t:"Ouvre ton profil pilote",s:"Pour réserver, voter et recevoir les rappels.",go:"#profil",cls:"red"});
@@ -2211,11 +2449,13 @@ button:active:not(:disabled){transform:scale(.97)}
       const nx=courses.filter(c=>isUpcoming(c)&&myDispo(c.id)==="oui"&&pronoOpen(c)&&!myPronos[c.id]).sort((a,b)=>sortKey(a).localeCompare(sortKey(b)))[0];
       if(nx) it.push({i:"🔮",t:"Fais ton pronostic",s:(nx.titre||nx.lieu)+" : devine la place finale de l'équipe",card:nx.id});
       const pv=(proposals||[]).filter(x=>x.status==="ouverte"&&!(x.votes||[]).includes(myId));
+      for(const pl of (extra.polls||[]).filter(x=>!x.closed && !(x.votes||{})[myId]).slice(0,2)) it.push({i:"📊",t:"Sondage : "+pl.question,s:"Réponds en un clic",go:"#accueil",anchor:"homePolls",cls:"red"});
       if(pv.length) it.push({i:"🗳",t:pv.length+" course"+(pv.length>1?"s":"")+" proposée"+(pv.length>1?"s":"")+" à voter",s:pv.map(x=>x.titre||x.lieu).slice(0,3).join(" · "),go:"#calendrier",anchor:"propPanel"});
     }
     if(isAdmin()){
       const nr=courses.filter(c=>!c.terminee&&c.date&&c.date<today());
       if(nr.length) it.push({i:"🏁",t:"Saisir le résultat : "+(nr[0].titre||nr[0].lieu),s:nr.length>1?"et "+(nr.length-1)+" autre"+(nr.length>2?"s":""):"Classement, pilotes et points SWS",card:nr[0].id,cls:"red",adm:1});
+      if(adminNew.cands) it.push({i:"🏎",t:adminNew.cands+" candidature"+(adminNew.cands>1?"s":"")+" pilote",s:"À traiter dans l'espace admin",go:"#admin",anchor:"candPanel",cls:"red",adm:1});
       if(adminNew.partners) it.push({i:"🤝",t:adminNew.partners+" message"+(adminNew.partners>1?"s":"")+" de partenaire",s:"À traiter dans l'espace admin",go:"#admin",cls:"red",adm:1});
     }
     return it;
@@ -2223,20 +2463,21 @@ button:active:not(:disabled){transform:scale(.97)}
   function renderHome(){
     if(!loaded) return; const it=todoItems();
     $("#homeTodo").innerHTML = it.length ? it.map((x,k)=>'<button type="button" class="it '+(x.cls||'')+'" data-todo="'+k+'"><span class="i">'+x.i+'</span><span class="t"><b>'+esc(x.t)+'</b>'+(x.s?'<span>'+esc(x.s)+'</span>':'')+'</span><span class="go" aria-hidden="true">›</span></button>').join("") : '<div class="it ok"><span class="i">✅</span><span class="t"><b>Rien à faire, tout est à jour.</b><span>Profite, on se voit sur la piste.</span></span></div>';
-    window.__todo=it;
+    window.__todo=it; renderPolls(); renderFeed();
     const nl=sortedNews().slice(0,3);
     $("#homeNews").innerHTML = nl.length ? nl.map(n=>'<a href="#news"><b>'+esc(n.titre)+'</b><span>'+esc([n.date?longDate(n.date):"", n.categorie||""].filter(Boolean).join(" · "))+(n.texte?' — '+esc(String(n.texte).slice(0,110))+(String(n.texte).length>110?'…':''):'')+'</span></a>').join("") : '<p class="note">Pas encore de news.</p>';
     renderBadges(it);
   }
   $("#homeTodo").addEventListener("click", e=>{ const b=e.target.closest("[data-todo]"); if(!b) return; const x=(window.__todo||[])[Number(b.dataset.todo)]; if(!x) return;
-    if(x.card) return goCard(x.card); if(x.go){ location.hash=x.go.slice(1); if(x.anchor) setTimeout(()=>{ const a=document.getElementById(x.anchor); if(a) a.scrollIntoView({behavior:"smooth",block:"start"}); },120); } });
+    if(x.card) return goCard(x.card); if(x.go){ if(location.hash!==x.go) location.hash=x.go.slice(1); if(x.anchor) setTimeout(()=>{ const a=document.getElementById(x.anchor); if(a) a.scrollIntoView({behavior:"smooth",block:"start"}); },120); } });
   function setDot(el, n){ if(!el) return; let d=el.querySelector(".dot"); if(!n){ if(d) d.remove(); return; } if(!d){ d=document.createElement("span"); d.className="dot"; el.appendChild(d); } d.textContent=n>9?"9+":String(n); }
   function renderBadges(it){
     it=it||todoItems();
     setDot($("#navHome"), it.filter(x=>x.cls==="red"&&!x.adm).length);
     setDot($("#navCal"), it.filter(x=>x.cal).length ? courses.filter(c=>isUpcoming(c)&&!c.terminee&&me()&&!myDispo(c.id)&&!(isClosed(c)&&!isAdmin())).length : 0);
     setDot($("#hdrAdmin"), isAdmin() ? it.filter(x=>x.adm).length : 0);
-    if(isAdmin() && Date.now()-adminNew.at>300000){ adminNew.at=Date.now(); rpc("admin_partners",{token:teamToken}).then(r=>{ const n=(r||[]).filter(o=>o.statut==="nouveau").length; if(n!==adminNew.partners){ adminNew.partners=n; renderHome(); } }).catch(()=>{}); }
+    if(isAdmin() && Date.now()-adminNew.at>300000){ adminNew.at=Date.now(); rpc("admin_partners",{token:teamToken}).then(r=>{ const n=(r||[]).filter(o=>o.statut==="nouveau").length; if(n!==adminNew.partners){ adminNew.partners=n; renderHome(); } }).catch(()=>{});
+      rpc("admin_candidatures",{token:teamToken}).then(r=>{ candList=r||[]; const n=candList.filter(c=>c.statut==="nouveau").length; if(n!==adminNew.cands){ adminNew.cands=n; renderHome(); } }).catch(()=>{}); }
   }
   // ---------- Admin : sections repliables ----------
   (function(){ let st={}; try{ st=JSON.parse(localStorage.getItem("rk7-adm-open")||"{}"); }catch(e){}
@@ -2248,7 +2489,7 @@ button:active:not(:disabled){transform:scale(.97)}
     $("#adminPanel").hidden=!isAdmin(); $("#newsAdmin").hidden=!isAdmin(); $("#adminAccess").hidden=isAdmin(); $("#navAdmin").hidden=!isAdmin(); $("#hdrAdmin").hidden=!isAdmin();
     if(!isAdmin()) $("#resPanel").hidden=true;
     if(!isAdmin() && location.hash==="#admin") location.hash="accueil";
-    renderMe(); renderCal(); renderNews(); renderBudget(); renderAdmin(); renderRank(); if(raceCid) renderRace(); renderOnboard(); renderWelcome(); renderProps(); renderProfil(); renderCrewBox(); renderCrewForm(); renderRoc(); renderHome();
+    renderMe(); renderCal(); renderNews(); renderBudget(); renderAdmin(); renderRank(); if(raceCid) renderRace(); renderOnboard(); renderWelcome(); renderProps(); renderProfil(); renderCrewBox(); renderCrewForm(); renderRoc(); renderHome(); renderShop(); renderShopAdm(); renderPollAdm(); renderRecords();
   }
 
   // ---------- Events ----------
@@ -2278,6 +2519,10 @@ button:active:not(:disabled){transform:scale(.97)}
   let pendingDel=null;
   $("#races").addEventListener("click", async e => {
     const b=e.target.closest("button"); if(!b) return;
+    if(b.dataset.bilan) return openBilanShare(b.dataset.bilan);
+    if(b.dataset.lap){ const cid=b.dataset.lap, inp=document.getElementById("lap-"+cid), v=inp?inp.value.trim():""; const ms=v?parseLap(v):0; if(v && !ms){ setMsg("#globalMsg","Format du chrono : 52.345 ou 1:02.345",true); return; }
+      const c=courses.find(x=>x.id===cid), lieu=normL(c&&c.lieu), prevPB=Math.min(Infinity,...lapsWithCourse().filter(x=>x.pid===myId&&normL(x.c.lieu)===lieu&&x.courseId!==cid).map(x=>x.ms)), prevTeam=Math.min(Infinity,...lapsWithCourse().filter(x=>normL(x.c.lieu)===lieu&&!(x.pid===myId&&x.courseId===cid)).map(x=>x.ms));
+      b.disabled=true; try{ openLogi.add("lap:"+cid); applyData(await rpc("lap_set",{token:teamToken,pilot_token:pilotToken,course_id:cid,ms})); setMsg("#globalMsg", !ms?"Chrono effacé.": ms<prevTeam&&prevTeam<Infinity?"👑 Nouveau record RK7 à "+c.lieu+" : "+fmtLap(ms)+" ! Toute l'équipe est prévenue.": ms<prevPB&&prevPB<Infinity?"🎉 Nouveau record perso à "+c.lieu+" : "+fmtLap(ms)+" (avant "+fmtLap(prevPB)+")":"Chrono enregistré : "+fmtLap(ms)); }catch(err){ setMsg("#globalMsg",err.message,true); } finally{ b.disabled=false; } return; }
     if(b.dataset.more){ const id=b.dataset.more; openCards.has(id)?openCards.delete(id):openCards.add(id); renderCal(); const a=document.querySelector('[data-card="'+CSS.escape(id)+'"]'); if(a && openCards.has(id)) a.scrollIntoView({behavior:"smooth",block:"nearest"}); return; }
     if(b.dataset.mvp){ b.disabled=true; try{ const r0=await rpc("mvp_vote",{token:teamToken,pilot_token:pilotToken,course_id:b.dataset.mvp,voted:b.dataset.v}); try{ localStorage.setItem("rk7-mvp-"+myId+"-"+b.dataset.mvp,b.dataset.v); }catch(e){} openLogi.add("mvp:"+b.dataset.mvp); applyData(r0); setMsg("#globalMsg","Vote enregistré pour "+nomOf(b.dataset.v)+" ⭐"); }catch(err){ setMsg("#globalMsg",err.message,true); b.disabled=false; } return; }
     if(b.dataset.prono){ const cid=b.dataset.prono, inp=document.getElementById("pr-"+cid), v=b.dataset.del?0:Number(inp&&inp.value);
@@ -2474,17 +2719,17 @@ button:active:not(:disabled){transform:scale(.97)}
     if(!isAdmin() || adminLoading) return; adminLoading=true;
     try{
       const [ps, cfg, vit, tr, acc, bk] = await Promise.all([rpc("admin_pilots",{token:teamToken}), rpc("admin_get_config",{token:teamToken}), rpc("admin_vitrine_set",{token:teamToken,cfg:{}}), rpc("admin_treso_get",{token:teamToken}), rpc("admin_visits",{token:teamToken}), rpc("admin_backups",{token:teamToken})]);
-      treso=tr; accData=acc; backups=bk; rpc("admin_partners",{token:teamToken}).then(r=>{ partnerList=r||[]; renderPartners(); adminNew.partners=partnerList.filter(o=>o.statut==="nouveau").length; adminNew.at=Date.now(); renderHome(); }).catch(()=>{});
+      treso=tr; accData=acc; backups=bk; loadCand(); rpc("admin_partners",{token:teamToken}).then(r=>{ partnerList=r||[]; renderPartners(); adminNew.partners=partnerList.filter(o=>o.statut==="nouveau").length; adminNew.at=Date.now(); renderHome(); }).catch(()=>{});
       if(!$("#vitForm").contains(document.activeElement)){ $("#vTexte").value=vit.vitrine_texte||""; $("#vContact").value=vit.vitrine_contact||""; $("#vCheck").value=vit.checklist||""; }
       adminPilots=ps;
       if(!$("#cfgCodeForm").contains(document.activeElement)){ $("#cTeam").value=cfg.team_code||""; $("#cAdmin").value=cfg.admin_code||""; }
-      if(!$("#cfgPayForm").contains(document.activeElement)){ $("#cPayInfo").value=cfg.paiement_info||""; $("#cCotis").value=cfg.cotisation_montant||""; }
+      if(!$("#cfgPayForm").contains(document.activeElement)){ $("#cPayInfo").value=cfg.paiement_info||""; $("#cCotis").value=cfg.cotisation_montant||""; $("#cPayLink").value=cfg.paiement_lien||""; }
       renderAdmin();
     }catch(err){ setMsg("#pilotMsg",err.message,true); } finally{ adminLoading=false; }
   }
   function renderAdmin(){
     if(!isAdmin() || !adminPilots || $("#viewAdmin").hidden) return;
-    renderGear(); renderTreso(); renderAccess(); renderCrewForm();
+    renderGear(); renderTreso(); renderAccess(); renderCrewForm(); renderShopAdm(); renderPollAdm();
     if($("#pilotTable").contains(document.activeElement)) return;
     const y=$("#cotisYear").value, mt=Number(config.cotisation||0);
     const list=adminPilots.map(a=>Object.assign({},a,pilots[a.id]?{nom:pilots[a.id].nom,equipePref:pilots[a.id].equipePref}:{}));
@@ -2550,7 +2795,7 @@ button:active:not(:disabled){transform:scale(.97)}
   });
   $("#cfgPayForm").addEventListener("submit", async e => {
     e.preventDefault();
-    try{ await rpc("admin_set_config",{token:teamToken,cfg:{paiement_info:$("#cPayInfo").value,cotisation_montant:$("#cCotis").value}}); setMsg("#cfgPayMsg","Enregistré : visible dans « Mon espace pilote »."); refresh(true); }catch(err){ setMsg("#cfgPayMsg",err.message,true); }
+    try{ await rpc("admin_set_config",{token:teamToken,cfg:{paiement_info:$("#cPayInfo").value,cotisation_montant:$("#cCotis").value,paiement_lien:$("#cPayLink").value}}); setMsg("#cfgPayMsg","Enregistré : visible dans « Mon espace pilote »."); refresh(true); }catch(err){ setMsg("#cfgPayMsg",err.message,true); }
   });
   $("#cfgCodeForm").addEventListener("submit", async e => {
     e.preventDefault();
@@ -2646,7 +2891,8 @@ button:active:not(:disabled){transform:scale(.97)}
 
   function route(){
     const pf = /^#profil/.test(location.hash); profilePid = pf ? (decodeURIComponent(location.hash.split("/")[1]||"")||null) : null; if(profilePid && !profilePid.startsWith("n:")) profilePid=location.hash.split("/")[1];
-    const v = location.hash==="#news" ? "news" : location.hash==="#budget" ? "budget" : location.hash==="#classement" ? "rank" : location.hash==="#entreprise" ? "roc" : pf ? "profil" : (location.hash==="#admin" && isAdmin()) ? "admin" : /^#calendrier/.test(location.hash) ? "cal" : "home";
+    const v = location.hash==="#boutique" ? "shop" : location.hash==="#news" ? "news" : location.hash==="#budget" ? "budget" : location.hash==="#classement" ? "rank" : location.hash==="#entreprise" ? "roc" : pf ? "profil" : (location.hash==="#admin" && isAdmin()) ? "admin" : /^#calendrier/.test(location.hash) ? "cal" : "home";
+    $("#viewShop").hidden=v!=="shop"; if(v==="shop") renderShop();
     $("#viewHome").hidden=v!=="home"; $("#navHome").setAttribute("aria-current", v==="home"?"page":"false"); $("#hdrAdmin").setAttribute("aria-pressed", v==="admin"); if(v==="home") renderHome();
     $("#viewNews").hidden=v!=="news"; $("#viewCal").hidden=v!=="cal"; $("#viewBudget").hidden=v!=="budget"; $("#viewAdmin").hidden=v!=="admin"; $("#viewRank").hidden=v!=="rank"; $("#viewProfil").hidden=v!=="profil"; $("#viewRoc").hidden=v!=="roc";
     $("#navRoc").setAttribute("aria-current", v==="roc"?"page":"false"); if(v==="roc"){ rocEnts=null; renderRoc(); }
@@ -2657,8 +2903,8 @@ button:active:not(:disabled){transform:scale(.97)}
     $("#navCal").setAttribute("aria-current", v==="cal"?"page":"false");
     $("#navNews").setAttribute("aria-current", v==="news"?"page":"false");
     $("#navBudget").setAttribute("aria-current", v==="budget"?"page":"false");
-    $("#viewTitle").textContent = v==="home" ? "Accueil" : v==="news" ? "News RK7" : v==="budget" ? "Budget" : v==="admin" ? "Admin" : v==="rank" ? "L'équipe" : v==="roc" ? "Course entreprise" : v==="profil" ? ((profilePid && profileOf(profilePid) && profileOf(profilePid).id!==myId) ? "Pilote" : "Mon profil") : "Calendrier";
-    $("#viewSub").textContent = v==="home" ? "Ta prochaine course et tout ce qui t'attend." : v==="roc" ? "La Race of Company by RK7 Team : infos, bénévoles et entreprises." : v==="profil" ? "Ta photo, tes stats, ton historique de courses et ton espace pilote." : v==="rank" ? "Les heures de roulage, courses et podiums de chaque pilote sur la saison." : v==="admin" ? "Pilotes, cotisations, codes d'accès et exports." : v==="news" ? "Les résultats, annonces et infos de l'équipe." : v==="budget" ? "Prévois tes dépenses de la saison et retrouve le bilan de la saison passée." : "Toutes les courses de l'équipe avec lieu, durée et prix par pilote. Indique tes disponibilités pour réserver ta place.";
+    $("#viewTitle").textContent = v==="shop" ? "Boutique" : v==="home" ? "Accueil" : v==="news" ? "News RK7" : v==="budget" ? "Budget" : v==="admin" ? "Admin" : v==="rank" ? "L'équipe" : v==="roc" ? "Course entreprise" : v==="profil" ? ((profilePid && profileOf(profilePid) && profileOf(profilePid).id!==myId) ? "Pilote" : "Mon profil") : "Calendrier";
+    $("#viewSub").textContent = v==="shop" ? "Shorts, t-shirts et accessoires aux couleurs de l'équipe." : v==="home" ? "Ta prochaine course et tout ce qui t'attend." : v==="roc" ? "La Race of Company by RK7 Team : infos, bénévoles et entreprises." : v==="profil" ? "Ta photo, tes stats, ton historique de courses et ton espace pilote." : v==="rank" ? "Les heures de roulage, courses et podiums de chaque pilote sur la saison." : v==="admin" ? "Pilotes, cotisations, codes d'accès et exports." : v==="news" ? "Les résultats, annonces et infos de l'équipe." : v==="budget" ? "Prévois tes dépenses de la saison et retrouve le bilan de la saison passée." : "Toutes les courses de l'équipe avec lieu, durée et prix par pilote. Indique tes disponibilités pour réserver ta place.";
     window.scrollTo(0,0);
   }
   $("#navCal").addEventListener("click",()=>{ location.hash="calendrier"; });
