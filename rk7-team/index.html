@@ -2449,23 +2449,26 @@ button:active:not(:disabled){transform:scale(.97)}
   // ---------- Onglet Admin ----------
   (function(){ const y=cotisYearDefault(); $("#cotisYear").innerHTML=[y-1,y,y+1].map(v=>'<option'+(v===y?" selected":"")+'>'+v+'</option>').join(""); })();
   let adminLoading=false, partnerList=[];
-  const PTYPE={soutien:"💛 Soutien",sponsor:"🤝 Sponsoring",materiel:"🛠 Matériel",offre:"🏷 Offre",visibilite:"📣 Visibilité"}, PSTAT=[["nouveau","Nouveau"],["en_cours","En discussion"],["accepte","Accepté"],["refuse","Refusé"],["archive","Archivé"]];
+  const PTYPE={soutien:"💛 Soutien",sponsor:"🤝 Sponsoring",materiel:"🛠 Matériel",offre:"🏷 Offre",visibilite:"📣 Visibilité",news:"📰 News"}, PSTAT=[["nouveau","Nouveau"],["en_cours","En discussion"],["accepte","Accepté"],["refuse","Refusé"],["archive","Archivé"]];
   function renderPartners(){
     const box=$("#partList"); if(!box || box.contains(document.activeElement)&&document.activeElement.tagName==="SELECT") return;
     const nw=partnerList.filter(o=>o.statut==="nouveau").length; $("#partNew").hidden=!nw; $("#partNew").textContent=nw+" nouveau"+(nw>1?"x":"");
     box.innerHTML = partnerList.length ? partnerList.map(o=>{ const c=courses.find(x=>x.id===o.courseId);
       return '<div class="teamrow"><h3 style="font-size:17px"><span>'+esc(o.entreprise||o.nom)+(o.entreprise&&o.nom!==o.entreprise?' <span class="sub2">· '+esc(o.nom)+'</span>':'')+'</span><span class="chip'+(o.statut==="nouveau"?" maybe":o.statut==="accepte"?" ok":"")+'">'+esc(PTYPE[o.type]||o.type)+'</span></h3>'+
         '<div class="sub2">'+esc(new Date(o.at).toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"}))+(c?' · '+esc(c.titre||c.lieu):'')+(o.valeur?' · <b>'+esc(o.valeur)+'</b>':'')+'</div>'+
+        (o.titre?'<div><b>'+esc(o.titre)+'</b></div>':'')+(o.image&&/^db:/.test(o.image)?'<img data-dbimg="'+esc(o.image.slice(3))+'" alt="Photo jointe" style="max-width:100%;max-height:220px;border-radius:8px;object-fit:cover">':'')+
         (o.message?'<div style="white-space:pre-line">'+esc(o.message)+'</div>':'')+
+        (o.type==="news"?'<div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="'+(o.newsId?'btn-ghost':'btn-gold')+' mini" data-ppub="'+esc(o.id)+'" data-v="'+(o.newsId?'0':'1')+'">'+(o.newsId?'Retirer des News':'Publier dans les News')+'</button>'+(o.newsId?'<span class="chip ok">Publiée</span>':'')+'</div>':'')+
         ((o.email||o.tel)?'<div class="row" style="gap:10px;flex-wrap:wrap">'+(o.email?'<a href="mailto:'+esc(o.email)+'?subject='+encodeURIComponent("RK7 Team · votre proposition")+'">'+esc(o.email)+'</a>':'')+(o.tel?'<a href="tel:'+esc(o.tel.replace(/[\s.-]/g,""))+'">'+esc(o.tel)+'</a>':'')+'</div>':'')+
         '<div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><select data-pstat="'+esc(o.id)+'" aria-label="Statut">'+PSTAT.map(x=>'<option value="'+x[0]+'"'+(o.statut===x[0]?' selected':'')+'>'+x[1]+'</option>').join("")+'</select>'+
-        (o.mur?'<label style="display:inline-flex;gap:6px;align-items:center;font-size:14px"><input type="checkbox" data-pvis="'+esc(o.id)+'"'+(o.visible?' checked':'')+'> Afficher sur le mur des soutiens</label>':'<span class="sub2">Ne souhaite pas apparaître publiquement</span>')+
-        '<button type="button" class="btn-link" data-pdel2="'+esc(o.id)+'">Supprimer</button></div></div>'; }).join("") : '<p class="note">Aucun message de partenaire pour l\'instant. Envoie-leur le lien !</p>';
+        (o.type==="news"?'':o.mur?'<label style="display:inline-flex;gap:6px;align-items:center;font-size:14px"><input type="checkbox" data-pvis="'+esc(o.id)+'"'+(o.visible?' checked':'')+'> Afficher sur le mur des soutiens</label>':'<span class="sub2">Ne souhaite pas apparaître publiquement</span>')+
+        '<button type="button" class="btn-link" data-pdel2="'+esc(o.id)+'">Supprimer</button></div></div>'; }).join("") : '<p class="note">Aucun message de partenaire pour l\'instant. Envoie-leur le lien !</p>'; loadDbImages();
   }
   async function savePartner(id, patch, ok){ try{ partnerList=await rpc("admin_partner_save",{token:teamToken,offer_id:id,patch}); renderPartners(); adminNew.partners=partnerList.filter(o=>o.statut==="nouveau").length; renderHome(); setMsg("#partMsg",ok); refresh(true); }catch(err){ setMsg("#partMsg",err.message,true); } }
   $("#partList").addEventListener("change", e=>{ const s=e.target.closest("[data-pstat]"); if(s){ s.blur(); return savePartner(s.dataset.pstat,{statut:s.value},"Statut mis à jour."); }
     const v=e.target.closest("[data-pvis]"); if(v) savePartner(v.dataset.pvis,{visible:v.checked}, v.checked?"Affiché sur le mur des soutiens. Les pilotes sont prévenus.":"Retiré du mur."); });
-  $("#partList").addEventListener("click", e=>{ const b=e.target.closest("[data-pdel2]"); if(!b) return; if(b.textContent!=="Confirmer ?"){ b.textContent="Confirmer ?"; return; } savePartner(b.dataset.pdel2,{delete:"1"},"Message supprimé."); });
+  $("#partList").addEventListener("click", async e=>{ const pb=e.target.closest("[data-ppub]"); if(pb){ pb.disabled=true; try{ partnerList=await rpc("admin_partner_publish",{token:teamToken,offer_id:pb.dataset.ppub,publier:pb.dataset.v==="1"}); renderPartners(); setMsg("#partMsg", pb.dataset.v==="1"?"News publiée : les pilotes sont prévenus.":"News retirée."); refresh(true); }catch(err){ setMsg("#partMsg",err.message,true); pb.disabled=false; } return; }
+    const b=e.target.closest("[data-pdel2]"); if(!b) return; if(b.textContent!=="Confirmer ?"){ b.textContent="Confirmer ?"; return; } savePartner(b.dataset.pdel2,{delete:"1"},"Message supprimé."); });
   $("#partCopy").addEventListener("click", ()=>{ const u=new URL("partenaires.html", location.href).href.split("#")[0]; const t=document.createElement("textarea"); t.value=u; document.body.appendChild(t); t.select(); let ok=false; try{ ok=document.execCommand("copy"); }catch(e){} t.remove(); setMsg("#partMsg", ok?"Lien copié : "+u:"Le lien : "+u); });
   async function loadAdmin(){
     if(!isAdmin() || adminLoading) return; adminLoading=true;
