@@ -1,0 +1,18 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>RK7 relais de publication</title>
+<script>
+// Relais de publication : renvoie a l'editeur GitHub un fichier prepare (rien de prive).
+const REST="https://ep-spring-voice-b9slst0q.apirest.c-7.eu-central-1.aws.neon.tech/neondb/rest/v1";
+const AUTH="https://ep-spring-voice-b9slst0q.neonauth.c-7.eu-central-1.aws.neon.tech/neondb/auth";
+addEventListener("message", async e => {
+  if (e.origin !== "https://github.com" || typeof e.data !== "string" || !e.data.startsWith("get:")) return;
+  try {
+    const jwt = (await (await fetch(AUTH + "/token/anonymous")).json()).token;
+    const r = await fetch(REST + "/rpc/deploy_get", { method: "POST", headers: { authorization: "Bearer " + jwt, "content-type": "application/json", "content-profile": "api", "accept-profile": "api" }, body: JSON.stringify({ k: e.data.slice(4) }) });
+    const b64 = await r.json();
+    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    e.source.postMessage({ ok: true, text: new TextDecoder().decode(bytes) }, e.origin);
+  } catch (err) { e.source.postMessage({ ok: false, err: String(err) }, e.origin); }
+});
+</script>
