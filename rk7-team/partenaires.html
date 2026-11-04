@@ -170,6 +170,7 @@ button.send:disabled{opacity:.6}
     $("#msg").placeholder = nw ? "Votre actualité : nouveauté, événement, offre… Elle sera publiée dans les News des pilotes après validation par l'équipe." : pro ? "Ce que vous proposez, ce que vous attendez en retour…" : "Allez les gars, on croit en vous !"; }
   function resizePhoto(file){ return new Promise((res,rej)=>{ const im=new Image(), u=URL.createObjectURL(file); im.onload=()=>{ const k=Math.min(1,1600/Math.max(im.width,im.height)), c=document.createElement("canvas"); c.width=Math.round(im.width*k); c.height=Math.round(im.height*k); c.getContext("2d").drawImage(im,0,0,c.width,c.height); URL.revokeObjectURL(u); res(c.toDataURL("image/jpeg",0.82).split(",")[1]); }; im.onerror=()=>rej(new Error("Photo illisible, essayez un autre fichier.")); im.src=u; }); }
   $("#types").addEventListener("change", syncType); syncType();
+  if(/[?&](publier|news)\b/i.test(location.search)||/^#publier/i.test(location.hash)){ const r=document.querySelector('input[name=type][value=news]'); if(r){ r.checked=true; syncType(); setTimeout(()=>$("#secForm").scrollIntoView({behavior:"smooth",block:"start"}),300); } }
   $("#cal").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b) return; const c=courses.find(x=>x.id===b.dataset.id); if(!c) return;
     if(b.dataset.a==="ics") return ics(c);
     $("#course").value=c.id; $("#secForm").scrollIntoView({behavior:"smooth",block:"start"}); setTimeout(()=>$("#nom").focus({preventScroll:true}),400); });
