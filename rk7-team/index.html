@@ -221,6 +221,7 @@ table.team th.p,table.team td.s{text-align:center}
 .feed .f .w{color:var(--muted);font-size:13px;margin-left:auto;white-space:nowrap}
 .feed .f .e{flex:0 0 auto}
 .spark{display:block}
+.invban{background:rgba(212,175,55,.14);border:1px solid #D4AF37;border-radius:10px;padding:10px 12px;font-weight:600;margin:6px 0 10px}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .cards button{padding:0;border:0;background:none;border-radius:12px;overflow:hidden;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25);transition:transform .15s}
 .cards button:hover{transform:translateY(-3px) rotate(-1deg)}
@@ -540,6 +541,7 @@ button:active:not(:disabled){transform:scale(.97)}
   <div class="in">
     <img src="img/logo-rk7.png" alt="Logo RK7 Team" width="334" height="174">
     <h1 id="onbTitle">Bienvenue !</h1>
+    <p class="invban" id="onbInv" hidden></p>
     <p>Dernière étape : crée ton profil pilote pour réserver tes courses et recevoir les infos de l'équipe.</p>
     <div class="switch"><button type="button" id="onbSwNew" aria-pressed="true">Je suis nouveau</button><button type="button" id="onbSwLog" aria-pressed="false">J'ai déjà un profil</button></div>
     <form id="onbNew">
@@ -733,6 +735,7 @@ button:active:not(:disabled){transform:scale(.97)}
     <h2>Accès à l'appli</h2>
     <div class="stats" id="accStats"></div>
     <div class="grid-wrap"><table class="team" id="accTable"></table></div>
+    <div id="invBox" style="margin:10px 0"></div>
     <details class="sec" id="accAnonSec"><summary id="accAnonSum">Visiteurs sans profil</summary><div id="accAnon" style="margin-top:8px"></div></details>
     <p class="sub2" id="accNote"></p>
   </section>
@@ -1960,6 +1963,7 @@ button:active:not(:disabled){transform:scale(.97)}
     const show=needOnboard(), el=$("#onb"); el.hidden=!show; document.body.style.overflow = show ? "hidden" : (document.getElementById("rm")||document.getElementById("bilan") ? "hidden" : "");
     if(!show) return;
     $("#onbSkip").hidden=!isAdmin();
+    { const iv=invPending(), b=$("#onbInv"); b.hidden=!iv; if(iv) b.textContent=(iv.kind==="officiel"?"⭐ Invitation : pilote officiel RK7 Team":"🤝 Invitation : pilote renfort / invité")+" · saison "+iv.saison+". Crée ton profil (ou ouvre-le si tu en as déjà un) pour valider."; }
     if(!$("#oTeam").options.length) $("#oTeam").innerHTML=teamOptions("Je ne sais pas encore");
     const cur=$("#oPilot").value, list=Object.values(pilots).sort((a,b)=>a.nom.localeCompare(b.nom,"fr"));
     $("#oPilot").innerHTML='<option value="">Choisir mon nom</option>'+list.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.nom)+'</option>').join(""); $("#oPilot").value=cur;
@@ -2006,7 +2010,8 @@ button:active:not(:disabled){transform:scale(.97)}
     const ps=accData.pilots||[], anon=accData.anon||[], wk=Date.now()-7*864e5;
     const active=ps.filter(p=>p.lastSeen && new Date(p.lastSeen).getTime()>wk).length;
     $("#accStats").innerHTML='<div class="stat"><b>'+ps.length+'</b><span>Profils créés</span></div><div class="stat"><b>'+active+'</b><span>Actifs (7 jours)</span></div><div class="stat"><b>'+ps.filter(p=>p.notif).length+'</b><span>Notifs activées</span></div><div class="stat"><b>'+anon.length+'</b><span>Visiteurs sans profil</span></div>';
-    $("#accTable").innerHTML = ps.length ? '<thead><tr><th>Pilote</th><th>Profil créé</th><th>Dernière visite</th></tr></thead><tbody>'+ps.map(p=>'<tr><td style="white-space:normal"><b>'+esc((pilots[p.id]||p).nom)+'</b><div class="sub2">'+(p.notif?'🔔 notifications':'🔕 pas de notifications')+(p.visits?' · '+p.visits+' visite'+(p.visits>1?'s':''):'')+'</div></td><td class="num">'+esc(dt(p.createdAt))+'</td><td class="num">'+(p.lastSeen?esc(dt(p.lastSeen)):'<span class="sub2">pas encore</span>')+'</td></tr>').join("")+'</tbody>' : '<tbody><tr><td>Aucun profil.</td></tr></tbody>';
+    $("#accTable").innerHTML = ps.length ? '<thead><tr><th>Pilote</th><th>Profil créé</th><th>Dernière visite</th></tr></thead><tbody>'+ps.map(p=>'<tr><td style="white-space:normal"><b>'+esc((pilots[p.id]||p).nom)+'</b> '+statutChip(pilots[p.id])+'<div class="sub2">'+(p.notif?'🔔 notifications':'🔕 pas de notifications')+(p.visits?' · '+p.visits+' visite'+(p.visits>1?'s':''):'')+'</div></td><td class="num">'+esc(dt(p.createdAt))+'</td><td class="num">'+(p.lastSeen?esc(dt(p.lastSeen)):'<span class="sub2">pas encore</span>')+'</td></tr>').join("")+'</tbody>' : '<tbody><tr><td>Aucun profil.</td></tr></tbody>';
+    renderInvites();
     $("#accAnonSum").textContent="Visiteurs sans profil ("+anon.length+")";
     $("#accAnon").innerHTML = anon.length ? anon.map(a=>'<div class="settle"><span>👤 Appareil '+esc(a.ua||"inconnu")+'</span><span class="sub2">1re visite '+esc(dt(a.first))+' · dernière '+esc(dt(a.last))+' · '+a.n+' visite'+(a.n>1?'s':'')+'</span></div>').join("") : '<p class="note">Aucun visiteur sans profil.</p>';
     $("#accNote").textContent = "Suivi des visites depuis le "+(accData.since?new Date(accData.since).toLocaleDateString("fr-FR",{day:"numeric",month:"long"}):"aujourd'hui")+". Un « visiteur sans profil » est un appareil qui a ouvert l'appli avec le code équipe sans créer ni ouvrir de profil pilote.";
@@ -2227,7 +2232,7 @@ button:active:not(:disabled){transform:scale(.97)}
     const maxH=Math.max(0,...past.map(x=>Number(x.c.heures)||0)), tracks=new Set(past.map(x=>x.c.lieu)).size;
     const bd=[]; if(past.some(x=>podiumOf(x.c.position)===1)) bd.push("🥇 Victoire"); else if(pod) bd.push("🏆 Podium"); if(maxH>=24) bd.push("🌙 24 heures"); else if(maxH>=12) bd.push("⏱ 12 heures"); if(heures>=100) bd.push("💯 100 h"); else if(heures>=50) bd.push("50 h"); if(past.length>=20) bd.push("🔥 20 courses"); else if(past.length>=10) bd.push("10 courses"); if(tracks>=4) bd.push("🧭 "+tracks+" pistes");
     const since=p.since?new Date(p.since).toLocaleDateString("fr-FR",{month:"long",year:"numeric"}):"";
-    $("#pfCard").innerHTML='<div class="pfh">'+avatarHtml(p)+'<div style="min-width:0;flex:1 1 180px"><h2>'+esc(p.nom)+'</h2><div class="sub2" style="font-size:14px">'+(p.id&&officialTeamOf(p.id)?'<span class="chip ok" style="margin-right:6px">Équipage officiel · '+esc(shortTeam(officialTeamOf(p.id)))+'</span> ':p.id&&subTeamOf(p.id)?'<span class="chip maybe" style="margin-right:6px">Renfort · '+esc(shortTeam(subTeamOf(p.id)))+'</span> ':'')+esc(p.equipePref||officialTeamOf(p.id)||"RK7 Team")+(since?' · dans l\'appli depuis '+esc(since):'')+'</div>'+(bd.length?'<div class="badges" style="margin-top:6px">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+
+    $("#pfCard").innerHTML='<div class="pfh">'+avatarHtml(p)+'<div style="min-width:0;flex:1 1 180px"><h2>'+esc(p.nom)+'</h2><div class="sub2" style="font-size:14px">'+statutChip(p)+(p.id&&officialTeamOf(p.id)?'<span class="chip ok" style="margin-right:6px">Équipage officiel · '+esc(shortTeam(officialTeamOf(p.id)))+'</span> ':p.id&&subTeamOf(p.id)?'<span class="chip maybe" style="margin-right:6px">Renfort · '+esc(shortTeam(subTeamOf(p.id)))+'</span> ':'')+esc(p.equipePref||officialTeamOf(p.id)||"RK7 Team")+(since?' · dans l\'appli depuis '+esc(since):'')+'</div>'+(bd.length?'<div class="badges" style="margin-top:6px">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+
       (self?'<div class="row" style="margin-top:8px;gap:8px"><label class="btn-ghost mini" style="cursor:pointer;border:1px solid var(--line);border-radius:6px;font-weight:600">'+(p.avatar?'Changer ma photo':'Ajouter ma photo')+'<input type="file" accept="image/*" hidden id="avIn"></label>'+(p.avatar?'<button type="button" class="btn-link" id="avDel">Retirer</button>':'')+'</div>':'')+
       '<button type="button" class="btn-gold mini" style="margin-top:8px" data-pcard="'+esc(p.id||"")+'">🃏 '+(self?'Ma carte pilote':'Voir sa carte')+'</button>'+
       (!self?'<button type="button" class="btn-link" style="margin-top:6px" data-back>← Retour</button>':'')+'</div></div>'+
@@ -2571,7 +2576,27 @@ button:active:not(:disabled){transform:scale(.97)}
       sec.classList.add("fold"); if(st[key]) sec.classList.add("open"); h.setAttribute("role","button"); h.tabIndex=0; h.setAttribute("aria-expanded", sec.classList.contains("open"));
       const tog=()=>{ sec.classList.toggle("open"); h.setAttribute("aria-expanded", sec.classList.contains("open")); st[key]=sec.classList.contains("open"); try{ localStorage.setItem("rk7-adm-open", JSON.stringify(st)); }catch(e){} };
       h.addEventListener("click", tog); h.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); tog(); } }); }); })();
+  // ---------- Invitations saison (pilotes officiels / renforts) ----------
+  let invClaiming=false, invList=null;
+  function invPending(){ try{ const v=JSON.parse(ls.get("rk7-invite")||"null"); return v&&v.code?v:null; }catch(e){ return null; } }
+  async function claimInvite(){ const iv=invPending(); if(!iv||!pilotToken) return; invClaiming=true;
+    try{ const r=await rpc("pilot_invite_claim",{token:teamToken,pilot_token:pilotToken,invite:iv.code}); ls.set("rk7-invite",null); applyData(r.data);
+      setMsg("#globalMsg",(r.kind==="officiel"?"⭐ Te voilà pilote officiel RK7 Team":"🤝 Te voilà pilote renfort / invité RK7 Team")+" pour la saison "+r.saison+" !"); }
+    catch(err){ if(!/Reconnecte/.test(err.message)){ ls.set("rk7-invite",null); setMsg("#globalMsg",err.message,true); } }
+    finally{ invClaiming=false; } }
+  function statutChip(p){ if(!p||!p.statuts) return ""; const ys=Object.keys(p.statuts).sort().reverse(); if(!ys.length) return ""; const y=ys[0], k=p.statuts[y];
+    return '<span class="chip '+(k==="officiel"?"ok":"maybe")+'" style="margin-right:6px">'+(k==="officiel"?"⭐ Pilote officiel ":"🤝 Renfort / invité ")+esc(y)+'</span> '; }
+  function invUrl(code){ return location.origin+location.pathname+"?invite="+encodeURIComponent(code); }
+  function renderInvites(){ const box=$("#invBox"); if(!box) return;
+    if(!invList){ invList=[]; rpc("admin_invites",{token:teamToken}).then(r=>{ invList=r||[]; renderInvites(); }).catch(()=>{ invList=null; }); return; }
+    const byY={}; Object.values(pilots).forEach(p=>Object.entries(p.statuts||{}).forEach(([y,k])=>{ (byY[y]=byY[y]||{officiel:[],renfort:[]})[k].push(p.nom); }));
+    box.innerHTML='<div class="k" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Liens d\'invitation</div>'+invList.filter(i=>i.active).map(i=>{ const who=(byY[i.saison]||{})[i.kind]||[];
+      return '<div class="settle" style="align-items:flex-start"><span style="min-width:0;flex:1"><b>'+(i.kind==="officiel"?"⭐ Pilotes officiels":"🤝 Renforts / invités")+' '+i.saison+'</b><br><span class="sub2" style="word-break:break-all">'+esc(invUrl(i.code))+'</span><br><span class="sub2">'+who.length+' inscrit'+(who.length>1?'s':'')+(who.length?' : '+esc(who.join(", ")):'')+'</span></span><button type="button" class="btn-gold mini" data-invcopy="'+esc(i.code)+'">Copier</button></div>'; }).join("");
+  }
+  document.addEventListener("click", async e=>{ const b=e.target.closest("[data-invcopy]"); if(!b) return; const u=invUrl(b.dataset.invcopy);
+    try{ if(navigator.share && /Mobi|Android|iPhone/.test(navigator.userAgent)) await navigator.share({title:"RK7 Team",text:"Rejoins l'espace pilotes RK7 Team :",url:u}); else { await navigator.clipboard.writeText(u); b.textContent="Copié ✓"; setTimeout(()=>b.textContent="Copier",1500); } }catch(err){} });
   function renderAll(){
+    if(pilotToken && invPending() && !invClaiming) claimInvite();
     $("#adminPanel").hidden=!isAdmin(); $("#newsAdmin").hidden=!isAdmin(); $("#adminAccess").hidden=isAdmin(); $("#navAdmin").hidden=!isAdmin(); $("#hdrAdmin").hidden=!isAdmin();
     if(!isAdmin()) $("#resPanel").hidden=true;
     if(!isAdmin() && location.hash==="#admin") location.hash="accueil";
@@ -3012,7 +3037,12 @@ button:active:not(:disabled){transform:scale(.97)}
   setInterval(()=>{ if(teamToken && raceCid && document.visibilityState==="visible") refresh(true); }, 10000);
   document.addEventListener("visibilitychange", ()=>{ if(teamToken && document.visibilityState==="visible") refresh(); });
 
-  if(teamToken){ showApp(); loadCached(); refresh(); } else showGate();
+  const INV=(new URLSearchParams(location.search).get("invite")||"").trim();
+  if(INV){ try{ history.replaceState(null,"",location.pathname+location.hash); }catch(e){}
+    (async()=>{ try{ const r=await rpc("invite_login",{invite:INV}); if(!teamToken){ teamToken=r.token; role="team"; ls.set("rk7-token",teamToken); ls.set("rk7-role",role); }
+        ls.set("rk7-invite", JSON.stringify({code:INV,kind:r.kind,saison:r.saison})); showApp(); loadCached(); await refresh(true); }
+      catch(err){ if(teamToken){ showApp(); loadCached(); refresh(); } else showGate(); setMsg(teamToken?"#globalMsg":"#gateMsg", err.message, true); } })();
+  } else if(teamToken){ showApp(); loadCached(); refresh(); } else showGate();
 })();
 </script>
 </body>
