@@ -221,6 +221,10 @@ table.team th.p,table.team td.s{text-align:center}
 .feed .f .w{color:var(--muted);font-size:13px;margin-left:auto;white-space:nowrap}
 .feed .f .e{flex:0 0 auto}
 .spark{display:block}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.cards button{padding:0;border:0;background:none;border-radius:12px;overflow:hidden;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25);transition:transform .15s}
+.cards button:hover{transform:translateY(-3px) rotate(-1deg)}
+.cards img{display:block;width:100%;height:auto;aspect-ratio:5/7;background:#111}
 /* --- Accueil, cartes compactes, pastilles, admin repliable --- */
 #teaser{display:none!important}
 .todo{display:flex;flex-direction:column;gap:8px}
@@ -719,6 +723,7 @@ button:active:not(:disabled){transform:scale(.97)}
     <div class="grid-wrap"><table class="team rank" id="rankTable"></table></div>
     <div id="jeuxBox"></div>
     <div id="recBox"></div>
+    <div id="cardsBox"></div>
     <p class="sub2">Classé aux heures de roulage, puis au nombre de courses. Les podiums viennent des résultats saisis après chaque course.</p>
   </section>
 </main>
@@ -1892,7 +1897,7 @@ button:active:not(:disabled){transform:scale(.97)}
     $("#rankPodium").innerHTML = order.map((r,i)=>r?'<div class="'+(i===1?"p1":"")+'"><span>'+(i===1?"1er":i===0?"2e":"3e")+'</span><b>'+esc(r.nom)+'</b><span>'+H(r.heures)+'</span></div>':'<div style="visibility:hidden"></div>').join("");
     const totH=list.reduce((a,c)=>a+(Number(c.heures)||0),0), pods=list.filter(c=>{ const p=podiumOf(c.position); return p&&p<=3; }).length;
     $("#rankStats").innerHTML='<div class="stat"><b>'+list.length+'</b><span>Courses</span></div><div class="stat"><b>'+H(totH)+'</b><span>De course</span></div><div class="stat"><b>'+arr.length+'</b><span>Pilotes</span></div>'+(pods?'<div class="stat"><b>'+pods+'</b><span>Podiums</span></div>':'');
-    $("#rankTitle").textContent="Classement "+cur; renderJeuxBox(cur); renderRecords();
+    $("#rankTitle").textContent="Classement "+cur; renderJeuxBox(cur); renderRecords(); renderCards();
     $("#rankTable").innerHTML='<thead><tr><th>#</th><th>Pilote</th><th>Heures</th><th>Courses</th></tr></thead><tbody>'+arr.map((r,i)=>{ const bd=badges(r);
       return '<tr'+(r.pid&&r.pid===myId?' style="background:var(--gold-soft)"':'')+'><td class="r">'+(i+1)+'</td><td style="white-space:normal"><a class="pl" href="#profil/'+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return pp?esc(pp.id):'n:'+encodeURIComponent(r.nom); })()+'">'+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return pp?avatarHtml(pp,"sm"):''; })()+'<b>'+esc(r.nom)+'</b></a> '+(()=>{ const pp=(r.pid&&pilots[r.pid])||pilotByName(r.nom); return titleChip(careerHours(pp?pp.id:r.pid, pp?pp.nom:r.nom)); })()+(bd.length?'<div class="badges">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+'</td><td class="num"><b>'+H(r.heures)+'</b><div class="mbar"><i style="width:'+Math.round(r.heures/Math.max(1,arr[0].heures)*100)+'%"></i></div></td><td class="num">'+r.courses+'</td></tr>'; }).join("")+'</tbody>';
   }
@@ -2122,6 +2127,86 @@ button:active:not(:disabled){transform:scale(.97)}
   }
   // Titres débloqués selon les heures de roulage cumulées (toutes saisons)
   const TITRES=[[0,"🪖","Bizuth des stands"],[5,"🔧","Mécano du dimanche"],[15,"🏁","Pilote du paddock"],[30,"⚡","Chasseur de chrono"],[50,"🔥","Roi du relais"],[75,"🛞","Mangeur de gomme"],[100,"💯","Centurion du bitume"],[150,"🌙","Seigneur de la nuit"],[250,"🏆","Légende du JPR"],[400,"👑","Immortel RK7"]];
+  // ---------- Cartes pilotes à collectionner ----------
+  const RARE=[["COMMUNE","#C9C6BC"],["COMMUNE","#C9C6BC"],["COMMUNE","#C9C6BC"],["RARE","#3D8BFF"],["RARE","#3D8BFF"],["RARE","#3D8BFF"],["ÉPIQUE","#B26BFF"],["ÉPIQUE","#B26BFF"],["ÉPIQUE","#B26BFF"],["LÉGENDAIRE","#FFD54A"]];
+  const NEON=["#7CFF6B","#00F0FF","#3D8BFF","#B26BFF","#FF4FD8","#FF8A1F","#FFE81F","#FF3B3B","#FFD54A","#FFFFFF"];
+  function cardStats(p){
+    const past=courses.filter(c=>c.terminee).map(c=>({c,pt:partOf(c,p.id,p.nom)})).filter(x=>x.pt);
+    const h=past.reduce((a,x)=>a+(Number(x.c.heures)||0),0), pos=past.map(x=>podiumOf(x.c.position)).filter(Boolean);
+    const lieux={}; past.forEach(x=>{ const k=x.c.lieu||"?"; lieux[k]=(lieux[k]||0)+1; }); const fav=Object.entries(lieux).sort((a,b)=>b[1]-a[1])[0];
+    const laps=p.id?lapsWithCourse().filter(x=>x.pid===p.id).sort((a,b)=>a.ms-b.ms):[];
+    const mvp=p.id?courses.filter(c=>mvpWinners(c.id).ids.includes(p.id)).length:0;
+    const favLap=fav?laps.find(x=>normL(x.c.lieu)===normL(fav[0]))||null:null;
+    return {past, h, courses:past.length, pod:pos.filter(x=>x<=3).length, win:pos.filter(x=>x===1).length, maxH:Math.max(0,...past.map(x=>Number(x.c.heures)||0)), fav:fav?fav[0]:"", favN:fav?fav[1]:0, favLap, lap:laps[0]||null, mvp, succ:succesOf(p,past).size, team:(p.id&&officialTeamOf(p.id))||p.equipePref||"RK7 Team"};
+  }
+  function loadImgUrl(u){ return new Promise(res=>{ if(!u) return res(null); const i=new Image(); i.onload=()=>res(i); i.onerror=()=>res(null); i.src=u; }); }
+  async function avatarImg(p){ if(!p||!p.avatar) return null; try{ if(!imgCache[p.avatar]){ const r=await rpc("get_image",{token:teamToken,image_id:p.avatar}); const bin=atob(r.b64), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); imgCache[p.avatar]=URL.createObjectURL(new Blob([u],{type:r.type})); } return await loadImgUrl(imgCache[p.avatar]); }catch(e){ return null; } }
+  function rrect(g,x,y,w,h,r){ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
+  function fitText(g, t, max, size, weight, fam){ let sz=size; do{ g.font=weight+" "+sz+"px "+fam; if(g.measureText(t).width<=max) break; sz-=2; }while(sz>14); return sz; }
+  async function makeCard(p){
+    try{ await document.fonts.load('700 80px "Saira Condensed"'); await document.fonts.load('600 30px "Barlow"'); }catch(e){}
+    const st=cardStats(p), tt=titreOf(st.h), neon=NEON[tt.i], rar=RARE[tt.i], W=750, H=1050, F='"Saira Condensed","Arial Narrow",Arial,sans-serif', B='"Barlow",Arial,sans-serif';
+    const cv=document.createElement("canvas"); cv.width=W; cv.height=H; const g=cv.getContext("2d");
+    // cadre extérieur
+    rrect(g,0,0,W,H,38); const fr=g.createLinearGradient(0,0,W,H); fr.addColorStop(0,"#2a2412"); fr.addColorStop(.5,"#D4AF37"); fr.addColorStop(1,"#5c4a12"); g.fillStyle=fr; g.fill();
+    rrect(g,18,18,W-36,H-36,26); const bg=g.createLinearGradient(0,0,0,H); bg.addColorStop(0,"#17150f"); bg.addColorStop(1,"#0a0a09"); g.fillStyle=bg; g.fill();
+    g.save(); rrect(g,18,18,W-36,H-36,26); g.clip();
+    // bandes RK7 en diagonale
+    g.globalAlpha=.16; g.fillStyle="#D4AF37"; g.beginPath(); g.moveTo(W-260,18); g.lineTo(W-150,18); g.lineTo(W-430,H); g.lineTo(W-540,H); g.closePath(); g.fill();
+    g.globalAlpha=.08; g.beginPath(); g.moveTo(W-120,18); g.lineTo(W-70,18); g.lineTo(W-350,H); g.lineTo(W-400,H); g.closePath(); g.fill(); g.globalAlpha=1;
+    // damier bas
+    g.globalAlpha=.07; g.fillStyle="#fff"; for(let x=18,k=0;x<W;x+=22,k++) for(let y=H-80,j=0;y<H;y+=22,j++) if((k+j)%2===0) g.fillRect(x,y,22,22); g.globalAlpha=1;
+    // en-tête
+    g.fillStyle="#F5F3EC"; const nm=(p.nom||"Pilote").toUpperCase(); fitText(g,nm,W-230,64,"700",F); g.textBaseline="alphabetic"; g.fillText(nm,48,104);
+    g.font='600 24px '+B; g.fillStyle="#B9B4A6"; g.fillText(st.team.toUpperCase(),50,138);
+    // niveau
+    g.beginPath(); g.arc(W-92,92,52,0,Math.PI*2); g.fillStyle="#0c0c0b"; g.fill(); g.lineWidth=5; g.strokeStyle=neon; g.shadowColor=neon; g.shadowBlur=18; g.stroke(); g.shadowBlur=0;
+    g.textAlign="center"; g.fillStyle=neon; g.font='700 20px '+F; g.fillText("NIV.",W-92,78); g.font='700 46px '+F; g.fillText(String(tt.i+1),W-92,122); g.textAlign="left";
+    // fenêtre photo
+    const px=48, py=160, pw=W-96, ph=380; g.save(); rrect(g,px,py,pw,ph,20); g.clip();
+    const pg=g.createLinearGradient(px,py,px+pw,py+ph); pg.addColorStop(0,"#26221a"); pg.addColorStop(1,"#0f0e0c"); g.fillStyle=pg; g.fillRect(px,py,pw,ph);
+    const av=await avatarImg(p);
+    if(av){ const k=Math.max(pw/av.width, ph/av.height), dw=av.width*k, dh=av.height*k; g.drawImage(av, px+(pw-dw)/2, py+(ph-dh)/2, dw, dh); }
+    else { g.fillStyle="#D4AF37"; g.globalAlpha=.9; g.font='700 190px '+F; g.textAlign="center"; g.fillText(initials(p.nom),px+pw/2,py+ph/2+66); g.textAlign="left"; g.globalAlpha=1;
+      const lg=await loadLogo(); if(lg){ g.globalAlpha=.12; const lw=pw*.9, lh=lw*lg.height/lg.width; g.drawImage(lg,px+(pw-lw)/2,py+(ph-lh)/2,lw,lh); g.globalAlpha=1; } }
+    const sh=g.createLinearGradient(0,py+ph-120,0,py+ph); sh.addColorStop(0,"rgba(0,0,0,0)"); sh.addColorStop(1,"rgba(0,0,0,.75)"); g.fillStyle=sh; g.fillRect(px,py+ph-120,pw,120);
+    g.restore(); rrect(g,px,py,pw,ph,20); g.lineWidth=4; g.strokeStyle=neon; g.shadowColor=neon; g.shadowBlur=14; g.stroke(); g.shadowBlur=0;
+    // rareté
+    g.font='700 22px '+F; const rw=g.measureText(rar[0]).width+36; rrect(g,px+pw-rw-14,py+14,rw,40,20); g.fillStyle="rgba(0,0,0,.65)"; g.fill(); g.lineWidth=2; g.strokeStyle=rar[1]; g.stroke(); g.fillStyle=rar[1]; g.fillText(rar[0],px+pw-rw+4,py+42);
+    // titre néon
+    g.textAlign="center"; const ttl=tt.t[1]+" "+tt.t[2].toUpperCase(); fitText(g,ttl,pw-40,46,"700",F); g.fillStyle=neon; g.shadowColor=neon; g.shadowBlur=22; g.fillText(ttl,W/2,py+ph-26); g.shadowBlur=0; g.textAlign="left";
+    // stats
+    const sy=py+ph+24, cw=(W-96-30)/4, items=[[Math.round(st.h)+" h","ROULAGE"],[String(st.courses),"COURSES"],[String(st.pod),"PODIUMS"],[String(st.win),"VICTOIRES"]];
+    items.forEach((it,i)=>{ const x=48+i*(cw+10); rrect(g,x,sy,cw,108,16); g.fillStyle=i===3&&st.win?"rgba(212,175,55,.22)":"rgba(212,175,55,.10)"; g.fill(); g.lineWidth=2; g.strokeStyle=i===3&&st.win?"#D4AF37":"rgba(212,175,55,.45)"; g.stroke();
+      g.textAlign="center"; g.fillStyle="#F5F3EC"; fitText(g,it[0],cw-16,54,"700",F); g.fillText(it[0],x+cw/2,sy+62); g.fillStyle="#D4AF37"; g.font='600 18px '+B; g.fillText(it[1],x+cw/2,sy+94); g.textAlign="left"; });
+    // capacités
+    let ly=sy+150; const line=(ic,label,val)=>{ g.font='600 26px '+B; g.fillStyle="#B9B4A6"; g.fillText(ic+"  "+label,52,ly); g.textAlign="right"; g.fillStyle="#F5F3EC"; g.font='700 30px '+F; g.fillText(val,W-52,ly); g.textAlign="left";
+      g.strokeStyle="rgba(255,255,255,.08)"; g.lineWidth=1; g.beginPath(); g.moveTo(52,ly+15); g.lineTo(W-52,ly+15); g.stroke(); ly+=42; };
+    line("📍","Piste fétiche", st.fav?st.fav+" · "+st.favN+" course"+(st.favN>1?"s":""):"—");
+    line("⏱","Meilleur tour"+(st.fav?" là-bas":""), st.favLap?fmtLap(st.favLap.ms):st.lap?fmtLap(st.lap.ms)+" · "+st.lap.c.lieu:"à établir");
+    line("🏁","Plus longue course", st.maxH?Math.round(st.maxH)+" h":"—");
+    line("⭐","Pilote du jour", st.mvp?"× "+st.mvp:"—");
+    line("🏅","Succès débloqués", st.succ+" / "+SUCCES.length);
+    // pied de carte
+    const lg2=await loadLogo(); if(lg2){ const lh=56, lw=lh*lg2.width/lg2.height; g.drawImage(lg2,48,H-104,lw,lh); }
+    const all=Object.values(pilots).sort((a,b)=>String(a.since||"").localeCompare(String(b.since||""))), num=p.id?all.findIndex(x=>x.id===p.id)+1:0;
+    g.textAlign="right"; g.fillStyle="#B9B4A6"; g.font='600 20px '+B; g.fillText("SAISON "+new Date().getFullYear(),W-52,H-80); g.fillStyle="#D4AF37"; g.font='700 26px '+F; g.fillText((num?"N° "+String(num).padStart(2,"0")+" / "+String(all.length).padStart(2,"0"):"PILOTE RK7"),W-52,H-50); g.textAlign="left";
+    // effet holographique (épique / légendaire)
+    if(tt.i>=6){ const ho=g.createLinearGradient(0,0,W,H); ["#ff4fd8","#00f0ff","#7cff6b","#ffe81f","#ff4fd8"].forEach((c,i)=>ho.addColorStop(i/4,c)); g.globalCompositeOperation="overlay"; g.globalAlpha=tt.i>=9?.32:.2; g.fillStyle=ho; g.fillRect(0,0,W,H); g.globalAlpha=1; g.globalCompositeOperation="source-over"; }
+    g.restore();
+    return cv;
+  }
+  async function openCard(p){ if(!p) return; const cv=await makeCard(p); cv.style.maxWidth="min(92vw,420px)"; cv.style.height="auto"; cv.style.borderRadius="18px"; showPosterCanvas(cv, "carte-rk7-"+String(p.nom||"pilote").toLowerCase().replace(/[^a-z0-9]+/g,"-")+".png"); }
+  let cardsSig="";
+  async function renderCards(){
+    const box=$("#cardsBox"); if(!box || $("#viewRank").hidden) return;
+    const list=Object.values(pilots).sort((a,b)=>careerHours(b.id,b.nom)-careerHours(a.id,a.nom));
+    const sig=list.map(p=>p.id+":"+Math.round(careerHours(p.id,p.nom))+":"+(p.avatar||"")).join("|")+"#"+(extra.laps||[]).length; if(sig===cardsSig) return; cardsSig=sig;
+    if(!list.length){ box.innerHTML=""; return; }
+    box.innerHTML='<div class="k" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:10px 0 6px">🃏 Les cartes de l\'équipe</div><div class="cards">'+list.map(p=>'<button type="button" data-pcard="'+esc(p.id)+'" aria-label="Carte de '+esc(p.nom)+'"><img alt="" data-cardimg="'+esc(p.id)+'"></button>').join("")+'</div>';
+    for(const p of list){ try{ const cv=await makeCard(p), im=box.querySelector('img[data-cardimg="'+CSS.escape(p.id)+'"]'); if(im) im.src=cv.toDataURL("image/jpeg",.8); }catch(e){} }
+  }
+  document.addEventListener("click", e=>{ const b=e.target.closest("[data-pcard]"); if(!b) return; const p=pilots[b.dataset.pcard]||profileOf(profilePid); openCard(p); });
   function titreOf(h){ let i=0; TITRES.forEach((t,k)=>{ if(h>=t[0]) i=k; }); return {i, t:TITRES[i], next:TITRES[i+1]||null}; }
   const titleChip = h => { const x=titreOf(h); return '<span class="ttl t'+(x.i+1)+'" title="'+esc(x.t[2])+' · '+Math.round(h)+' h de roulage">'+x.t[1]+' '+esc(x.t[2])+'</span>'; };
   function careerHours(pid, nom){ let h=0; for(const c of courses) if(c.terminee && partOf(c,pid,nom)) h+=Number(c.heures)||0; return h; }
@@ -2144,6 +2229,7 @@ button:active:not(:disabled){transform:scale(.97)}
     const since=p.since?new Date(p.since).toLocaleDateString("fr-FR",{month:"long",year:"numeric"}):"";
     $("#pfCard").innerHTML='<div class="pfh">'+avatarHtml(p)+'<div style="min-width:0;flex:1 1 180px"><h2>'+esc(p.nom)+'</h2><div class="sub2" style="font-size:14px">'+(p.id&&officialTeamOf(p.id)?'<span class="chip ok" style="margin-right:6px">Équipage officiel · '+esc(shortTeam(officialTeamOf(p.id)))+'</span> ':p.id&&subTeamOf(p.id)?'<span class="chip maybe" style="margin-right:6px">Renfort · '+esc(shortTeam(subTeamOf(p.id)))+'</span> ':'')+esc(p.equipePref||officialTeamOf(p.id)||"RK7 Team")+(since?' · dans l\'appli depuis '+esc(since):'')+'</div>'+(bd.length?'<div class="badges" style="margin-top:6px">'+bd.map(x=>'<span class="badge">'+esc(x)+'</span>').join("")+'</div>':'')+
       (self?'<div class="row" style="margin-top:8px;gap:8px"><label class="btn-ghost mini" style="cursor:pointer;border:1px solid var(--line);border-radius:6px;font-weight:600">'+(p.avatar?'Changer ma photo':'Ajouter ma photo')+'<input type="file" accept="image/*" hidden id="avIn"></label>'+(p.avatar?'<button type="button" class="btn-link" id="avDel">Retirer</button>':'')+'</div>':'')+
+      '<button type="button" class="btn-gold mini" style="margin-top:8px" data-pcard="'+esc(p.id||"")+'">🃏 '+(self?'Ma carte pilote':'Voir sa carte')+'</button>'+
       (!self?'<button type="button" class="btn-link" style="margin-top:6px" data-back>← Retour</button>':'')+'</div></div>'+
       '<div class="stats"><div class="stat"><b>'+past.length+'</b><span>Courses</span></div><div class="stat"><b>'+Math.round(heures)+' h</b><span>En piste</span></div><div class="stat"><b>'+pod+'</b><span>Podiums</span></div><div class="stat"><b>'+seasons+'</b><span>Saison'+(seasons>1?'s':'')+'</span></div>'+(p.id&&courses.filter(c=>mvpWinners(c.id).ids.includes(p.id)).length?'<div class="stat"><b>⭐ '+courses.filter(c=>mvpWinners(c.id).ids.includes(p.id)).length+'</b><span>Pilote du jour</span></div>':'')+(self&&spent?'<div class="stat"><b>'+euro(spent)+'</b><span>Investi</span></div>':'')+'</div>';
     { const x=titreOf(heures), nx=x.next, pct=nx?Math.round((heures-x.t[0])/(nx[0]-x.t[0])*100):100;
