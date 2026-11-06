@@ -480,7 +480,7 @@ details.card[open]>summary{margin-bottom:14px}
   // ---------- Rendu : palmarès ----------
   function renderPalmares(){
     const v = $("#v-palmares");
-    if (!$("#palmList")) v.innerHTML = '<div class="card" id="membersCard" hidden><div class="head-row"><div><p class="eyebrow">Classement général</p><h2 style="font-size:1.6rem;margin:.35rem 0 0">Les meilleurs membres</h2></div><span class="small muted">Toutes saisons</span></div><div id="members" style="margin-top:12px;overflow-x:auto"></div><p class="small muted" style="margin:10px 0 0">Points d\'expérience : 10 par chrono, 20 par challenge joué, 60 par podium, 120 par victoire. Touche un pilote pour voir sa carte.</p></div><div id="palmList" style="display:grid;gap:18px"></div><div class="card" id="cardsCard" hidden><p class="eyebrow">Collection</p><h2 style="font-size:1.6rem;margin:.35rem 0 .2rem">Les cartes des pilotes</h2><p class="small muted" style="margin:0">Plus tu roules, plus ta carte monte en niveau : commune, rare, épique, puis légendaire.</p><div class="pcards" id="pcards"></div></div>';
+    if (!$("#palmList")) v.innerHTML = '<div class="card" id="membersCard" hidden><div class="head-row"><div><p class="eyebrow">Classement général</p><h2 style="font-size:1.6rem;margin:.35rem 0 0">Les meilleurs membres</h2></div><span class="small muted">Toutes saisons</span></div><div id="members" style="margin-top:12px;overflow-x:auto"></div><p class="small muted" style="margin:10px 0 0">Points d\'expérience : 10 par chrono, 20 par challenge joué, 60 par podium, 120 par victoire. À égalité : victoires, podiums, records, chronos, meilleure place, puis ancienneté. Touche un pilote pour voir sa carte.</p></div><div id="palmList" style="display:grid;gap:18px"></div><div class="card" id="cardsCard" hidden><p class="eyebrow">Collection</p><h2 style="font-size:1.6rem;margin:.35rem 0 .2rem">Les cartes des pilotes</h2><p class="small muted" style="margin:0">Plus tu roules, plus ta carte monte en niveau : commune, rare, épique, puis légendaire.</p><div class="pcards" id="pcards"></div></div>';
     renderCards(); renderMembers();
     const arch = data.archive;
     $("#palmList").innerHTML = '<div><p class="eyebrow">Palmarès</p><h2 style="font-size:2rem;margin-top:.35rem">Les champions du mois</h2></div>' +
@@ -493,11 +493,10 @@ details.card[open]>summary{margin-bottom:14px}
   function renderMembers(){
     const box = $("#members"); if (!box) return;
     const myId = data.me && data.me.id;
-    const list = (data.cards || []).map(p => ({ p, nv: niveauOf(p) })).sort((a, b) => b.nv.xp - a.nv.xp || (b.p.victoires||0) - (a.p.victoires||0) || (b.p.podiums||0) - (a.p.podiums||0) || String(a.p.pseudo).localeCompare(b.p.pseudo));
+    const list = (data.cards || []).map(p => ({ p, nv: niveauOf(p) })).sort((a, b) => b.nv.xp - a.nv.xp || (b.p.victoires||0) - (a.p.victoires||0) || (b.p.podiums||0) - (a.p.podiums||0) || (b.p.records||0) - (a.p.records||0) || (b.p.tours||0) - (a.p.tours||0) || ((a.p.best && a.p.best.rk) || 99) - ((b.p.best && b.p.best.rk) || 99) || (a.p.num||0) - (b.p.num||0) || String(a.p.pseudo).localeCompare(b.p.pseudo));
     $("#membersCard").hidden = !list.length;
-    let rank = 0, prev = null;
     box.innerHTML = '<table class="board members"><thead><tr><th>Pos.</th><th>Pilote</th><th title="Victoires au challenge">Vict.</th><th title="Podiums au challenge">Pod.</th><th title="Records One Lap">Rec.</th><th style="text-align:right">XP</th></tr></thead><tbody>' +
-      list.map(({ p, nv }, i) => { if (nv.xp !== prev) { rank = i + 1; prev = nv.xp; }
+      list.map(({ p, nv }, i) => { const rank = i + 1;
         const cls = [rank === 1 ? "first" : "", p.id === myId ? "mine" : ""].filter(Boolean).join(" ");
         return '<tr class="' + cls + '" data-pcard="' + esc(p.id) + '" tabindex="0" style="cursor:pointer"><td class="r">' + rank + '</td><td class="n">' + esc(p.pseudo) + '<span class="lvl" style="color:' + NEON[nv.i] + '">Niv. ' + (nv.i + 1) + ' · ' + esc(nv.t[2]) + '</span></td><td class="c">' + (p.victoires || 0) + '</td><td class="c">' + (p.podiums || 0) + '</td><td class="c">' + (p.records || 0) + '</td><td class="g num">' + nv.xp + '</td></tr>'; }).join("") + '</tbody></table>';
   }
