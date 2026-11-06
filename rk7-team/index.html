@@ -2432,7 +2432,7 @@ button:active:not(:disabled){transform:scale(.97)}
   function lapsWithCourse(){ return (extra.laps||[]).map(l=>({...l, c:courses.find(c=>c.id===l.courseId)})).filter(x=>x.c); }
   function lapHtml(c, mine){
     const dateOk = c.terminee || (c.date && c.date<=today()); if(!dateOk) return "";
-    const list=(extra.laps||[]).filter(l=>l.courseId===c.id).sort((a,b)=>a.ms-b.ms), rode=myId&&((c.participants||[]).some(p=>p.pid===myId)||mine==="oui");
+    const list=(extra.laps||[]).filter(l=>l.courseId===c.id).sort((a,b)=>a.ms-b.ms), rode=myId&&((c.participants||[]).some(p=>p.pid===myId)||mine==="oui"||(c.terminee&&pilots[myId]&&partOf(c,myId,pilots[myId].nom)));
     if(!list.length && !rode) return "";
     const my=list.find(l=>l.pid===myId), key="lap:"+c.id;
     return '<details class="sec" data-logi="'+esc(key)+'"'+(openLogi.has(key)?" open":"")+'><summary>⏱ Chronos'+(list.length?'<em>'+fmtLap(list[0].ms)+'</em>':'')+'</summary><div class="logi">'+
@@ -2449,12 +2449,24 @@ button:active:not(:disabled){transform:scale(.97)}
   function spark(vals){ if(vals.length<2) return ""; const w=120,h=32,mn=Math.min(...vals),mx=Math.max(...vals),r=mx-mn||1; const pts=vals.map((v,i)=>(i/(vals.length-1)*w).toFixed(1)+","+((v-mn)/r*(h-6)+3).toFixed(1)).join(" ");
     return '<svg class="spark" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="var(--gold)" stroke-width="2"/></svg>'; }
   function renderPfLaps(p){
-    const box=$("#pfLaps"); if(!box) return; const mine=lapsWithCourse().filter(x=>x.pid===(p&&p.id)); if(!p||!p.id||!mine.length){ box.hidden=true; return; }
+    const box=$("#pfLaps"); if(!box) return; const mine=lapsWithCourse().filter(x=>x.pid===(p&&p.id)), self=!!(p&&p.id&&p.id===myId);
+    const pastMine=self?courses.filter(c=>c.terminee&&partOf(c,p.id,p.nom)):[];
+    if(!p||!p.id||(!mine.length&&!pastMine.length)){ box.hidden=true; return; }
+    let form="";
+    if(self&&pastMine.length){ const tr={}; pastMine.forEach(c=>{ const k=normL(c.lieu); const t=tr[k]=tr[k]||{lieu:c.lieu,n:0,last:c}; t.n++; if(sortKey(c).localeCompare(sortKey(t.last))>0) t.last=c; });
+      const opts=Object.values(tr).sort((a,b)=>b.n-a.n);
+      form='<form class="row" id="lapQuick" style="gap:8px;align-items:flex-end;margin:4px 0 12px;flex-wrap:wrap"><div class="field" style="flex:1 1 170px;margin:0"><label for="lqPiste">Piste</label><select id="lqPiste">'+opts.map((t,i)=>'<option value="'+esc(t.last.id)+'">'+(i===0?'⭐ ':'')+esc(t.lieu)+' ('+t.n+' course'+(t.n>1?'s':'')+')</option>').join("")+'</select></div><div class="field" style="flex:0 1 130px;margin:0"><label for="lqTime">Meilleur tour</label><input id="lqTime" inputmode="decimal" placeholder="52.345" autocomplete="off"></div><button type="submit" class="btn-gold mini">Enregistrer</button></form><p class="sub2" style="margin:-6px 0 10px">⭐ = ta piste fétiche. Ton chrono s\'affichera sur ta carte pilote et dans les records RK7.</p>'; }
+    if(!mine.length){ box.hidden=false; box.innerHTML='<h2>Chronos</h2>'+form; return; }
     const by={}; mine.forEach(x=>{ const k=normL(x.c.lieu); (by[k]=by[k]||{lieu:x.c.lieu,list:[]}).list.push(x); });
     const teamBest={}; lapsWithCourse().forEach(x=>{ const k=normL(x.c.lieu); if(!teamBest[k]||x.ms<teamBest[k]) teamBest[k]=x.ms; });
-    box.hidden=false; box.innerHTML='<h2>Chronos</h2><div class="recs">'+Object.entries(by).map(([k,g])=>{ const l=g.list.sort((a,b)=>sortKey(a.c).localeCompare(sortKey(b.c))), best=Math.min(...l.map(x=>x.ms));
+    box.hidden=false; box.innerHTML='<h2>Chronos</h2>'+form+'<div class="recs">'+Object.entries(by).map(([k,g])=>{ const l=g.list.sort((a,b)=>sortKey(a.c).localeCompare(sortKey(b.c))), best=Math.min(...l.map(x=>x.ms));
       return '<div class="rec"><span class="sub2" style="text-transform:uppercase;letter-spacing:.06em;font-weight:600">'+esc(g.lieu)+'</span><span class="t">'+fmtLap(best)+(best===teamBest[k]?' <span style="font-size:14px">👑 record RK7</span>':'')+'</span><span class="sub2">'+l.length+' course'+(l.length>1?'s':'')+(l.length>1?' · progression (plus bas = plus rapide)':'')+'</span>'+spark(l.map(x=>x.ms))+'</div>'; }).join("")+'</div>';
   }
+  document.addEventListener("submit", async e=>{ if(e.target.id!=="lapQuick") return; e.preventDefault();
+    const cid=$("#lqPiste").value, v=$("#lqTime").value.trim(), ms=parseLap(v), c=courses.find(x=>x.id===cid); if(!ms){ setMsg("#globalMsg","Format du chrono : 52.345 ou 1:02.345",true); return; }
+    const btn=e.target.querySelector("button"); btn.disabled=true;
+    try{ applyData(await rpc("lap_set",{token:teamToken,pilot_token:pilotToken,course_id:cid,ms})); setMsg("#globalMsg","⏱ Chrono enregistré à "+(c?c.lieu:"")+" : "+fmtLap(ms)); }
+    catch(err){ setMsg("#globalMsg",err.message,true); } finally{ btn.disabled=false; } });
   // ---------- Sondages ----------
   const pollSel={};
   function renderPolls(){
