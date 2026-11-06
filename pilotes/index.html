@@ -76,6 +76,18 @@ main{padding:20px 0 30px}
 .hero{position:relative;overflow:hidden;border-radius:var(--radius);border:1px solid #3a2a10;padding:22px 20px 20px;background:
   radial-gradient(120% 90% at 100% 0%, rgba(240,150,0,.18), transparent 60%),
   repeating-linear-gradient(-45deg, rgba(255,255,255,.025) 0 14px, transparent 14px 28px), var(--surface)}
+.hero.has-photo{border-color:#4a1010;padding-top:150px;background:#07070a}
+.hero.has-photo::before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,7,10,.15) 0,rgba(7,7,10,.35) 35%,#07070a 72%),linear-gradient(to right,rgba(7,7,10,.6),transparent 40%),var(--photo) center 30%/cover no-repeat}
+.hero.has-photo>*{position:relative}
+.hero .credit{position:absolute;left:10px;bottom:6px;margin:0;font-size:9px;color:rgba(255,255,255,.22)}
+.pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:12px}
+.pcards button{padding:0;border:0;background:none;border-radius:12px;overflow:hidden;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.35);transition:transform .15s}
+.pcards button:hover,.pcards button:focus-visible{transform:translateY(-3px) rotate(-1deg)}
+.pcards img{display:block;width:100%;height:auto;aspect-ratio:4/5;background:var(--bg-alt)}
+.viewer{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.85);display:grid;place-items:center;padding:16px}
+.viewer[hidden]{display:none}
+.viewer .in{display:grid;gap:12px;justify-items:center;max-width:440px;width:100%}
+.viewer img{width:100%;max-height:72vh;object-fit:contain;border-radius:16px}
 .hero h1{font-size:clamp(2.2rem,8vw,3.4rem);font-style:italic;font-weight:800;margin:.35rem 0 .2rem}
 .hero .car{font:600 1.25rem/1.2 var(--font-display);text-transform:uppercase;letter-spacing:.02em;color:var(--ink-soft)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
@@ -415,10 +427,12 @@ details.card[open]>summary{margin-bottom:14px}
       $("#podium").innerHTML = ""; $("#board").innerHTML = '<div class="empty-state"><b>Pas encore ouvert</b>Reviens dans quelques jours.</div>'; $("#myPos").innerHTML = ""; return;
     }
     const known = c.circuit || c.voiture;
+    const ph = photoOf(c.mois);
+    hero.classList.toggle("has-photo", !!ph); if (ph) hero.style.setProperty("--photo", 'url("' + ph.src + '")');
     hero.innerHTML = '<div class="head-row"><p class="eyebrow">Challenge chrono · ' + esc(cap(monthLabel(c.mois))) + '</p><span class="chip">' + daysLeft() + '</span></div>' +
       '<h1>' + esc(c.circuit || "Circuit à annoncer") + '</h1>' +
       '<p class="car">' + esc(c.voiture || (known ? "" : "La voiture et le circuit du mois arrivent très vite")) + '</p>' +
-      '<div class="chips"><span class="chip">' + esc(c.tarif) + '</span><span class="chip gold">🏆 ' + esc(c.lot) + ' pour le plus rapide</span></div>';
+      '<div class="chips"><span class="chip">' + esc(c.tarif) + '</span><span class="chip gold">🏆 ' + esc(c.lot) + ' pour le plus rapide</span></div>' + (ph && ph.credit ? '<p class="credit">' + esc(ph.credit) + '</p>' : '');
     const board = c.groups[0].board;
     const ids = new Set(board.map(r => r.pilotId + ":" + r.ms));
     const flash = new Set();
@@ -441,6 +455,8 @@ details.card[open]>summary{margin-bottom:14px}
   // ---------- Rendu : défis spéciaux ----------
   function renderDefis(){
     const v = $("#v-defis");
+    const tab = document.querySelector('[data-tab="defis"]'), lbl = data.specials.length === 1 ? data.specials[0].titre.split(/\s+/).slice(0, 2).join(" ") : "Défis";
+    if (tab && tab.lastChild.nodeType === 3 && tab.lastChild.textContent !== lbl) tab.lastChild.textContent = lbl;
     if (!data.specials.length) { v.innerHTML = '<div class="card empty-state"><b>Aucun défi en cours</b>Le prochain défi spécial arrive bientôt.</div>'; return; }
     const myId = data.me && data.me.id;
     v.innerHTML = data.specials.map(c => '<article class="card defi" id="c' + c.id + '">' +
@@ -461,11 +477,40 @@ details.card[open]>summary{margin-bottom:14px}
   // ---------- Rendu : palmarès ----------
   function renderPalmares(){
     const v = $("#v-palmares");
+    if (!$("#palmList")) v.innerHTML = '<div id="palmList" style="display:grid;gap:18px"></div><div class="card" id="cardsCard" hidden><p class="eyebrow">Collection</p><h2 style="font-size:1.6rem;margin:.35rem 0 .2rem">Les cartes des pilotes</h2><p class="small muted" style="margin:0">Plus tu roules, plus ta carte monte en niveau : commune, rare, épique, puis légendaire.</p><div class="pcards" id="pcards"></div></div>';
+    renderCards();
     const arch = data.archive;
-    v.innerHTML = '<div><p class="eyebrow">Palmarès</p><h2 style="font-size:2rem;margin-top:.35rem">Les champions du mois</h2></div>' +
+    $("#palmList").innerHTML = '<div><p class="eyebrow">Palmarès</p><h2 style="font-size:2rem;margin-top:.35rem">Les champions du mois</h2></div>' +
       (arch.length ? arch.map(a => '<article class="card month"><div class="head-row"><h3 style="font-size:1.4rem">' + esc(cap(monthLabel(a.mois))) + '</h3><span class="small muted">' + esc([a.circuit, a.voiture].filter(Boolean).join(" · ")) + '</span></div><div class="row">' +
         (a.podium.length ? a.podium.map(r => '<div class="medal m' + r.rank + '"><i>' + r.rank + '</i><span><b>' + esc(r.pseudo) + '</b><span class="small muted num">' + fmt(r.ms) + '</span></span></div>').join("") : '<p class="muted small">Pas de participant.</p>') +
         '</div></article>').join("") : '<div class="card empty-state"><b>Premier mois en cours</b>Le palmarès se remplira à la fin du mois.</div>');
+  }
+
+  // ---------- Galerie des cartes ----------
+  const thumbs = {};
+  async function renderCards(){
+    const list = data.cards || [], box = $("#pcards"); if (!box) return;
+    $("#cardsCard").hidden = !list.length;
+    const cur = data.current, sigOf = p => JSON.stringify([p, cur && cur.mois, cur && (cur.groups[0].board.find(r => r.pilotId === p.id) || {}).ms]);
+    const ids = list.map(p => p.id).join("|");
+    if (box.dataset.ids !== ids) { box.dataset.ids = ids; box.innerHTML = list.map(p => '<button type="button" data-pcard="' + esc(p.id) + '" aria-label="Carte de ' + esc(p.pseudo) + '"><img alt=""></button>').join(""); }
+    for (const p of list) {
+      const sig = sigOf(p), im = box.querySelector('[data-pcard="' + CSS.escape(p.id) + '"] img'); if (!im) continue;
+      if (thumbs[p.id] && thumbs[p.id].sig === sig) { if (im.src !== thumbs[p.id].url) im.src = thumbs[p.id].url; continue; }
+      try { const blob = await drawCard(p); if (!blob) continue; if (thumbs[p.id]) URL.revokeObjectURL(thumbs[p.id].url); thumbs[p.id] = { sig, url: URL.createObjectURL(blob), blob }; im.src = thumbs[p.id].url; } catch (e) {}
+    }
+  }
+  document.addEventListener("click", e => { const b = e.target.closest("[data-pcard]"); if (!b) return; const t = thumbs[b.dataset.pcard], p = (data.cards || []).find(x => x.id === b.dataset.pcard); if (t && p) openViewer(t.blob, p.pseudo); });
+  function openViewer(blob, pseudo){
+    let v = $("#viewer");
+    if (!v) { v = document.createElement("div"); v.id = "viewer"; v.className = "viewer"; v.setAttribute("role", "dialog"); v.setAttribute("aria-modal", "true");
+      v.innerHTML = '<div class="in"><img alt=""><div class="actions" style="justify-content:center"><button class="btn gold" type="button" data-v="share">Partager</button><button class="btn ghost" type="button" data-v="dl">Télécharger</button><button class="btn ghost" type="button" data-v="close">Fermer</button></div></div>';
+      document.body.appendChild(v);
+      v.addEventListener("click", e => { const a = e.target.closest("[data-v]"); if (e.target === v || (a && a.dataset.v === "close")) { v.hidden = true; return; } if (!a) return;
+        if (a.dataset.v === "dl") downloadBlob(v._blob, v._name); else shareBlob(v._blob, v._name); });
+      document.addEventListener("keydown", e => { if (e.key === "Escape") v.hidden = true; }); }
+    v._blob = blob; v._name = "carte-simbox-" + String(pseudo).toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".png";
+    v.querySelector("img").src = URL.createObjectURL(blob); v.querySelector("img").alt = "Carte pilote de " + pseudo; v.hidden = false; v.querySelector('[data-v="close"]').focus();
   }
 
   // ---------- Compte pilote ----------
@@ -529,64 +574,113 @@ details.card[open]>summary{margin-bottom:14px}
     $("#dlCard").addEventListener("click", () => downloadBlob(box._blob));
   }
 
-  // ---------- Carte pilote (image 1080 × 1350 pour Instagram) ----------
-  async function drawCard(){
-    try { await Promise.all([document.fonts.load('italic 900 100px "Barlow Condensed"'), document.fonts.load('700 40px "Barlow Condensed"'), document.fonts.load('600 30px "Inter"')]); } catch (e) {}
+  // ---------- Carte pilote à collectionner (1080 × 1350, format Instagram) ----------
+  // Photo du mois : img/challenge-AAAA-MM.jpg (bandeau du challenge + fenêtre de la carte)
+  const PHOTOS = { "2026-11": { src: "img/challenge-2026-11.jpg", credit: "Photo : Iain A Wanless, CC BY 2.0, modifiée", pos: .62 } };
+  const photoOf = mois => mois ? PHOTOS[String(mois).slice(0, 7)] || null : null;
+  const NIVEAUX = [[0,"🪖","Rookie du simu"],[20,"🔧","Apprenti pilote"],[50,"🏁","Habitué du vendredi soir"],[90,"⚡","Chasseur de chrono"],[150,"🔥","Roi du freinage tardif"],[240,"🛞","Mangeur de vibreurs"],[360,"🎯","Sniper du tour lancé"],[520,"🌙","Seigneur de la nuit"],[750,"🏆","Légende de La Gorgue"],[1000,"👑","Immortel SimBox"]];
+  const RARE = [["COMMUNE","#C9C6BC"],["COMMUNE","#C9C6BC"],["COMMUNE","#C9C6BC"],["RARE","#3D8BFF"],["RARE","#3D8BFF"],["RARE","#3D8BFF"],["ÉPIQUE","#B26BFF"],["ÉPIQUE","#B26BFF"],["ÉPIQUE","#B26BFF"],["LÉGENDAIRE","#FFD54A"]];
+  const NEON = ["#7CFF6B","#00F0FF","#3D8BFF","#B26BFF","#FF4FD8","#FF8A1F","#FFE81F","#FF3B3B","#FFD54A","#FFFFFF"];
+  const xpOf = p => (p.tours||0)*10 + (p.participations||0)*20 + (p.podiums||0)*60 + (p.victoires||0)*120;
+  function niveauOf(p){ const xp = xpOf(p); let i = 0; NIVEAUX.forEach((n, k) => { if (xp >= n[0]) i = k; }); return { i, xp, t: NIVEAUX[i], next: NIVEAUX[i+1] || null }; }
+  const imgCache = {};
+  function loadImg(src){ if (!src) return Promise.resolve(null); if (!imgCache[src]) imgCache[src] = new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; }); return imgCache[src]; }
+  function cardOf(id){
+    const c = (data.cards || []).find(x => x.id === id);
+    if (data.me && data.me.id === id) return Object.assign({ best: null, fav: null, records: 0 }, data.me, c || {});
+    return c || null;
+  }
+  function fitFont(g, t, max, size, style){ let sz = size; do { g.font = style.replace("#", sz); if (g.measureText(t).width <= max) break; sz -= 4; } while (sz > 30); return sz; }
+  const moisCourt = iso => { if (!iso) return ""; const [y, m] = String(iso).split("-").map(Number); return ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."][m-1] + " " + y; };
+  async function drawCard(p){
+    try { await Promise.all([document.fonts.load('italic 900 100px "Barlow Condensed"'), document.fonts.load('700 40px "Barlow Condensed"'), document.fonts.load('600 30px "Inter"'), document.fonts.load('800 50px "Barlow Condensed"'), document.fonts.load('italic 800 50px "Barlow Condensed"'), document.fonts.load('500 28px "Inter"')]); } catch (e) {}
+    p = p || cardOf(data.me && data.me.id); if (!p) return null;
     const W = 1080, H = 1350, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
-    const g = cv.getContext("2d"), me = data.me, cur = data.current, row = myCurrent();
-    g.fillStyle = "#08080a"; g.fillRect(0, 0, W, H);
-    // lueur et rayures
-    let grd = g.createRadialGradient(W, 0, 50, W, 0, 900); grd.addColorStop(0, "rgba(204,0,0,.45)"); grd.addColorStop(1, "rgba(204,0,0,0)"); g.fillStyle = grd; g.fillRect(0, 0, W, H);
-    g.save(); g.globalAlpha = .05; g.strokeStyle = "#fff"; g.lineWidth = 18; for (let x = -H; x < W; x += 56) { g.beginPath(); g.moveTo(x, H); g.lineTo(x + H, 0); g.stroke(); } g.restore();
-    // damier
-    for (let i = 0; i < 27; i++) for (let j = 0; j < 2; j++) { g.fillStyle = (i + j) % 2 ? "#fff" : "#08080a"; g.fillRect(i * 40, H - 80 + j * 40, 40, 40); }
-    // logo
-    const logo = new Image(); logo.src = "img/logo-volant.jpg";
-    await new Promise(r => { logo.onload = r; logo.onerror = r; });
-    try { g.drawImage(logo, 56, 52, 150, 110); } catch (e) {}
+    const g = cv.getContext("2d"), cur = data.current, F = '"Barlow Condensed","Arial Narrow",sans-serif', B = '"Inter",Arial,sans-serif';
+    const row = cur ? (cur.groups[0].board.find(r => r.pilotId === p.id) || null) : null;
+    const nv = niveauOf(p), neon = NEON[nv.i], rar = RARE[nv.i];
+    // cadre métal : rouge SimBox et couleur de rareté
+    roundRect(g, 0, 0, W, H, 46); let fr = g.createLinearGradient(0, 0, W, H);
+    fr.addColorStop(0, "#3a0000"); fr.addColorStop(.35, "#cc0000"); fr.addColorStop(.6, rar[1]); fr.addColorStop(1, "#2a0000"); g.fillStyle = fr; g.fill();
+    roundRect(g, 20, 20, W - 40, H - 40, 32); g.fillStyle = "#07070a"; g.fill();
+    g.save(); roundRect(g, 20, 20, W - 40, H - 40, 32); g.clip();
+    // ambiance de l'affiche : lueurs rouges et rayures
+    let grd = g.createRadialGradient(W * .9, 60, 40, W * .9, 60, 820); grd.addColorStop(0, "rgba(204,0,0,.55)"); grd.addColorStop(1, "rgba(204,0,0,0)"); g.fillStyle = grd; g.fillRect(0, 0, W, H);
+    grd = g.createRadialGradient(0, H, 40, 0, H, 700); grd.addColorStop(0, "rgba(204,0,0,.25)"); grd.addColorStop(1, "rgba(204,0,0,0)"); g.fillStyle = grd; g.fillRect(0, 0, W, H);
+    g.save(); g.globalAlpha = .03; g.strokeStyle = "#fff"; g.lineWidth = 18; for (let x = -H; x < W; x += 58) { g.beginPath(); g.moveTo(x, H); g.lineTo(x + H, 0); g.stroke(); } g.restore();
     g.textBaseline = "alphabetic";
-    g.font = 'italic 900 70px "Barlow Condensed", Arial Narrow, sans-serif'; g.fillStyle = "#fff"; g.fillText("SIM", 222, 135); const w1 = g.measureText("SIM ").width; g.fillStyle = "#cc0000"; g.fillText("BOX", 222 + w1, 135);
-    g.font = '700 30px "Barlow Condensed", sans-serif'; g.fillStyle = "#f09600"; g.textAlign = "right"; g.fillText("CARTE PILOTE", W - 70, 128); g.textAlign = "left";
-    // pseudo
-    let size = 190; g.font = 'italic 900 ' + size + 'px "Barlow Condensed", sans-serif';
-    const name = me.pseudo.toUpperCase(); while (g.measureText(name).width > W - 140 && size > 70) { size -= 6; g.font = 'italic 900 ' + size + 'px "Barlow Condensed", sans-serif'; }
-    g.fillStyle = "#fff"; g.fillText(name, 66, 380);
-    g.font = '500 32px "Inter", sans-serif'; g.fillStyle = "#a8a8b3";
-    const since = new Date(me.depuis); g.fillText("Pilote SimBox depuis " + MONTHS[since.getMonth()] + " " + since.getFullYear(), 70, 440);
-    // bloc position
-    g.fillStyle = "rgba(255,255,255,.05)"; roundRect(g, 70, 500, W - 140, 360, 28); g.fill();
-    g.strokeStyle = row && row.rank === 1 ? "#f09600" : "#cc0000"; g.lineWidth = 4; roundRect(g, 70, 500, W - 140, 360, 28); g.stroke();
-    g.font = '700 34px "Barlow Condensed", sans-serif'; g.fillStyle = "#f09600";
-    g.fillText(("Challenge " + (cur ? monthLabel(cur.mois) : "")).toUpperCase(), 110, 565);
+    // en-tête
+    const logo = await loadImg("img/logo-volant.jpg");
+    if (logo) { g.save(); g.globalCompositeOperation = "lighten"; g.drawImage(logo, 50, 46, 150, 150 * logo.height / logo.width); g.restore(); }
+    g.font = "italic 900 64px " + F; g.fillStyle = "#fff"; g.fillText("SIM", 214, 128); g.fillStyle = "#cc0000"; g.fillText("BOX", 214 + g.measureText("SIM ").width, 128);
+    g.textAlign = "right"; g.font = "700 28px " + F; g.fillStyle = "#f09600"; g.save(); g.letterSpacing = "5px"; g.fillText("CARTE PILOTE", W - 60, 96); g.restore();
+    g.font = "700 40px " + F; g.fillStyle = "#fff"; g.fillText(p.num ? "N° " + String(p.num).padStart(2, "0") + " / " + String(p.total || p.num).padStart(2, "0") : "PILOTE", W - 60, 140); g.textAlign = "left";
+    // fenêtre photo : voiture du mois
+    const px = 50, py = 196, pw = W - 100, ph = 360, ph0 = photoOf(cur && cur.mois), car = ph0 ? await loadImg(ph0.src) : null;
+    g.save(); roundRect(g, px, py, pw, ph, 24); g.clip();
+    g.fillStyle = "#121216"; g.fillRect(px, py, pw, ph);
+    if (car) { const k = Math.max(pw / car.width, ph / car.height), dw = car.width * k, dh = car.height * k; g.drawImage(car, px + (pw - dw) / 2, py + (ph - dh) * (ph0.pos || .5), dw, dh); }
+    else { const lg = await loadImg("img/logo-simbox.jpg"); if (lg) { g.globalAlpha = .18; const s = ph * .9; g.drawImage(lg, px + (pw - s) / 2, py + (ph - s) / 2, s, s); g.globalAlpha = 1; } }
+    grd = g.createLinearGradient(0, py, 0, py + ph); grd.addColorStop(0, "rgba(7,7,10,.2)"); grd.addColorStop(.3, "rgba(7,7,10,.05)"); grd.addColorStop(.62, "rgba(7,7,10,.7)"); grd.addColorStop(1, "rgba(7,7,10,.96)"); g.fillStyle = grd; g.fillRect(px, py, pw, ph);
+    grd = g.createLinearGradient(px, 0, px + pw, 0); grd.addColorStop(0, "rgba(7,7,10,.8)"); grd.addColorStop(.55, "rgba(7,7,10,0)"); g.fillStyle = grd; g.fillRect(px, py, pw, ph);
+    // place du mois
+    g.font = "700 30px " + F; g.fillStyle = "#f09600"; g.save(); g.letterSpacing = "4px";
+    g.fillText(("Challenge " + (cur ? monthLabel(cur.mois) + (cur.circuit ? " · " + cur.circuit.replace(/\s*\(.*\)/, "") : "") : "du mois")).toUpperCase(), px + 34, py + ph - 128); g.restore();
     if (row) {
-      g.font = 'italic 900 230px "Barlow Condensed", sans-serif'; g.fillStyle = row.rank === 1 ? "#f09600" : "#ff3b30"; g.fillText("P" + row.rank, 100, 800);
-      const pw = g.measureText("P" + row.rank).width;
-      g.font = '700 86px "Barlow Condensed", sans-serif'; g.fillStyle = "#fff"; g.fillText(fmt(row.ms), 140 + pw, 735);
-      g.font = '500 30px "Inter", sans-serif'; g.fillStyle = "#a8a8b3";
-      wrapText(g, [cur.circuit, cur.voiture].filter(Boolean).join(" · ") || "Circuit du mois", 140 + pw, 790, W - 260 - pw, 38);
-    } else {
-      g.font = 'italic 900 120px "Barlow Condensed", sans-serif'; g.fillStyle = "#fff"; g.fillText("EN PISTE", 105, 720);
-      g.font = '500 32px "Inter", sans-serif'; g.fillStyle = "#a8a8b3"; g.fillText("Prochain chrono à la SimBox", 110, 790);
-    }
+      g.font = "italic 900 150px " + F; g.fillStyle = row.rank === 1 ? "#f09600" : "#fff"; g.fillText("P" + row.rank, px + 26, py + ph - 22);
+      const w = g.measureText("P" + row.rank).width; g.font = "700 68px " + F; g.fillStyle = "#fff"; g.fillText(fmt(row.ms), px + 60 + w, py + ph - 34);
+    } else { g.font = "italic 900 96px " + F; g.fillStyle = "#fff"; g.fillText("À TOI DE JOUER", px + 30, py + ph - 34); }
+    g.restore();
+    roundRect(g, px, py, pw, ph, 24); g.lineWidth = 4; g.strokeStyle = neon; g.shadowColor = neon; g.shadowBlur = 16; g.stroke(); g.shadowBlur = 0;
+    // niveau + rareté (comme les cartes RK7)
+    g.beginPath(); g.arc(px + 66, py + 66, 46, 0, Math.PI * 2); g.fillStyle = "rgba(7,7,10,.85)"; g.fill(); g.lineWidth = 5; g.strokeStyle = neon; g.shadowColor = neon; g.shadowBlur = 16; g.stroke(); g.shadowBlur = 0;
+    g.textAlign = "center"; g.fillStyle = neon; g.font = "700 20px " + F; g.fillText("NIV.", px + 66, py + 54); g.font = "800 44px " + F; g.fillText(String(nv.i + 1), px + 66, py + 94); g.textAlign = "left";
+    g.font = "700 24px " + F; const rw = g.measureText(rar[0]).width + 40; roundRect(g, px + pw - rw - 20, py + 22, rw, 44, 22); g.fillStyle = "rgba(7,7,10,.75)"; g.fill(); g.lineWidth = 2; g.strokeStyle = rar[1]; g.stroke(); g.fillStyle = rar[1]; g.fillText(rar[0], px + pw - rw, py + 53);
+    // trait rouge sous la photo, comme sur l'affiche
+    grd = g.createLinearGradient(px, 0, px + pw, 0); grd.addColorStop(0, "rgba(204,0,0,0)"); grd.addColorStop(.15, "#cc0000"); grd.addColorStop(.85, "#cc0000"); grd.addColorStop(1, "rgba(204,0,0,0)"); g.fillStyle = grd; g.fillRect(px, py + ph + 14, pw, 7);
+    // pseudo
+    const name = String(p.pseudo || "Pilote").toUpperCase(); fitFont(g, name, W - 120, 168, "italic 900 #px " + F);
+    g.fillStyle = "#fff"; g.fillText(name, 54, 726);
+    // titre néon
+    const ttl = nv.t[1] + " " + nv.t[2].toUpperCase(); fitFont(g, ttl, W - 330, 50, "800 #px " + F);
+    g.fillStyle = neon; g.shadowColor = neon; g.shadowBlur = 20; g.fillText(ttl, 58, 792); g.shadowBlur = 0;
+    g.textAlign = "right"; g.font = "600 26px " + B; g.fillStyle = "#a8a8b3"; g.fillText(nv.xp + " XP" + (nv.next ? " / " + nv.next[0] : ""), W - 58, 790); g.textAlign = "left";
     // stats
-    const st = [[me.participations, "CHALLENGES"], [me.tours, "CHRONOS"], [me.podiums, "PODIUMS"], [me.victoires, "VICTOIRES"]];
-    const cw = (W - 140 - 3 * 20) / 4;
-    st.forEach(([n, l], i) => { const x = 70 + i * (cw + 20); g.fillStyle = "rgba(255,255,255,.05)"; roundRect(g, x, 900, cw, 170, 22); g.fill();
-      g.textAlign = "center"; g.font = '800 92px "Barlow Condensed", sans-serif'; g.fillStyle = "#fff"; g.fillText(String(n), x + cw/2, 1000);
-      g.font = '600 24px "Inter", sans-serif'; g.fillStyle = "#a8a8b3"; g.fillText(l, x + cw/2, 1045); g.textAlign = "left"; });
-    g.font = 'italic 800 46px "Barlow Condensed", sans-serif'; g.fillStyle = "#fff"; g.fillText("DU VIRTUEL AU RÉEL", 70, 1170);
-    g.font = '500 28px "Inter", sans-serif'; g.fillStyle = "#a8a8b3"; g.fillText(SITE + " · La Gorgue", 70, 1220);
+    const sy = 826, cw = (W - 100 - 3 * 16) / 4, th = 150, items = [[p.podiums || 0, "PODIUMS", "au challenge", "#f09600"], [p.victoires || 0, "VICTOIRES", "au challenge", "#f09600"], [p.records || 0, "RECORDS", "One Lap Nürb", "#ff3b30"], [p.tours || 0, "CHRONOS", "enregistrés", null]];
+    items.forEach(([n, l, sub, col], i) => { const x = 50 + i * (cw + 16), hot = col && n > 0;
+      roundRect(g, x, sy, cw, th, 20); g.fillStyle = hot ? (col === "#f09600" ? "rgba(240,150,0,.15)" : "rgba(255,59,48,.15)") : "rgba(255,255,255,.05)"; g.fill(); g.lineWidth = 2; g.strokeStyle = hot ? col : "rgba(255,255,255,.14)"; g.stroke();
+      g.textAlign = "center"; g.font = "800 74px " + F; g.fillStyle = hot ? col : "#fff"; g.fillText(String(n), x + cw / 2, sy + 76);
+      g.font = "700 26px " + F; g.fillStyle = "#fff"; g.save(); g.letterSpacing = "2px"; g.fillText(l, x + cw / 2, sy + 108); g.restore();
+      g.font = "500 19px " + B; g.fillStyle = "#a8a8b3"; g.fillText(sub, x + cw / 2, sy + 134); g.textAlign = "left"; });
+    // infos
+    let ly = 1040; const line = (ic, label, val) => { g.font = "500 28px " + B; g.fillStyle = "#a8a8b3"; g.fillText(ic + "  " + label, 58, ly); g.textAlign = "right"; g.font = "700 36px " + F; g.fillStyle = "#fff"; g.fillText(val, W - 58, ly); g.textAlign = "left";
+      g.strokeStyle = "rgba(255,255,255,.08)"; g.lineWidth = 1; g.beginPath(); g.moveTo(58, ly + 18); g.lineTo(W - 58, ly + 18); g.stroke(); ly += 52; };
+    const dep = p.depuis ? new Date(p.depuis) : null;
+    line("📅", "Membre depuis", dep ? cap(MONTHS[dep.getMonth()]) + " " + dep.getFullYear() : "—");
+    line("🎯", "Meilleure place", p.best ? "P" + p.best.rk + " · " + moisCourt(p.best.mois) : "à conquérir");
+    line("📍", "Circuit fétiche", p.fav ? p.fav.circuit.replace(/\s*\(.*\)/, "") + " · " + p.fav.n + " chrono" + (p.fav.n > 1 ? "s" : "") : "—");
+    // pied de carte
+    g.font = "italic 800 44px " + F; g.fillStyle = "#fff"; g.fillText("DU VIRTUEL AU ", 58, 1238); g.fillStyle = "#cc0000"; g.fillText("RÉEL", 58 + g.measureText("DU VIRTUEL AU ").width, 1238);
+    g.textAlign = "right"; g.font = "600 24px " + B; g.fillStyle = "#a8a8b3"; g.fillText(SITE, W - 58, 1214);
+    g.fillStyle = "#f09600"; g.font = "700 26px " + F; g.fillText("SAISON " + new Date().getFullYear() + " · LA GORGUE", W - 58, 1248); g.textAlign = "left";
+    // damier
+    for (let i = 0; i < 28; i++) for (let j = 0; j < 2; j++) if ((i + j) % 2 === 0) { g.fillStyle = "rgba(255,255,255,.08)"; g.fillRect(20 + i * 38, H - 96 + j * 38, 38, 38); }
+    if (car && ph0.credit) { g.font = "500 14px " + B; g.fillStyle = "rgba(255,255,255,.22)"; g.fillText(ph0.credit, 40, H - 34); }
+    // reflet holographique pour les cartes épiques et légendaires
+    if (nv.i >= 6) { const ho = g.createLinearGradient(0, 0, W, H); ["#ff4fd8","#00f0ff","#7cff6b","#ffe81f","#ff4fd8"].forEach((c, i) => ho.addColorStop(i / 4, c)); g.globalCompositeOperation = "overlay"; g.globalAlpha = nv.i >= 9 ? .32 : .2; g.fillStyle = ho; g.fillRect(0, 0, W, H); g.globalAlpha = 1; g.globalCompositeOperation = "source-over"; }
+    g.restore();
     return new Promise(r => cv.toBlob(r, "image/png"));
   }
   function roundRect(g, x, y, w, h, r){ g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
   function wrapText(g, text, x, y, maxW, lh){ const words = text.split(" "); let line = ""; for (const w of words) { const t = line ? line + " " + w : w; if (g.measureText(t).width > maxW && line) { g.fillText(line, x, y); line = w; y += lh; } else line = t; } if (line) g.fillText(line, x, y); }
-  function downloadBlob(blob){ if (!blob) return; const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "carte-pilote-simbox.png"; document.body.appendChild(a); a.click(); a.remove(); }
-  async function shareCard(){
-    const blob = $("#meBox")._blob; if (!blob) return;
-    const file = new File([blob], "carte-pilote-simbox.png", { type: "image/png" });
+  function downloadBlob(blob, name){ if (!blob) return; const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name || "carte-pilote-simbox.png"; document.body.appendChild(a); a.click(); a.remove(); }
+  function shareCard(){ shareBlob($("#meBox")._blob); }
+  async function shareBlob(blob, name){
+    if (!blob) return;
+    const file = new File([blob], name || "carte-pilote-simbox.png", { type: "image/png" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try { await navigator.share({ files: [file], title: "Ma carte pilote SimBox", text: "Mon classement au challenge chrono SimBox 🏁 " + SITE }); } catch (e) {}
-    } else { downloadBlob(blob); toast("Image téléchargée : publie-la depuis Instagram."); }
+    } else { downloadBlob(blob, name); toast("Image téléchargée : publie-la depuis Instagram."); }
   }
 
   // ---------- Notifications ----------
