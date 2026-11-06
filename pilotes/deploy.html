@@ -1,0 +1,18 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Relais SimBox</title>
+<script>
+// Relais de publication : transmet a l'editeur GitHub un fichier prepare dans la base (rien de prive).
+const REST="https://ep-bold-paper-b90hj6av.apirest.c-7.eu-central-1.aws.neon.tech/neondb/rest/v1";
+const AUTH="https://ep-bold-paper-b90hj6av.neonauth.c-7.eu-central-1.aws.neon.tech/neondb/auth";
+addEventListener("message", async e => {
+  if (e.origin !== "https://github.com" || typeof e.data !== "string" || !e.data.startsWith("get:")) return;
+  const k = e.data.slice(4);
+  try {
+    const jwt = (await (await fetch(AUTH + "/token/anonymous")).json()).token;
+    const r = await fetch(REST + "/rpc/deploy_get", { method: "POST", headers: { authorization: "Bearer " + jwt, "content-type": "application/json", "content-profile": "api", "accept-profile": "api" }, body: JSON.stringify({ k }) });
+    e.source.postMessage({ ok: true, k, b64: await r.json() }, e.origin);
+  } catch (err) { e.source.postMessage({ ok: false, k, err: String(err) }, e.origin); }
+});
+if (window.opener) window.opener.postMessage("relay-ready", "https://github.com");
+</script>
