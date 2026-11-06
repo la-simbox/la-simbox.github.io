@@ -2425,8 +2425,13 @@ button:active:not(:disabled){transform:scale(.97)}
   $("#shopOrdersAdm").addEventListener("change", async e=>{ const s0=e.target.closest("[data-ost]"); if(!s0) return; s0.blur();
     try{ applyData(await rpc("admin_shop_order_set",{token:teamToken,order_id:s0.dataset.ost,statut:s0.value})); setMsg("#shopAdmMsg", s0.value==="annule"?"Commande annulée.":"Commande mise à jour."); renderShopAdm(); }catch(err){ setMsg("#shopAdmMsg",err.message,true); } });
   // ---------- Chronos et records ----------
-  function parseLap(t){ t=String(t||"").trim().toLowerCase().replace(/\s+/g,"").replace(/[,s"]/g,".").replace(/['’m]/g,":").replace(/\.+$/,"").replace(/\.{2,}/g,"."); let m=/^(\d+):(\d{1,2})(?:\.(\d{1,3}))?$/.exec(t); if(m) return (+m[1])*60000+(+m[2])*1000+Number((m[3]||"0").padEnd(3,"0"));
-    m=/^(\d{1,3})(?:\.(\d{1,3}))?$/.exec(t); if(m) return (+m[1])*1000+Number((m[2]||"0").padEnd(3,"0")); return null; }
+  function parseLap(t){ t=String(t||"").trim().toLowerCase().replace(/\s+/g,""); if(!t) return null; const minSep=/[:'’m]/.test(t);
+    const parts=t.split(/[^0-9]+/).filter(Boolean); if(!parts.length||parts.length>3||parts.some(x=>x.length>3)) return null;
+    const msOf=x=>Number(String(x||"0").padEnd(3,"0").slice(0,3)); let m=0,sec,ms=0;
+    if(parts.length===3){ [m,sec]=[+parts[0],+parts[1]]; ms=msOf(parts[2]); }
+    else if(parts.length===2){ if(minSep){ m=+parts[0]; sec=+parts[1]; } else { sec=+parts[0]; ms=msOf(parts[1]); } }
+    else sec=+parts[0];
+    if(sec>59&&m) return null; const v=m*60000+sec*1000+ms; return v>0?v:null; }
   function fmtLap(ms){ if(!ms) return "—"; const mn=Math.floor(ms/60000), s=Math.floor(ms%60000/1000), c=String(ms%1000).padStart(3,"0"); return (mn?mn+":"+String(s).padStart(2,"0"):String(s))+"."+c; }
   const normL = t => String(t||"").trim().toLowerCase();
   function lapsWithCourse(){ return (extra.laps||[]).map(l=>({...l, c:courses.find(c=>c.id===l.courseId)})).filter(x=>x.c); }
@@ -2437,7 +2442,7 @@ button:active:not(:disabled){transform:scale(.97)}
     const my=list.find(l=>l.pid===myId), key="lap:"+c.id;
     return '<details class="sec" data-logi="'+esc(key)+'"'+(openLogi.has(key)?" open":"")+'><summary>⏱ Chronos'+(list.length?'<em>'+fmtLap(list[0].ms)+'</em>':'')+'</summary><div class="logi">'+
       (list.length?'<div class="laps">'+list.map((l,i)=>'<div><span>'+(i===0?'🥇 ':i===1?'🥈 ':i===2?'🥉 ':'')+esc(nomOf(l.pid))+'</span><b>'+fmtLap(l.ms)+'</b></div>').join("")+'</div>':'<p class="sub2">Pas encore de chrono.</p>')+
-      (rode?'<div class="lapin"><input id="lap-'+esc(c.id)+'" placeholder="Ex. 52.345" inputmode="decimal" value="'+(my?fmtLap(my.ms):'')+'" aria-label="Mon meilleur tour"><button type="button" class="btn-gold mini" data-lap="'+esc(c.id)+'">'+(my?'Modifier':'Mon meilleur tour')+'</button></div>':'')+'</div></details>';
+      (rode?'<div class="lapin"><input id="lap-'+esc(c.id)+'" placeholder="Ex. 52,345" inputmode="decimal" value="'+(my?fmtLap(my.ms):'')+'" aria-label="Mon meilleur tour"><button type="button" class="btn-gold mini" data-lap="'+esc(c.id)+'">'+(my?'Modifier':'Mon meilleur tour')+'</button></div>':'')+'</div></details>';
   }
   function renderRecords(){
     const box=$("#recBox"); if(!box) return; const L=lapsWithCourse(), by={};
@@ -2458,7 +2463,7 @@ button:active:not(:disabled){transform:scale(.97)}
     let form="";
     if(self&&pastMine.length){ const tr={}; pastMine.forEach(c=>{ const k=normL(c.lieu); const t=tr[k]=tr[k]||{lieu:c.lieu,n:0,last:c}; t.n++; if(sortKey(c).localeCompare(sortKey(t.last))>0) t.last=c; });
       const opts=Object.values(tr).sort((a,b)=>b.n-a.n);
-      form='<form class="row" id="lapQuick" style="gap:8px;align-items:flex-end;margin:4px 0 12px;flex-wrap:wrap"><div class="field" style="flex:1 1 170px;margin:0"><label for="lqPiste">Piste</label><select id="lqPiste">'+opts.map((t,i)=>'<option value="'+esc(t.last.id)+'">'+(i===0?'⭐ ':'')+esc(t.lieu)+' ('+t.n+' course'+(t.n>1?'s':'')+')</option>').join("")+'</select></div><div class="field" style="flex:0 1 130px;margin:0"><label for="lqTime">Meilleur tour</label><input id="lqTime" inputmode="decimal" placeholder="52.345" autocomplete="off"></div><button type="submit" class="btn-gold mini">Enregistrer</button></form><p id="lqMsg" class="sub2" style="margin:-4px 0 8px;font-weight:600" role="status"></p><p class="sub2" style="margin:-6px 0 10px">⭐ = ta piste fétiche. Ton chrono s\'affichera sur ta carte pilote et dans les records RK7.</p>'; }
+      form='<form class="row" id="lapQuick" style="gap:8px;align-items:flex-end;margin:4px 0 12px;flex-wrap:wrap"><div class="field" style="flex:1 1 170px;margin:0"><label for="lqPiste">Piste</label><select id="lqPiste">'+opts.map((t,i)=>'<option value="'+esc(t.last.id)+'">'+(i===0?'⭐ ':'')+esc(t.lieu)+' ('+t.n+' course'+(t.n>1?'s':'')+')</option>').join("")+'</select></div><div class="field" style="flex:0 1 130px;margin:0"><label for="lqTime">Meilleur tour</label><input id="lqTime" inputmode="decimal" placeholder="52,345" autocomplete="off"></div><button type="submit" class="btn-gold mini">Enregistrer</button></form><p id="lqMsg" class="sub2" style="margin:-4px 0 8px;font-weight:600" role="status"></p><p class="sub2" style="margin:-6px 0 10px">⭐ = ta piste fétiche. Ton chrono s\'affichera sur ta carte pilote et dans les records RK7.</p>'; }
     if(!mine.length){ box.hidden=false; box.innerHTML='<h2>Chronos</h2>'+form; restore(); return; }
     const by={}; mine.forEach(x=>{ const k=normL(x.c.lieu); (by[k]=by[k]||{lieu:x.c.lieu,list:[]}).list.push(x); });
     const teamBest={}; lapsWithCourse().forEach(x=>{ const k=normL(x.c.lieu); if(!teamBest[k]||x.ms<teamBest[k]) teamBest[k]=x.ms; });
@@ -2467,7 +2472,7 @@ button:active:not(:disabled){transform:scale(.97)}
   }
   document.addEventListener("submit", async e=>{ if(e.target.id!=="lapQuick") return; e.preventDefault();
     const cid=$("#lqPiste").value, v=$("#lqTime").value.trim(), ms=parseLap(v), c=courses.find(x=>x.id===cid), say=(t,bad)=>{ const m=$("#lqMsg"); if(m){ m.textContent=t; m.style.color=bad?"var(--red,#c0392b)":""; } setMsg("#globalMsg",t,bad); };
-    if(!ms){ say("Format du chrono : 49.876 ou 1:02.345",true); return; }
+    if(!ms){ say("Format du chrono : 49,876 ou 1,02,345",true); return; }
     const btn=e.target.querySelector("button"); btn.disabled=true; btn.textContent="…"; if(document.activeElement) document.activeElement.blur();
     try{ const r=await rpc("lap_set",{token:teamToken,pilot_token:pilotToken,course_id:cid,ms}); $("#lqTime").value=""; applyData(r); say("✅ Chrono enregistré à "+(c?c.lieu:"")+" : "+fmtLap(ms)); }
     catch(err){ say(err.message,true); } finally{ const b2=$("#lapQuick button"); if(b2){ b2.disabled=false; b2.textContent="Enregistrer"; } } });
@@ -2647,7 +2652,7 @@ button:active:not(:disabled){transform:scale(.97)}
   $("#races").addEventListener("click", async e => {
     const b=e.target.closest("button"); if(!b) return;
     if(b.dataset.bilan) return openBilanShare(b.dataset.bilan);
-    if(b.dataset.lap){ const cid=b.dataset.lap, inp=document.getElementById("lap-"+cid), v=inp?inp.value.trim():""; const ms=v?parseLap(v):0; if(v && !ms){ setMsg("#globalMsg","Format du chrono : 52.345 ou 1:02.345",true); return; }
+    if(b.dataset.lap){ const cid=b.dataset.lap, inp=document.getElementById("lap-"+cid), v=inp?inp.value.trim():""; const ms=v?parseLap(v):0; if(v && !ms){ setMsg("#globalMsg","Format du chrono : 49,876 ou 1,02,345",true); return; }
       const c=courses.find(x=>x.id===cid), lieu=normL(c&&c.lieu), prevPB=Math.min(Infinity,...lapsWithCourse().filter(x=>x.pid===myId&&normL(x.c.lieu)===lieu&&x.courseId!==cid).map(x=>x.ms)), prevTeam=Math.min(Infinity,...lapsWithCourse().filter(x=>normL(x.c.lieu)===lieu&&!(x.pid===myId&&x.courseId===cid)).map(x=>x.ms));
       b.disabled=true; try{ openLogi.add("lap:"+cid); applyData(await rpc("lap_set",{token:teamToken,pilot_token:pilotToken,course_id:cid,ms})); setMsg("#globalMsg", !ms?"Chrono effacé.": ms<prevTeam&&prevTeam<Infinity?"👑 Nouveau record RK7 à "+c.lieu+" : "+fmtLap(ms)+" ! Toute l'équipe est prévenue.": ms<prevPB&&prevPB<Infinity?"🎉 Nouveau record perso à "+c.lieu+" : "+fmtLap(ms)+" (avant "+fmtLap(prevPB)+")":"Chrono enregistré : "+fmtLap(ms)); }catch(err){ setMsg("#globalMsg",err.message,true); } finally{ b.disabled=false; } return; }
     if(b.dataset.more){ const id=b.dataset.more; openCards.has(id)?openCards.delete(id):openCards.add(id); renderCal(); const a=document.querySelector('[data-card="'+CSS.escape(id)+'"]'); if(a && openCards.has(id)) a.scrollIntoView({behavior:"smooth",block:"nearest"}); return; }
