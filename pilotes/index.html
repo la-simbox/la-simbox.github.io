@@ -76,9 +76,9 @@ main{padding:20px 0 30px}
 .hero{position:relative;overflow:hidden;border-radius:var(--radius);border:1px solid #3a2a10;padding:22px 20px 20px;background:
   radial-gradient(120% 90% at 100% 0%, rgba(240,150,0,.18), transparent 60%),
   repeating-linear-gradient(-45deg, rgba(255,255,255,.025) 0 14px, transparent 14px 28px), var(--surface)}
-.hero.has-photo{border-color:#4a1010;padding-top:150px;background:#07070a}
-.hero.has-photo::before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,7,10,.15) 0,rgba(7,7,10,.35) 35%,#07070a 72%),linear-gradient(to right,rgba(7,7,10,.6),transparent 40%),var(--photo) center 30%/cover no-repeat}
-.hero.has-photo>*{position:relative}
+.hero.has-photo{border-color:#4a1010;padding-top:0;background:#07070a}
+.hero-photo{display:block;width:calc(100% + 40px);height:auto;max-width:none;margin:0 -20px 2px;aspect-ratio:1400/415;object-fit:cover;-webkit-mask-image:linear-gradient(to bottom,#000 62%,transparent);mask-image:linear-gradient(to bottom,#000 62%,transparent)}
+.hero>*{position:relative}
 .hero .credit{position:absolute;left:10px;bottom:6px;margin:0;font-size:9px;color:rgba(255,255,255,.22)}
 .pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:12px}
 .pcards button{padding:0;border:0;background:none;border-radius:12px;overflow:hidden;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.35);transition:transform .15s}
@@ -428,8 +428,8 @@ details.card[open]>summary{margin-bottom:14px}
     }
     const known = c.circuit || c.voiture;
     const ph = photoOf(c.mois);
-    hero.classList.toggle("has-photo", !!ph); if (ph) hero.style.setProperty("--photo", 'url("' + ph.src + '")');
-    hero.innerHTML = '<div class="head-row"><p class="eyebrow">Challenge chrono · ' + esc(cap(monthLabel(c.mois))) + '</p><span class="chip">' + daysLeft() + '</span></div>' +
+    hero.classList.toggle("has-photo", !!ph);
+    hero.innerHTML = (ph ? '<img class="hero-photo" src="' + esc(ph.src) + '" alt="' + esc(c.voiture || "Voiture du mois") + '" width="1400" height="415">' : '') + '<div class="head-row"><p class="eyebrow">Challenge chrono · ' + esc(cap(monthLabel(c.mois))) + '</p><span class="chip">' + daysLeft() + '</span></div>' +
       '<h1>' + esc(c.circuit || "Circuit à annoncer") + '</h1>' +
       '<p class="car">' + esc(c.voiture || (known ? "" : "La voiture et le circuit du mois arrivent très vite")) + '</p>' +
       '<div class="chips"><span class="chip">' + esc(c.tarif) + '</span><span class="chip gold">🏆 ' + esc(c.lot) + ' pour le plus rapide</span></div>' + (ph && ph.credit ? '<p class="credit">' + esc(ph.credit) + '</p>' : '');
