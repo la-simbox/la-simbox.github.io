@@ -743,7 +743,7 @@ details.card[open]>summary{margin-bottom:14px}
       '<form id="lapForm" style="display:grid;gap:12px">' +
         '<div class="field"><label for="lCh">Challenge</label><select id="lCh"></select></div>' +
         '<div class="field"><label for="lPseudo">Pilote (pseudo)</label><input id="lPseudo" list="pilotList" autocomplete="off" maxlength="24" placeholder="Pseudo du pilote" required><datalist id="pilotList"></datalist></div>' +
-        '<div class="field" id="lCarWrap" hidden><label for="lCar">Voiture</label><input id="lCar" list="carList" autocomplete="off" placeholder="Voiture du défi"><datalist id="carList"></datalist></div>' +
+        '<div class="field" id="lCarWrap" hidden><label for="lCar">Voiture</label><div class="chips" id="carChips" style="margin:2px 0 4px"></div><input id="lCar" list="carList" autocomplete="off" placeholder="Touche une voiture ou tape son nom"><datalist id="carList"></datalist><div class="small muted" id="carRef"></div></div>' +
         '<div class="field"><label for="lTime">Chrono (min,sec,millièmes)</label><input id="lTime" inputmode="decimal" autocomplete="off" placeholder="1,47,400" required><div class="preview num" id="lPrev"></div></div>' +
         '<label class="check" id="lRefWrap" hidden><input type="checkbox" id="lRef"> Chrono de référence (le mien, à battre)</label>' +
         '<div class="actions"><button class="btn" type="submit">Enregistrer le chrono</button></div><p class="msg" id="lapMsg"></p>' +
@@ -767,6 +767,8 @@ details.card[open]>summary{margin-bottom:14px}
 
     $("#lTime").addEventListener("input", () => { const ms = parseChrono($("#lTime").value); $("#lPrev").textContent = $("#lTime").value ? (ms ? fmt(ms) : "Format : 1,47,400") : ""; });
     $("#lCh").addEventListener("change", () => { selCh = +$("#lCh").value; syncLapForm(); loadLaps(); });
+    $("#carChips").addEventListener("click", e => { const b = e.target.closest("[data-car]"); if (!b) return; $("#lCar").value = b.dataset.car; syncCar(); $("#lTime").focus(); });
+    $("#lCar").addEventListener("input", syncCar);
     $("#lapForm").addEventListener("submit", submitLap);
     $("#chForm").addEventListener("submit", saveMonth);
     $("#cMois").addEventListener("change", fillMonth);
@@ -802,6 +804,14 @@ details.card[open]>summary{margin-bottom:14px}
     const c = adminChallenges().find(x => x.id === selCh); const sp = c && c.kind === "special";
     $("#lCarWrap").hidden = !sp; $("#lRefWrap").hidden = !sp; $("#lCar").required = !!sp;
     $("#carList").innerHTML = sp ? c.groups.map(g => '<option value="' + esc(g.voiture) + '">').join("") : "";
+    $("#carChips").innerHTML = sp ? c.groups.map(g => '<button type="button" class="chip" data-car="' + esc(g.voiture) + '" aria-pressed="false" style="cursor:pointer">' + esc(g.voiture) + '</button>').join("") : "";
+    syncCar();
+  }
+  function syncCar(){
+    const c = adminChallenges().find(x => x.id === selCh), v = $("#lCar").value.trim().toLowerCase();
+    document.querySelectorAll("#carChips [data-car]").forEach(b => { const on = b.dataset.car.toLowerCase() === v; b.setAttribute("aria-pressed", on); b.classList.toggle("gold", on); });
+    const g = c && c.groups && c.groups.find(x => x.voiture.toLowerCase() === v);
+    $("#carRef").textContent = !v ? "" : g ? (g.refMs ? "Chrono à battre : " + fmt(g.refMs) + (g.board[0] ? " · meilleur client : " + g.board[0].pseudo + " en " + fmt(g.board[0].ms) : "") : "Pas encore de chrono de référence") : "Nouvelle voiture : elle sera ajoutée au défi.";
   }
   async function loadLaps(){
     if (!selCh) { $("#lapList").innerHTML = ""; return; }
