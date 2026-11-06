@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Espace pilotes · SIMBOX</title>
+<meta name="description" content="Espace pilotes de la SIMBOX à La Gorgue : challenge chrono du mois, classement en direct, défis spéciaux et carte pilote.">
+<meta name="theme-color" content="#08080a">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SimBox Pilotes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,700;1,800;1,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Espace pilotes SIMBOX : même charte que le site (noir, rouge, or du Challenge Chrono).
+   Mise en page : une colonne étroite façon appli, barre d'onglets en bas sur mobile. */
+:root{
+  --red:#cc0000; --red-bright:#ff3b30; --gold:#f09600; --green:#2fbf71;
+  --bg:#08080a; --bg-alt:#101014; --surface:#16161b; --surface-2:#1d1d24;
+  --ink:#fff; --ink-soft:#a8a8b3; --line:#26262e;
+  --font-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --font-body:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --radius:14px; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--font-body);-webkit-font-smoothing:antialiased;min-height:100vh;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--red-bright)}
+h1,h2,h3{font-family:var(--font-display);text-transform:uppercase;line-height:1.02;margin:0;text-wrap:balance}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+[hidden]{display:none!important}
+
+/* En-tête */
+.top{position:sticky;top:0;z-index:20;background:rgba(8,8,10,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.top .wrap{display:flex;align-items:center;gap:12px;height:60px}
+.brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink)}
+.brand svg{width:40px;height:auto}
+.brand b{font:italic 800 1.5rem/1 var(--font-display);letter-spacing:.01em}
+.brand b span{color:var(--red)}
+.top .sub{font:600 .78rem/1 var(--font-display);letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);border-left:1px solid var(--line);padding-left:12px}
+.top .me{margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px 5px 5px;font-size:.85rem;font-weight:600;cursor:pointer;max-width:45%}
+.top .me i{width:26px;height:26px;border-radius:50%;background:var(--red);display:grid;place-items:center;font:italic 800 .9rem/1 var(--font-display);flex:none}
+.top .me span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Onglets */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(16,16,20,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs .wrap{display:flex;justify-content:space-around}
+.tabs button{flex:1;background:none;border:0;padding:9px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink-soft);font:600 .72rem/1 var(--font-body);cursor:pointer}
+.tabs button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabs button[aria-selected="true"]{color:var(--ink)}
+.tabs button[aria-selected="true"] svg{stroke:var(--red-bright)}
+@media (min-width:900px){
+  body{padding-bottom:40px}
+  .tabs{position:sticky;top:calc(61px + env(safe-area-inset-top,0px));bottom:auto;border-top:0;border-bottom:1px solid var(--line);background:var(--bg)}
+  .tabs button{flex-direction:row;gap:8px;font-size:.9rem;padding:14px 8px;border-bottom:2px solid transparent}
+  .tabs button[aria-selected="true"]{border-bottom-color:var(--red)}
+  .tabs button svg{width:20px;height:20px}
+}
+
+/* Sections */
+main{padding:20px 0 30px}
+.view{display:grid;gap:18px}
+.eyebrow{font:600 .8rem/1 var(--font-display);letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.muted{color:var(--ink-soft)}
+.small{font-size:.86rem}
+
+/* Bandeau du challenge */
+.hero{position:relative;overflow:hidden;border-radius:var(--radius);border:1px solid #3a2a10;padding:22px 20px 20px;background:
+  radial-gradient(120% 90% at 100% 0%, rgba(240,150,0,.18), transparent 60%),
+  repeating-linear-gradient(-45deg, rgba(255,255,255,.025) 0 14px, transparent 14px 28px), var(--surface)}
+.hero h1{font-size:clamp(2.2rem,8vw,3.4rem);font-style:italic;font-weight:800;margin:.35rem 0 .2rem}
+.hero .car{font:600 1.25rem/1.2 var(--font-display);text-transform:uppercase;letter-spacing:.02em;color:var(--ink-soft)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line);font-size:.86rem;font-weight:600}
+.chip.gold{border-color:rgba(240,150,0,.6);color:var(--gold);background:rgba(240,150,0,.08)}
+.live{display:inline-flex;align-items:center;gap:7px;font:600 .74rem/1 var(--font-display);letter-spacing:.16em;text-transform:uppercase;color:var(--red-bright)}
+.live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--red-bright);box-shadow:0 0 0 0 rgba(255,59,48,.6)}
+@media (prefers-reduced-motion:no-preference){.live::before{animation:pulse 1.8s infinite}}
+@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(255,59,48,0)}100%{box-shadow:0 0 0 0 rgba(255,59,48,0)}}
+.head-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* Podium */
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:8px;margin-top:4px}
+.step{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0}
+.step .who{font:700 1.15rem/1.1 var(--font-display);text-transform:uppercase;max-width:100%;overflow-wrap:anywhere}
+.step .t{font:600 .95rem/1 var(--font-display);color:var(--ink-soft);margin:4px 0 8px}
+.step .blk{width:100%;display:grid;place-items:center;border-radius:10px 10px 0 0;background:var(--surface-2);border:1px solid var(--line);border-bottom:0;font:italic 800 2.6rem/1 var(--font-display);color:var(--ink-soft)}
+.step.p1 .blk{height:118px;border-color:var(--gold);color:var(--gold);background:linear-gradient(to bottom,rgba(240,150,0,.28),var(--surface-2) 75%)}
+.step.p1 .t{color:var(--gold)}
+.step.p2 .blk{height:86px}.step.p3 .blk{height:62px}
+.step.empty .who{color:var(--ink-soft);font-weight:600}
+
+/* Classement */
+.board{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.board th,.board td{padding:11px 8px;text-align:left;border-top:1px solid var(--line)}
+.board thead th{font:600 .72rem/1 var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);border-top:0}
+.board td.r{font:italic 800 1.25rem/1 var(--font-display);color:var(--ink-soft);width:44px}
+.board td.n{font:700 1.08rem/1.15 var(--font-display);text-transform:uppercase;overflow-wrap:anywhere}
+.board td.t{font:700 1.1rem/1 var(--font-display);white-space:nowrap}
+.board td.g{color:var(--ink-soft);white-space:nowrap;text-align:right;font-size:.9rem}
+.board tr.first td.r,.board tr.first td.t{color:var(--gold)}
+.board tr.mine td{background:rgba(204,0,0,.14)}
+.board tr.mine td.n::after{content:" · toi";color:var(--red-bright);font-size:.8rem;text-transform:none}
+.board tr.flash td{animation:flash 2.2s ease-out}
+@keyframes flash{from{background:rgba(240,150,0,.35)}to{background:transparent}}
+.empty-state{text-align:center;padding:26px 10px;color:var(--ink-soft)}
+.empty-state b{display:block;color:var(--ink);font:700 1.3rem/1.1 var(--font-display);text-transform:uppercase;margin-bottom:6px}
+
+/* Bloc "ma position" */
+.mypos{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:rgba(204,0,0,.12);border:1px solid rgba(204,0,0,.5)}
+.mypos .big{font:italic 900 2.6rem/1 var(--font-display);color:var(--red-bright)}
+.mypos .txt{font-size:.92rem}
+
+/* Défis spéciaux */
+.defi{border-color:rgba(204,0,0,.6)}
+.defi h2{font-size:1.9rem;font-style:italic;color:var(--red-bright)}
+.cars{display:grid;gap:10px;margin-top:14px}
+.car-row{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg-alt)}
+.car-row .l1{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.car-row .l1 b{font:700 1.08rem/1.15 var(--font-display);text-transform:uppercase}
+.car-row .ref{font:700 1.15rem/1 var(--font-display);color:var(--gold);white-space:nowrap}
+.car-row ol{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:4px;font-size:.9rem}
+.car-row li{display:flex;justify-content:space-between;gap:8px}
+.beat{color:var(--green);font-weight:700}
+.lot{border:1px solid var(--gold);background:rgba(240,150,0,.08);border-radius:12px;padding:12px 14px;margin-top:14px}
+.lot b{font:700 1.05rem/1.1 var(--font-display);text-transform:uppercase;color:var(--gold);display:block;margin-bottom:3px}
+
+/* Palmarès */
+.month{display:grid;gap:10px}
+.month .row{display:flex;gap:10px;flex-wrap:wrap}
+.medal{flex:1 1 150px;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--bg-alt);border:1px solid var(--line);min-width:0}
+.medal i{font:italic 800 1.5rem/1 var(--font-display);color:var(--ink-soft);width:26px;text-align:center;flex:none}
+.medal.m1{border-color:var(--gold)}.medal.m1 i{color:var(--gold)}
+.medal span{min-width:0}
+.medal b{display:block;font:700 1.02rem/1.1 var(--font-display);text-transform:uppercase;overflow-wrap:anywhere}
+
+/* Formulaires */
+label{display:block;font-weight:600;font-size:.88rem;margin-bottom:6px}
+input,select,textarea{width:100%;background:var(--bg-alt);border:1px solid #33333d;border-radius:10px;padding:12px 13px;font-size:16px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--red-bright);outline-offset:1px;border-color:transparent}
+.field{display:grid;gap:0}
+.grid2{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:13px 22px;font:700 1rem/1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;background:var(--red);color:#fff;text-decoration:none}
+.btn:hover{background:#e00000}
+.btn.ghost{background:transparent;border:1px solid #3a3a45;color:var(--ink)}
+.btn.ghost:hover{border-color:var(--ink-soft)}
+.btn.gold{background:var(--gold);color:#140c00}
+.btn.small{padding:8px 14px;font-size:.85rem}
+.btn:disabled{opacity:.55;cursor:default}
+.btn:focus-visible,.tabs button:focus-visible,.top .me:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.msg{font-size:.9rem;min-height:1.2em;margin:8px 0 0}
+.msg.err{color:var(--red-bright)}.msg.ok{color:var(--green)}
+.seg{display:inline-flex;background:var(--bg-alt);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{background:none;border:0;border-radius:999px;padding:8px 14px;font-weight:600;font-size:.88rem;color:var(--ink-soft);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface-2);color:var(--ink)}
+.preview{font:700 1.4rem/1 var(--font-display);color:var(--gold);min-height:1.4rem;margin-top:6px}
+.check{display:flex;align-items:center;gap:8px;font-weight:500}
+.check input{width:auto}
+
+/* Carte pilote */
+.cardimg{width:100%;max-width:360px;aspect-ratio:4/5;border-radius:12px;border:1px solid var(--line);display:block;margin:0 auto;background:var(--bg-alt)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;text-align:center}
+.stats div{background:var(--bg-alt);border:1px solid var(--line);border-radius:10px;padding:10px 4px}
+.stats b{display:block;font:800 1.7rem/1 var(--font-display)}
+.stats span{font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+
+/* Admin */
+.admin-list{display:grid;gap:6px;max-height:360px;overflow:auto}
+.admin-list .it{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;background:var(--bg-alt);border:1px solid var(--line);font-size:.9rem}
+.admin-list .it .grow{flex:1;min-width:0;overflow-wrap:anywhere}
+.admin-list .it b{font-family:var(--font-display);font-size:1.05rem;text-transform:uppercase}
+.tag{font-size:.72rem;padding:2px 7px;border-radius:999px;border:1px solid var(--line);color:var(--ink-soft);white-space:nowrap}
+.tag.on{border-color:var(--green);color:var(--green)}
+details.card>summary{cursor:pointer;font:700 1.25rem/1.1 var(--font-display);text-transform:uppercase;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.card>summary::-webkit-details-marker{display:none}
+details.card>summary::after{content:"+";color:var(--ink-soft);font-size:1.4rem}
+details.card[open]>summary::after{content:"–"}
+details.card[open]>summary{margin-bottom:14px}
+
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;background:var(--ink);color:#000;font-weight:600;padding:12px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.6);max-width:calc(100% - 32px);text-align:center}
+.foot{text-align:center;color:var(--ink-soft);font-size:.82rem;padding:10px 0 20px}
+.foot a{color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="SIMBOX, retour au site">
+      <svg viewBox="0 6 120 68" aria-hidden="true"><path d="M13.03 58.36 A47 47 0 0 1 99.86 35.09" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/><path d="M99.86 35.09 A47 47 0 0 1 106.94 62.46" fill="none" stroke="#cc0000" stroke-width="10"/><polygon points="59,55 59,65 8.64,68.5" fill="#cc0000"/><polygon points="61,55 61,65 111.36,68.5" fill="#cc0000"/><ellipse cx="60" cy="64" rx="6.5" ry="4.8" fill="#08080a"/></svg>
+      <b>SIM<span>BOX</span></b>
+    </a>
+    <span class="sub">Espace pilotes</span>
+    <button class="me" id="meBtn" type="button" hidden><i id="meInit"></i><span id="meName"></span></button>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Rubriques">
+  <div class="wrap" role="tablist">
+    <button type="button" role="tab" data-tab="challenge" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>Challenge</button>
+    <button type="button" role="tab" data-tab="defis" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 13l3-3M9 2h6"/></svg>Défis</button>
+    <button type="button" role="tab" data-tab="palmares" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>Palmarès</button>
+    <button type="button" role="tab" data-tab="moi" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M14 10h4M14 14h4M6 16.5c.6-1.5 1.7-2 3-2s2.4.5 3 2"/></svg>Ma carte</button>
+    <button type="button" role="tab" data-tab="admin" aria-selected="false" id="adminTab" hidden><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Gérant</button>
+  </div>
+</nav>
+
+<main class="wrap">
+  <!-- CHALLENGE DU MOIS -->
+  <section class="view" id="v-challenge" role="tabpanel">
+    <div class="hero" id="hero"><p class="eyebrow">Challenge chrono</p><h1>Chargement…</h1></div>
+    <div id="myPos"></div>
+    <div class="card" id="boardCard">
+      <div class="head-row"><h2 style="font-size:1.5rem">Classement</h2><span class="live" id="liveTag">En direct</span></div>
+      <div id="podium" style="margin-top:14px"></div>
+      <div id="board" style="margin-top:10px;overflow-x:auto"></div>
+      <p class="small muted" id="updated" style="margin:10px 0 0"></p>
+    </div>
+    <div class="card small muted">
+      <b style="color:var(--ink)">Comment ça marche ?</b> Viens à la salle, roule 5 minutes sur le circuit du mois : ton meilleur tour est saisi au classement. Le plus rapide à la fin du mois remporte les lots. Crée ton compte pilote dans « Ma carte » pour être prévenu si quelqu'un te prend ta place.
+    </div>
+  </section>
+
+  <!-- DÉFIS SPÉCIAUX -->
+  <section class="view" id="v-defis" role="tabpanel" hidden></section>
+
+  <!-- PALMARÈS -->
+  <section class="view" id="v-palmares" role="tabpanel" hidden></section>
+
+  <!-- MA CARTE -->
+  <section class="view" id="v-moi" role="tabpanel" hidden>
+    <div id="authBox" class="card">
+      <p class="eyebrow">Compte pilote</p>
+      <h2 style="font-size:1.8rem;margin:.3rem 0 .8rem">Ta carte pilote SimBox</h2>
+      <div class="seg" role="group" aria-label="Choix">
+        <button type="button" id="segLogin" aria-pressed="true">Se connecter</button>
+        <button type="button" id="segReg" aria-pressed="false">Créer mon compte</button>
+      </div>
+      <form id="authForm" style="margin-top:16px;display:grid;gap:12px">
+        <div class="field"><label for="aPseudo">Pseudo</label><input id="aPseudo" autocomplete="username" maxlength="24" placeholder="Ex. M.V 3" required></div>
+        <div class="field"><label for="aPin">Code à 4 chiffres</label><input id="aPin" type="password" inputmode="numeric" pattern="\d{4}" maxlength="4" autocomplete="current-password" placeholder="••••" required></div>
+        <p class="small muted" id="regHint" hidden style="margin:0">Tu as déjà un chrono au classement ? Utilise exactement le même pseudo pour récupérer tes temps. Choisis un code que tu retiendras.</p>
+        <div class="actions"><button class="btn" type="submit" id="authSubmit">Se connecter</button></div>
+        <p class="msg" id="authMsg"></p>
+      </form>
+    </div>
+    <div id="meBox" hidden style="display:grid;gap:18px"></div>
+    <p class="foot"><a href="#" id="adminLink">Accès gérant</a></p>
+  </section>
+
+  <!-- GÉRANT -->
+  <section class="view" id="v-admin" role="tabpanel" hidden>
+    <div class="card" id="adminLogin">
+      <p class="eyebrow">Gérant</p>
+      <h2 style="font-size:1.8rem;margin:.3rem 0 .8rem">Accès gérant</h2>
+      <form id="adminForm" style="display:grid;gap:12px">
+        <div class="field"><label for="adCode">Code gérant</label><input id="adCode" type="password" inputmode="numeric" autocomplete="current-password" required></div>
+        <div class="actions"><button class="btn" type="submit">Entrer</button></div>
+        <p class="msg" id="adMsg"></p>
+      </form>
+    </div>
+    <div id="adminBox" hidden style="display:grid;gap:18px"></div>
+  </section>
+</main>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+  "use strict";
+  // ---------- Connexion à la base Neon ----------
+  const AUTH_URL = "https://ep-bold-paper-b90hj6av.neonauth.c-7.eu-central-1.aws.neon.tech/neondb/auth";
+  const REST_URL = "https://ep-bold-paper-b90hj6av.apirest.c-7.eu-central-1.aws.neon.tech/neondb/rest/v1";
+  const PUSH_URL = "https://br-crimson-fog-b9clrljy-simboxpush.compute.c-7.eu-central-1.aws.neon.tech/";
+  const VAPID_PUB = "BFBs0RO4HEy6aPxhKvXL2tXfd6rLdeuCc8-gw4ZBAEKZ8sEbKEY9-VUgJWjN33H8WZH1JwTHEwu4Qu4XPl0Jb68";
+  const SITE = "la-simbox.github.io/pilotes";
+
+  let jwt = null, jwtExp = 0;
+  async function getJwt(){
+    if (jwt && Date.now()/1000 < jwtExp - 60) return jwt;
+    const r = await fetch(AUTH_URL + "/token/anonymous");
+    if (!r.ok) throw new Error("Connexion au serveur impossible. Vérifie ta connexion internet.");
+    const j = await r.json(); jwt = j.token; jwtExp = j.expires_at || (Date.now()/1000 + 600); return jwt;
+  }
+  async function rpc(name, args){
+    let res;
+    try {
+      res = await fetch(REST_URL + "/rpc/" + name, { method:"POST", headers:{ authorization:"Bearer " + (await getJwt()), "content-type":"application/json", "content-profile":"api", "accept-profile":"api" }, body: JSON.stringify(args || {}) });
+    } catch (e) { throw new Error("Connexion au serveur impossible. Vérifie ta connexion internet."); }
+    let data = {}; try { data = await res.json(); } catch (e) {}
+    const msg = !res.ok ? (data.message || "Erreur serveur. Réessaie dans un instant.") : (data && data.error) || "";
+    if (msg) {
+      if (/^AUTH:/.test(msg)) { store.del("sb_admin"); adminToken = null; renderAdminGate(); }
+      if (/^PILOT:/.test(msg)) { logoutPilot(); }
+      throw new Error(msg.replace(/^(AUTH|PILOT):/, ""));
+    }
+    return data;
+  }
+  const kickPush = () => setTimeout(() => fetch(PUSH_URL, { method:"POST" }).catch(() => {}), 300);
+
+  // ---------- Petits outils ----------
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+  const store = {
+    get(k){ try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+    set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+    del(k){ try { localStorage.removeItem(k); } catch (e) {} }
+  };
+  const fmt = ms => { if (ms == null) return "—"; const m = Math.floor(ms/60000), s = Math.floor(ms/1000) % 60, x = ms % 1000; return m + "'" + String(s).padStart(2,"0") + '"' + String(x).padStart(3,"0"); };
+  const fmtGap = ms => { if (!ms) return "—"; if (ms < 60000) { return "+" + Math.floor(ms/1000) + '"' + String(ms % 1000).padStart(3,"0"); } return "+" + fmt(ms); };
+  const MONTHS = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+  const monthLabel = iso => { if (!iso) return ""; const [y, m] = iso.split("-").map(Number); return MONTHS[m-1] + " " + y; };
+  const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+  function parseChrono(t){
+    const s = String(t || "").replace(/\s+/g, "");
+    let m = s.match(/^(\d{1,2})[,:'h′.](\d{1,2})[,."″:](\d{1,3})$/);
+    if (m) { if (+m[2] > 59) return null; return (+m[1])*60000 + (+m[2])*1000 + +m[3].padEnd(3,"0"); }
+    m = s.match(/^(\d{1,3})[,.](\d{1,3})$/);
+    if (m) return (+m[1])*1000 + +m[2].padEnd(3,"0");
+    return null;
+  }
+  function toast(text, ms = 3200){ const t = $("#toast"); t.textContent = text; t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => t.hidden = true, ms); }
+  function setMsg(el, text, kind){ el.textContent = text || ""; el.className = "msg" + (kind ? " " + kind : ""); }
+  function daysLeft(){
+    const now = new Date(); const end = new Date(now.getFullYear(), now.getMonth()+1, 1);
+    const d = Math.ceil((end - now) / 86400000);
+    return d <= 1 ? "Dernier jour !" : "Plus que " + d + " jours";
+  }
+
+  // ---------- État ----------
+  let data = null, pilot = store.get("sb_pilot"), adminToken = store.get("sb_admin");
+  let lastRanks = store.get("sb_lastRanks") || {}, lastBoardIds = null, updatedAt = 0;
+
+  // ---------- Onglets ----------
+  const TABS = ["challenge","defis","palmares","moi","admin"];
+  function showTab(name, push = true){
+    if (!TABS.includes(name)) name = "challenge";
+    if (name === "admin") $("#adminTab").hidden = false;
+    document.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === name ? "true" : "false"));
+    TABS.forEach(t => { $("#v-" + t).hidden = t !== name; });
+    if (push && location.hash !== "#" + name) history.replaceState(null, "", "#" + name);
+    if (name === "moi") renderMe();
+    if (name === "admin") renderAdminGate();
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+  $("#meBtn").addEventListener("click", () => showTab("moi"));
+  $("#adminLink").addEventListener("click", e => { e.preventDefault(); showTab("admin"); });
+  window.addEventListener("hashchange", () => routeHash());
+  function routeHash(){
+    const h = location.hash.replace("#", "");
+    if (/^c\d+$/.test(h)) { const id = +h.slice(1); const isSpecial = data && data.specials.some(c => c.id === id); showTab(isSpecial ? "defis" : "challenge", false); return; }
+    showTab(h || "challenge", false);
+  }
+
+  // ---------- Chargement des données ----------
+  async function load(silent){
+    try {
+      data = await rpc("public_data", { pilot_token: pilot ? pilot.token : null });
+      if (pilot && !data.me) { logoutPilot(); }
+      updatedAt = Date.now();
+      renderChallenge(); renderDefis(); renderPalmares(); renderHeaderMe();
+      if (!$("#v-moi").hidden) renderMe();
+      checkOvertaken();
+    } catch (e) {
+      if (!silent) { $("#hero").innerHTML = '<p class="eyebrow">Challenge chrono</p><h1>Hors ligne</h1><p class="muted">' + esc(e.message) + '</p>'; }
+    }
+  }
+  setInterval(() => { if (!document.hidden) load(true); }, 25000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && Date.now() - updatedAt > 8000) load(true); });
+  setInterval(() => { if (updatedAt) { const s = Math.round((Date.now() - updatedAt)/1000); $("#updated").textContent = s < 5 ? "Mis à jour à l'instant" : "Mis à jour il y a " + s + " s"; } }, 1000);
+
+  // Le pilote a-t-il perdu une place depuis sa dernière visite ? (en plus des notifications)
+  function checkOvertaken(){
+    if (!data.me || !data.current) return;
+    const row = data.current.groups[0].board.find(r => r.pilotId === data.me.id);
+    const key = "c" + data.current.id;
+    if (row) {
+      const prev = lastRanks[key];
+      if (prev && row.rank > prev) toast("Tu es passé de P" + prev + " à P" + row.rank + ". Viens reprendre ta place !", 5000);
+      lastRanks[key] = row.rank; store.set("sb_lastRanks", lastRanks);
+    }
+  }
+
+  // ---------- Rendu : challenge du mois ----------
+  function podiumHtml(board){
+    const by = r => board.find(x => x.rank === r) || null;
+    const order = [[by(2),2],[by(1),1],[by(3),3]];
+    return '<div class="podium">' + order.map(([r, n]) => r
+      ? '<div class="step p' + n + '"><div class="who">' + esc(r.pseudo) + '</div><div class="t num">' + fmt(r.ms) + '</div><div class="blk">' + n + '</div></div>'
+      : '<div class="step p' + n + ' empty"><div class="who">Libre</div><div class="t">—</div><div class="blk">' + n + '</div></div>').join("") + '</div>';
+  }
+  function boardHtml(board, opts = {}){
+    if (!board.length) return '<div class="empty-state"><b>Aucun chrono pour l\'instant</b>Le premier à rouler prend la tête du classement.</div>';
+    const myId = data.me && data.me.id;
+    return '<table class="board"><thead><tr><th>Pos.</th><th>Pilote</th><th>Temps</th><th style="text-align:right">Écart</th></tr></thead><tbody>' +
+      board.map(r => {
+        const cls = [r.rank === 1 ? "first" : "", r.pilotId === myId ? "mine" : "", opts.flash && opts.flash.has(r.pilotId) ? "flash" : ""].filter(Boolean).join(" ");
+        return '<tr class="' + cls + '"><td class="r">' + r.rank + '</td><td class="n">' + esc(r.pseudo) + '</td><td class="t">' + fmt(r.ms) + '</td><td class="g">' + (r.rank === 1 ? "Leader" : fmtGap(r.gap)) + '</td></tr>';
+      }).join("") + '</tbody></table>';
+  }
+  function renderChallenge(){
+    const c = data.current;
+    const hero = $("#hero");
+    if (!c) {
+      hero.innerHTML = '<p class="eyebrow">Challenge chrono · ' + esc(cap(monthLabel(data.mois))) + '</p><h1>Bientôt</h1><p class="car">Le circuit du mois sera annoncé très vite.</p>';
+      $("#podium").innerHTML = ""; $("#board").innerHTML = '<div class="empty-state"><b>Pas encore ouvert</b>Reviens dans quelques jours.</div>'; $("#myPos").innerHTML = ""; return;
+    }
+    const known = c.circuit || c.voiture;
+    hero.innerHTML = '<div class="head-row"><p class="eyebrow">Challenge chrono · ' + esc(cap(monthLabel(c.mois))) + '</p><span class="chip">' + daysLeft() + '</span></div>' +
+      '<h1>' + esc(c.circuit || "Circuit à annoncer") + '</h1>' +
+      '<p class="car">' + esc(c.voiture || (known ? "" : "La voiture et le circuit du mois arrivent très vite")) + '</p>' +
+      '<div class="chips"><span class="chip">' + esc(c.tarif) + '</span><span class="chip gold">🏆 ' + esc(c.lot) + ' pour le plus rapide</span></div>';
+    const board = c.groups[0].board;
+    const ids = new Set(board.map(r => r.pilotId + ":" + r.ms));
+    const flash = new Set();
+    if (lastBoardIds) board.forEach(r => { if (!lastBoardIds.has(r.pilotId + ":" + r.ms)) flash.add(r.pilotId); });
+    lastBoardIds = ids;
+    $("#podium").innerHTML = board.length ? podiumHtml(board) : "";
+    $("#board").innerHTML = boardHtml(board, { flash });
+    // Ma position
+    const mp = $("#myPos");
+    if (data.me) {
+      const row = board.find(r => r.pilotId === data.me.id);
+      if (row) {
+        const ahead = board.filter(r => r.rank < row.rank).sort((a, b) => b.rank - a.rank)[0];
+        mp.innerHTML = '<div class="mypos"><div class="big">P' + row.rank + '</div><div class="txt"><b>' + esc(data.me.pseudo) + '</b>, ton meilleur tour : <b class="num">' + fmt(row.ms) + '</b>.<br>' +
+          (ahead ? 'Il te manque <b class="num">' + fmtGap(row.ms - ahead.ms).slice(1) + '</b> pour passer devant ' + esc(ahead.pseudo) + '.' : 'Tu es en tête. Tiens bon jusqu\'à la fin du mois !') + '</div></div>';
+      } else mp.innerHTML = '<div class="mypos"><div class="big">—</div><div class="txt"><b>' + esc(data.me.pseudo) + '</b>, tu n\'as pas encore de chrono ce mois-ci. Passe à la salle pour entrer au classement.</div></div>';
+    } else mp.innerHTML = "";
+  }
+
+  // ---------- Rendu : défis spéciaux ----------
+  function renderDefis(){
+    const v = $("#v-defis");
+    if (!data.specials.length) { v.innerHTML = '<div class="card empty-state"><b>Aucun défi en cours</b>Le prochain défi spécial arrive bientôt.</div>'; return; }
+    const myId = data.me && data.me.id;
+    v.innerHTML = data.specials.map(c => '<article class="card defi" id="c' + c.id + '">' +
+      '<p class="eyebrow">Défi spécial · ' + esc(c.circuit) + '</p><h2 style="margin:.35rem 0 .5rem">' + esc(c.titre) + '</h2>' +
+      (c.regle ? '<p class="muted" style="margin:0">' + esc(c.regle) + '</p>' : '') +
+      '<div class="chips"><span class="chip">' + esc(c.tarif) + '</span></div>' +
+      '<div class="cars">' + c.groups.map(g => {
+        const top = g.board.slice(0, 5);
+        return '<div class="car-row"><div class="l1"><b>' + esc(g.voiture) + '</b>' + (g.refMs ? '<span class="ref num" title="Chrono à battre">' + fmt(g.refMs) + '</span>' : '') + '</div>' +
+          (g.refMs ? '<div class="small muted">Chrono de référence à battre</div>' : '') +
+          (top.length ? '<ol>' + top.map(r => '<li' + (r.pilotId === myId ? ' style="color:var(--red-bright)"' : '') + '><span>' + r.rank + '. ' + esc(r.pseudo) + '</span><span class="num">' + fmt(r.ms) + (g.refMs && r.ms < g.refMs ? ' <span class="beat">✓ battu</span>' : '') + '</span></li>').join("") + '</ol>' : '<p class="small muted" style="margin:6px 0 0">Personne n\'a encore tenté sa chance.</p>') +
+          '</div>';
+      }).join("") + '</div>' +
+      (c.lot ? '<div class="lot"><b>À gagner</b>' + esc(c.lot) + '</div>' : '') +
+      '</article>').join("");
+  }
+
+  // ---------- Rendu : palmarès ----------
+  function renderPalmares(){
+    const v = $("#v-palmares");
+    const arch = data.archive;
+    v.innerHTML = '<div><p class="eyebrow">Palmarès</p><h2 style="font-size:2rem;margin-top:.35rem">Les champions du mois</h2></div>' +
+      (arch.length ? arch.map(a => '<article class="card month"><div class="head-row"><h3 style="font-size:1.4rem">' + esc(cap(monthLabel(a.mois))) + '</h3><span class="small muted">' + esc([a.circuit, a.voiture].filter(Boolean).join(" · ")) + '</span></div><div class="row">' +
+        (a.podium.length ? a.podium.map(r => '<div class="medal m' + r.rank + '"><i>' + r.rank + '</i><span><b>' + esc(r.pseudo) + '</b><span class="small muted num">' + fmt(r.ms) + '</span></span></div>').join("") : '<p class="muted small">Pas de participant.</p>') +
+        '</div></article>').join("") : '<div class="card empty-state"><b>Premier mois en cours</b>Le palmarès se remplira à la fin du mois.</div>');
+  }
+
+  // ---------- Compte pilote ----------
+  let regMode = false;
+  function setRegMode(on){
+    regMode = on;
+    $("#segLogin").setAttribute("aria-pressed", on ? "false" : "true");
+    $("#segReg").setAttribute("aria-pressed", on ? "true" : "false");
+    $("#authSubmit").textContent = on ? "Créer mon compte" : "Se connecter";
+    $("#regHint").hidden = !on;
+    $("#aPin").autocomplete = on ? "new-password" : "current-password";
+    setMsg($("#authMsg"), "");
+  }
+  $("#segLogin").addEventListener("click", () => setRegMode(false));
+  $("#segReg").addEventListener("click", () => setRegMode(true));
+  $("#authForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const btn = $("#authSubmit"); btn.disabled = true; setMsg($("#authMsg"), "…");
+    try {
+      const r = await rpc(regMode ? "pilot_register" : "pilot_login", { pseudo: $("#aPseudo").value, pin: $("#aPin").value });
+      pilot = { token: r.pilotToken, id: r.pilotId, pseudo: r.pseudo }; store.set("sb_pilot", pilot);
+      $("#aPin").value = ""; setMsg($("#authMsg"), "");
+      await load(true); renderMe(); toast("Bienvenue " + r.pseudo + " !");
+    } catch (err) { setMsg($("#authMsg"), err.message, "err"); }
+    finally { btn.disabled = false; }
+  });
+  function logoutPilot(){ pilot = null; store.del("sb_pilot"); if (data) data.me = null; renderHeaderMe(); renderMe(); }
+  function renderHeaderMe(){
+    const b = $("#meBtn");
+    if (data && data.me) { b.hidden = false; $("#meInit").textContent = data.me.pseudo.charAt(0).toUpperCase(); $("#meName").textContent = data.me.pseudo; }
+    else b.hidden = true;
+  }
+
+  function myCurrent(){
+    if (!data.me || !data.current) return null;
+    return data.current.groups[0].board.find(r => r.pilotId === data.me.id) || null;
+  }
+  function renderMe(){
+    const box = $("#meBox"), auth = $("#authBox");
+    if (!data || !data.me) { auth.hidden = false; box.hidden = true; return; }
+    auth.hidden = true; box.hidden = false;
+    const me = data.me;
+    const pushOk = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+    box.innerHTML =
+      '<div class="card"><p class="eyebrow">Carte pilote</p><h2 style="font-size:2rem;margin:.35rem 0 1rem">' + esc(me.pseudo) + '</h2>' +
+      '<img class="cardimg" id="cardImg" alt="Ta carte pilote SimBox">' +
+      '<div class="actions" style="justify-content:center;margin-top:14px"><button class="btn gold" type="button" id="shareCard">Partager sur Instagram</button><button class="btn ghost" type="button" id="dlCard">Télécharger</button></div>' +
+      '<p class="small muted" style="text-align:center;margin:10px 0 0">Partage-la en story et identifie <b>@lasimbox</b>.</p></div>' +
+      '<div class="stats"><div><b class="num">' + me.participations + '</b><span>Challenges</span></div><div><b class="num">' + me.tours + '</b><span>Chronos</span></div><div><b class="num">' + me.podiums + '</b><span>Podiums</span></div><div><b class="num">' + me.victoires + '</b><span>Victoires</span></div></div>' +
+      '<div class="card"><h3 style="font-size:1.3rem">Notifications</h3><p class="small muted" style="margin:.4rem 0 .8rem">Sois prévenu dès que quelqu\'un te prend ta place au classement.</p>' +
+      (pushOk ? '<button class="btn" type="button" id="pushBtn">Activer les notifications</button><p class="msg" id="pushMsg"></p>'
+        : isIos && !standalone ? '<p class="small">Sur iPhone : touche <b>Partager</b> puis <b>Sur l\'écran d\'accueil</b>. Ouvre ensuite l\'appli SimBox Pilotes depuis ton écran d\'accueil pour activer les notifications.</p>'
+        : '<p class="small muted">Ton navigateur ne gère pas les notifications. Essaie avec Chrome ou Safari à jour.</p>') + '</div>' +
+      '<div class="actions"><button class="btn ghost small" type="button" id="logout">Se déconnecter</button></div>';
+    $("#logout").addEventListener("click", () => { logoutPilot(); toast("Déconnecté."); });
+    if (pushOk) { $("#pushBtn").addEventListener("click", enablePush); refreshPushState(); }
+    drawCard().then(blob => { if (blob) { const u = URL.createObjectURL(blob); $("#cardImg").src = u; box._blob = blob; } });
+    $("#shareCard").addEventListener("click", shareCard);
+    $("#dlCard").addEventListener("click", () => downloadBlob(box._blob));
+  }
+
+  // ---------- Carte pilote (image 1080 × 1350 pour Instagram) ----------
+  async function drawCard(){
+    try { await Promise.all([document.fonts.load('italic 900 100px "Barlow Condensed"'), document.fonts.load('700 40px "Barlow Condensed"'), document.fonts.load('600 30px "Inter"')]); } catch (e) {}
+    const W = 1080, H = 1350, cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+    const g = cv.getContext("2d"), me = data.me, cur = data.current, row = myCurrent();
+    g.fillStyle = "#08080a"; g.fillRect(0, 0, W, H);
+    // lueur et rayures
+    let grd = g.createRadialGradient(W, 0, 50, W, 0, 900); grd.addColorStop(0, "rgba(204,0,0,.45)"); grd.addColorStop(1, "rgba(204,0,0,0)"); g.fillStyle = grd; g.fillRect(0, 0, W, H);
+    g.save(); g.globalAlpha = .05; g.strokeStyle = "#fff"; g.lineWidth = 18; for (let x = -H; x < W; x += 56) { g.beginPath(); g.moveTo(x, H); g.lineTo(x + H, 0); g.stroke(); } g.restore();
+    // damier
+    for (let i = 0; i < 27; i++) for (let j = 0; j < 2; j++) { g.fillStyle = (i + j) % 2 ? "#fff" : "#08080a"; g.fillRect(i * 40, H - 80 + j * 40, 40, 40); }
+    // logo
+    const logo = new Image(); logo.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent($(".brand svg").outerHTML.replace('viewBox', 'xmlns="http://www.w3.org/2000/svg" viewBox'));
+    await new Promise(r => { logo.onload = r; logo.onerror = r; });
+    try { g.drawImage(logo, 70, 70, 130, 74); } catch (e) {}
+    g.textBaseline = "alphabetic";
+    g.font = 'italic 900 70px "Barlow Condensed", Arial Narrow, sans-serif'; g.fillStyle = "#fff"; g.fillText("SIM", 215, 135); const w1 = g.measureText("SIM").width; g.fillStyle = "#cc0000"; g.fillText("BOX", 215 + w1, 135);
+    g.font = '700 30px "Barlow Condensed", sans-serif'; g.fillStyle = "#f09600"; g.textAlign = "right"; g.fillText("CARTE PILOTE", W - 70, 128); g.textAlign = "left";
+    // pseudo
+    let size = 190; g.font = 'italic 900 ' + size + 'px "Barlow Condensed", sans-serif';
+    const name = me.pseudo.toUpperCase(); while (g.measureText(name).width > W - 140 && size > 70) { size -= 6; g.font = 'italic 900 ' + size + 'px "Barlow Condensed", sans-serif'; }
+    g.fillStyle = "#fff"; g.fillText(name, 66, 380);
+    g.font = '500 32px "Inter", sans-serif'; g.fillStyle = "#a8a8b3";
+    const since = new Date(me.depuis); g.fillText("Pilote SimBox depuis " + MONTHS[since.getMonth()] + " " + since.getFullYear(), 70, 440);
+    // bloc position
+    g.fillStyle = "rgba(255,255,255,.05)"; roundRect(g, 70, 500, W - 140, 360, 28); g.fill();
+    g.strokeStyle = row && row.rank === 1 ? "#f09600" : "#cc0000"; g.lineWidth = 4; roundRect(g, 70, 500, W - 140, 360, 28); g.stroke();
+    g.font = '700 34px "Barlow Condensed", sans-serif'; g.fillStyle = "#f09600";
+    g.fillText(("Challenge " + (cur ? monthLabel(cur.mois) : "")).toUpperCase(), 110, 565);
+    if (row) {
+      g.font = 'italic 900 230px "Barlow Condensed", sans-serif'; g.fillStyle = row.rank === 1 ? "#f09600" : "#ff3b30"; g.fillText("P" + row.rank, 100, 800);
+      const pw = g.measureText("P" + row.rank).width;
+      g.font = '700 86px "Barlow Condensed", sans-serif'; g.fillStyle = "#fff"; g.fillText(fmt(row.ms), 140 + pw, 735);
+      g.font = '500 30px "Inter", sans-serif'; g.fillStyle = "#a8a8b3";
+      wrapText(g, [cur.circuit, cur.voiture].filter(Boolean).join(" · ") || "Circuit du mois", 140 + pw, 790, W - 260 - pw, 38);
+    } else {
+      g.font = 'italic 900 120px "Barlow Condensed", sans-serif'; g.fillStyle = "#fff"; g.fillText("EN PISTE", 105, 720);
+      g.font = '500 32px "Inter", sans-serif'; g.fillStyle = "#a8a8b3"; g.fillText("Prochain chrono à la SimBox", 110, 790);
+    }
+    // stats
+    const st = [[me.participations, "CHALLENGES"], [me.tours, "CHRONOS"], [me.podiums, "PODIUMS"], [me.victoires, "VICTOIRES"]];
+    const cw = (W - 140 - 3 * 20) / 4;
+    st.forEach(([n, l], i) => { const x = 70 + i * (cw + 20); g.fillStyle = "rgba(255,255,255,.05)"; roundRect(g, x, 900, cw, 170, 22); g.fill();
+      g.textAlign = "center"; g.font = '800 92px "Barlow Condensed", sans-serif'; g.fillStyle = "#fff"; g.fillText(String(n), x + cw/2, 1000);
+      g.font = '600 24px "Inter", sans-serif'; g.fillStyle = "#a8a8b3"; g.fillText(l, x + cw/2, 1045); g.textAlign = "left"; });
+    g.font = 'italic 800 46px "Barlow Condensed", sans-serif'; g.fillStyle = "#fff"; g.fillText("DU VIRTUEL AU RÉEL", 70, 1170);
+    g.font = '500 28px "Inter", sans-serif'; g.fillStyle = "#a8a8b3"; g.fillText(SITE + " · La Gorgue", 70, 1220);
+    return new Promise(r => cv.toBlob(r, "image/png"));
+  }
+  function roundRect(g, x, y, w, h, r){ g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+  function wrapText(g, text, x, y, maxW, lh){ const words = text.split(" "); let line = ""; for (const w of words) { const t = line ? line + " " + w : w; if (g.measureText(t).width > maxW && line) { g.fillText(line, x, y); line = w; y += lh; } else line = t; } if (line) g.fillText(line, x, y); }
+  function downloadBlob(blob){ if (!blob) return; const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "carte-pilote-simbox.png"; document.body.appendChild(a); a.click(); a.remove(); }
+  async function shareCard(){
+    const blob = $("#meBox")._blob; if (!blob) return;
+    const file = new File([blob], "carte-pilote-simbox.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: "Ma carte pilote SimBox", text: "Mon classement au challenge chrono SimBox 🏁 " + SITE }); } catch (e) {}
+    } else { downloadBlob(blob); toast("Image téléchargée : publie-la depuis Instagram."); }
+  }
+
+  // ---------- Notifications ----------
+  const b64ToBytes = s => { const p = "=".repeat((4 - s.length % 4) % 4); const b = atob((s + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(b, c => c.charCodeAt(0)); };
+  async function refreshPushState(){
+    const btn = $("#pushBtn"); if (!btn) return;
+    try { const reg = await navigator.serviceWorker.getRegistration(); const sub = reg && await reg.pushManager.getSubscription();
+      if (sub && Notification.permission === "granted") { btn.textContent = "Notifications activées ✓"; btn.classList.add("ghost"); } } catch (e) {}
+  }
+  async function enablePush(){
+    const m = $("#pushMsg");
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== "granted") { setMsg(m, "Notifications refusées. Tu peux les autoriser dans les réglages du navigateur.", "err"); return; }
+      const reg = await navigator.serviceWorker.register("sw.js"); await navigator.serviceWorker.ready;
+      const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(VAPID_PUB) });
+      await rpc("push_subscribe", { pilot_token: pilot.token, endpoint: sub.endpoint });
+      setMsg(m, "C'est activé : tu seras prévenu si on te dépasse.", "ok"); refreshPushState();
+    } catch (e) { setMsg(m, e.message || "Activation impossible.", "err"); }
+  }
+
+  // ---------- Espace gérant ----------
+  $("#adminForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    try { const r = await rpc("admin_login", { code: $("#adCode").value }); adminToken = r.adminToken; store.set("sb_admin", adminToken); $("#adCode").value = ""; setMsg($("#adMsg"), ""); renderAdminGate(); }
+    catch (err) { setMsg($("#adMsg"), err.message, "err"); }
+  });
+  function renderAdminGate(){
+    const on = !!adminToken; $("#adminLogin").hidden = on; $("#adminBox").hidden = !on;
+    if (on) { $("#adminTab").hidden = false; if (!$("#adminBox").dataset.built) buildAdmin(); else refreshAdminLists(); }
+  }
+  let adminPilots = [], selCh = null;
+  function adminChallenges(){ const l = []; if (data && data.current) l.push(data.current); if (data) l.push(...data.specials); return l; }
+  function chLabel(c){ return c.kind === "mensuel" ? "Challenge " + monthLabel(c.mois) + (c.circuit ? " · " + c.circuit : "") : "Défi · " + c.titre; }
+  function nextMonthIso(){ const [y, m] = data.mois.split("-").map(Number); return m === 12 ? (y + 1) + "-01-01" : y + "-" + String(m + 1).padStart(2, "0") + "-01"; }
+
+  function buildAdmin(){
+    const box = $("#adminBox"); box.dataset.built = "1";
+    box.innerHTML =
+      '<div class="card"><p class="eyebrow">Saisie</p><h2 style="font-size:1.8rem;margin:.3rem 0 1rem">Ajouter un chrono</h2>' +
+      '<form id="lapForm" style="display:grid;gap:12px">' +
+        '<div class="field"><label for="lCh">Challenge</label><select id="lCh"></select></div>' +
+        '<div class="field"><label for="lPseudo">Pilote (pseudo)</label><input id="lPseudo" list="pilotList" autocomplete="off" maxlength="24" placeholder="Pseudo du pilote" required><datalist id="pilotList"></datalist></div>' +
+        '<div class="field" id="lCarWrap" hidden><label for="lCar">Voiture</label><input id="lCar" list="carList" autocomplete="off" placeholder="Voiture du défi"><datalist id="carList"></datalist></div>' +
+        '<div class="field"><label for="lTime">Chrono (min,sec,millièmes)</label><input id="lTime" inputmode="decimal" autocomplete="off" placeholder="1,47,400" required><div class="preview num" id="lPrev"></div></div>' +
+        '<label class="check" id="lRefWrap" hidden><input type="checkbox" id="lRef"> Chrono de référence (le mien, à battre)</label>' +
+        '<div class="actions"><button class="btn" type="submit">Enregistrer le chrono</button></div><p class="msg" id="lapMsg"></p>' +
+      '</form></div>' +
+      '<details class="card" open><summary>Chronos enregistrés</summary><div class="admin-list" id="lapList"></div></details>' +
+      '<details class="card"><summary>Challenge du mois</summary><form id="chForm" style="display:grid;gap:12px">' +
+        '<div class="field"><label for="cMois">Mois</label><select id="cMois"></select></div>' +
+        '<div class="grid2"><div class="field"><label for="cCircuit">Circuit</label><input id="cCircuit" placeholder="Ex. Spa-Francorchamps"></div><div class="field"><label for="cVoiture">Voiture</label><input id="cVoiture" placeholder="Ex. Mercedes-AMG GT3"></div></div>' +
+        '<div class="grid2"><div class="field"><label for="cTarif">Tarif</label><input id="cTarif"></div><div class="field"><label for="cLot">Lots</label><input id="cLot"></div></div>' +
+        '<div class="actions"><button class="btn" type="submit">Enregistrer</button></div><p class="msg" id="chMsg"></p></form></details>' +
+      '<details class="card"><summary>Défis spéciaux</summary><form id="spForm" style="display:grid;gap:12px">' +
+        '<div class="field"><label for="sSel">Défi</label><select id="sSel"></select></div>' +
+        '<div class="grid2"><div class="field"><label for="sTitre">Nom du défi</label><input id="sTitre" placeholder="Ex. One Lap Nürburgring"></div><div class="field"><label for="sCircuit">Circuit</label><input id="sCircuit"></div></div>' +
+        '<div class="field"><label for="sRegle">Règle (affichée aux pilotes)</label><textarea id="sRegle" rows="3"></textarea></div>' +
+        '<div class="grid2"><div class="field"><label for="sTarif">Tarif</label><input id="sTarif" placeholder="8 € la tentative"></div><div class="field"><label for="sLot">À gagner</label><input id="sLot"></div></div>' +
+        '<label class="check"><input type="checkbox" id="sActif" checked> Défi visible par les pilotes</label>' +
+        '<p class="small muted" style="margin:0">Les voitures du défi apparaissent dès que tu saisis un chrono de référence pour chacune.</p>' +
+        '<div class="actions"><button class="btn" type="submit">Enregistrer le défi</button></div><p class="msg" id="spMsg"></p></form></details>' +
+      '<details class="card"><summary>Pilotes</summary><div class="admin-list" id="pilotAdm"></div><p class="msg" id="pMsg"></p></details>' +
+      '<details class="card"><summary>Réglages</summary><form id="codeForm" style="display:grid;gap:12px"><div class="field"><label for="newCode">Nouveau code gérant (6 caractères minimum)</label><input id="newCode" type="password" autocomplete="new-password"></div><div class="actions"><button class="btn ghost" type="submit">Changer le code</button><button class="btn ghost" type="button" id="adOut">Quitter l\'espace gérant</button></div><p class="msg" id="codeMsg"></p></form></details>';
+
+    $("#lTime").addEventListener("input", () => { const ms = parseChrono($("#lTime").value); $("#lPrev").textContent = $("#lTime").value ? (ms ? fmt(ms) : "Format : 1,47,400") : ""; });
+    $("#lCh").addEventListener("change", () => { selCh = +$("#lCh").value; syncLapForm(); loadLaps(); });
+    $("#lapForm").addEventListener("submit", submitLap);
+    $("#chForm").addEventListener("submit", saveMonth);
+    $("#cMois").addEventListener("change", fillMonth);
+    $("#spForm").addEventListener("submit", saveSpecial);
+    $("#sSel").addEventListener("change", fillSpecial);
+    $("#codeForm").addEventListener("submit", async e => { e.preventDefault(); try { await rpc("admin_set_code", { token: adminToken, new_code: $("#newCode").value }); $("#newCode").value = ""; setMsg($("#codeMsg"), "Code changé.", "ok"); } catch (err) { setMsg($("#codeMsg"), err.message, "err"); } });
+    $("#adOut").addEventListener("click", () => { store.del("sb_admin"); adminToken = null; $("#adminBox").dataset.built = ""; renderAdminGate(); showTab("challenge"); });
+    $("#lapList").addEventListener("click", async e => {
+      const b = e.target.closest("[data-del]"); if (!b) return;
+      if (b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "Confirmer"; setTimeout(() => { b.dataset.armed = ""; b.textContent = "Supprimer"; }, 3000); return; }
+      try { await rpc("admin_delete_lap", { token: adminToken, lap_id: +b.dataset.del }); await load(true); loadLaps(); toast("Chrono supprimé."); } catch (err) { toast(err.message); }
+    });
+    $("#pilotAdm").addEventListener("click", async e => {
+      const b = e.target.closest("button"); if (!b) return; const id = b.dataset.id;
+      try {
+        if (b.dataset.act === "reset") { await rpc("admin_pilot_update", { token: adminToken, pilot_id: id, reset_pin: true }); setMsg($("#pMsg"), "Code effacé : le pilote recrée son code via « Créer mon compte » avec le même pseudo.", "ok"); }
+        if (b.dataset.act === "rename") { const inp = $("#ren-" + id); if (inp.hidden) { inp.hidden = false; inp.focus(); b.textContent = "OK"; return; } await rpc("admin_pilot_update", { token: adminToken, pilot_id: id, pseudo: inp.value }); setMsg($("#pMsg"), "Pseudo modifié.", "ok"); await load(true); }
+        loadPilots();
+      } catch (err) { setMsg($("#pMsg"), err.message, "err"); }
+    });
+    refreshAdminLists();
+  }
+  function refreshAdminLists(){
+    const chs = adminChallenges();
+    if (!selCh || !chs.some(c => c.id === selCh)) selCh = chs.length ? chs[0].id : null;
+    $("#lCh").innerHTML = chs.length ? chs.map(c => '<option value="' + c.id + '"' + (c.id === selCh ? " selected" : "") + '>' + esc(chLabel(c)) + '</option>').join("") : '<option value="">Crée d\'abord le challenge du mois</option>';
+    $("#cMois").innerHTML = '<option value="' + data.mois + '">' + esc(cap(monthLabel(data.mois))) + ' (en cours)</option><option value="' + nextMonthIso() + '">' + esc(cap(monthLabel(nextMonthIso()))) + ' (à préparer)</option>';
+    fillMonth();
+    $("#sSel").innerHTML = '<option value="">+ Nouveau défi</option>' + data.specials.map(c => '<option value="' + c.id + '">' + esc(c.titre) + '</option>').join("");
+    fillSpecial(); syncLapForm(); loadLaps(); loadPilots();
+  }
+  function syncLapForm(){
+    const c = adminChallenges().find(x => x.id === selCh); const sp = c && c.kind === "special";
+    $("#lCarWrap").hidden = !sp; $("#lRefWrap").hidden = !sp; $("#lCar").required = !!sp;
+    $("#carList").innerHTML = sp ? c.groups.map(g => '<option value="' + esc(g.voiture) + '">').join("") : "";
+  }
+  async function loadLaps(){
+    if (!selCh) { $("#lapList").innerHTML = ""; return; }
+    try { const laps = await rpc("admin_laps", { token: adminToken, challenge_id: selCh });
+      $("#lapList").innerHTML = laps.length ? laps.map(l => '<div class="it"><div class="grow"><b>' + esc(l.pseudo) + '</b> <span class="num">' + fmt(l.ms) + '</span>' + (l.voiture ? ' <span class="small muted">' + esc(l.voiture) + '</span>' : '') + (l.isRef ? ' <span class="tag on">référence</span>' : '') + '<div class="small muted">' + new Date(l.at).toLocaleString("fr-FR", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }) + '</div></div><button class="btn ghost small" type="button" data-del="' + l.id + '">Supprimer</button></div>').join("") : '<p class="muted small">Aucun chrono pour ce challenge.</p>';
+    } catch (e) { $("#lapList").innerHTML = '<p class="msg err">' + esc(e.message) + '</p>'; }
+  }
+  async function loadPilots(){
+    try { adminPilots = await rpc("admin_pilots", { token: adminToken });
+      $("#pilotList").innerHTML = adminPilots.map(p => '<option value="' + esc(p.pseudo) + '">').join("");
+      $("#pilotAdm").innerHTML = adminPilots.map(p => '<div class="it"><div class="grow"><b>' + esc(p.pseudo) + '</b> ' + (p.compte ? '<span class="tag on">compte</span>' : '<span class="tag">sans compte</span>') + (p.notif ? ' <span class="tag on">notifs</span>' : '') + '<div class="small muted">' + p.tours + ' chrono' + (p.tours > 1 ? "s" : "") + '</div><input id="ren-' + esc(p.id) + '" value="' + esc(p.pseudo) + '" maxlength="24" hidden style="margin-top:6px"></div><button class="btn ghost small" type="button" data-act="rename" data-id="' + esc(p.id) + '">Renommer</button>' + (p.compte ? '<button class="btn ghost small" type="button" data-act="reset" data-id="' + esc(p.id) + '">Effacer le code</button>' : '') + '</div>').join("");
+    } catch (e) {}
+  }
+  async function submitLap(e){
+    e.preventDefault();
+    const m = $("#lapMsg"), ms = parseChrono($("#lTime").value);
+    if (!ms) { setMsg(m, "Chrono invalide. Format attendu : 1,47,400", "err"); return; }
+    try {
+      const r = await rpc("admin_add_lap", { token: adminToken, challenge_id: selCh, pseudo: $("#lPseudo").value, chrono: $("#lTime").value, voiture: $("#lCar").value || "", is_ref: $("#lRef").checked });
+      setMsg(m, "✓ " + r.pseudo + " : " + r.chrono + (r.rank ? " · P" + r.rank : "") + (r.improved ? "" : " (pas mieux que son meilleur tour)") + (r.notified ? " · " + r.notified + " pilote" + (r.notified > 1 ? "s" : "") + " prévenu" + (r.notified > 1 ? "s" : "") : ""), "ok");
+      if (r.notified) kickPush();
+      $("#lTime").value = ""; $("#lPrev").textContent = ""; $("#lRef").checked = false; $("#lPseudo").value = ""; $("#lPseudo").focus();
+      await load(true); refreshAdminLists();
+    } catch (err) { setMsg(m, err.message, "err"); }
+  }
+  async function fillMonth(){
+    const mois = $("#cMois").value; const c = data.current && data.current.mois === mois ? data.current : null;
+    $("#cCircuit").value = c ? c.circuit : ""; $("#cVoiture").value = c ? c.voiture : ""; $("#cTarif").value = c ? c.tarif : "8 € les 5 min"; $("#cLot").value = c ? c.lot : "60 € de lots";
+  }
+  async function saveMonth(e){
+    e.preventDefault();
+    try { await rpc("admin_save_challenge", { token: adminToken, c: { kind: "mensuel", mois: $("#cMois").value, circuit: $("#cCircuit").value.trim(), voiture: $("#cVoiture").value.trim(), tarif: $("#cTarif").value.trim(), lot: $("#cLot").value.trim() } });
+      setMsg($("#chMsg"), "Challenge enregistré.", "ok"); await load(true); refreshAdminLists(); }
+    catch (err) { setMsg($("#chMsg"), err.message, "err"); }
+  }
+  function fillSpecial(){
+    const c = data.specials.find(x => String(x.id) === $("#sSel").value);
+    $("#sTitre").value = c ? c.titre : ""; $("#sCircuit").value = c ? c.circuit : ""; $("#sRegle").value = c ? c.regle : ""; $("#sTarif").value = c ? c.tarif : "8 € la tentative"; $("#sLot").value = c ? c.lot : ""; $("#sActif").checked = c ? c.actif : true;
+  }
+  async function saveSpecial(e){
+    e.preventDefault();
+    try { await rpc("admin_save_challenge", { token: adminToken, c: { id: $("#sSel").value || null, kind: "special", titre: $("#sTitre").value.trim(), circuit: $("#sCircuit").value.trim(), regle: $("#sRegle").value.trim(), tarif: $("#sTarif").value.trim(), lot: $("#sLot").value.trim(), actif: $("#sActif").checked } });
+      setMsg($("#spMsg"), "Défi enregistré.", "ok"); await load(true); refreshAdminLists(); }
+    catch (err) { setMsg($("#spMsg"), err.message, "err"); }
+  }
+
+  // ---------- Démarrage ----------
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+  if (adminToken) $("#adminTab").hidden = false;
+  load().then(routeHash);
+})();
+</script>
+</body>
+</html>
