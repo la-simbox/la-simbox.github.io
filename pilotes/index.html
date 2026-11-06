@@ -41,7 +41,7 @@ h1,h2,h3{font-family:var(--font-display);text-transform:uppercase;line-height:1.
 .top{position:sticky;top:0;z-index:20;background:rgba(8,8,10,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
 .top .wrap{display:flex;align-items:center;gap:12px;height:60px}
 .brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink)}
-.brand svg{width:40px;height:auto}
+.brand img{width:58px;height:auto;display:block;mix-blend-mode:lighten}
 .brand b{font:italic 800 1.5rem/1 var(--font-display);letter-spacing:.01em}
 .brand b span{color:var(--red)}
 .top .sub{font:600 .78rem/1 var(--font-display);letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);border-left:1px solid var(--line);padding-left:12px}
@@ -195,7 +195,7 @@ details.card[open]>summary{margin-bottom:14px}
 <header class="top">
   <div class="wrap">
     <a class="brand" href="../" aria-label="SIMBOX, retour au site">
-      <svg viewBox="0 6 120 68" aria-hidden="true"><path d="M13.03 58.36 A47 47 0 0 1 99.86 35.09" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/><path d="M99.86 35.09 A47 47 0 0 1 106.94 62.46" fill="none" stroke="#cc0000" stroke-width="10"/><polygon points="59,55 59,65 8.64,68.5" fill="#cc0000"/><polygon points="61,55 61,65 111.36,68.5" fill="#cc0000"/><ellipse cx="60" cy="64" rx="6.5" ry="4.8" fill="#08080a"/></svg>
+      <img src="img/logo-volant.jpg" alt="" width="58" height="43">
       <b>SIM<span>BOX</span></b>
     </a>
     <span class="sub">Espace pilotes</span>
@@ -238,6 +238,7 @@ details.card[open]>summary{margin-bottom:14px}
   <!-- MA CARTE -->
   <section class="view" id="v-moi" role="tabpanel" hidden>
     <div id="authBox" class="card">
+      <img src="img/logo-simbox.jpg" alt="SIM BOX, simulation automobile" width="800" height="797" style="width:min(240px,70%);height:auto;display:block;margin:0 auto 14px;border-radius:12px">
       <p class="eyebrow">Compte pilote</p>
       <h2 style="font-size:1.8rem;margin:.3rem 0 .8rem">Ta carte pilote SimBox</h2>
       <div class="seg" role="group" aria-label="Choix">
@@ -540,11 +541,11 @@ details.card[open]>summary{margin-bottom:14px}
     // damier
     for (let i = 0; i < 27; i++) for (let j = 0; j < 2; j++) { g.fillStyle = (i + j) % 2 ? "#fff" : "#08080a"; g.fillRect(i * 40, H - 80 + j * 40, 40, 40); }
     // logo
-    const logo = new Image(); logo.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent($(".brand svg").outerHTML.replace('viewBox', 'xmlns="http://www.w3.org/2000/svg" viewBox'));
+    const logo = new Image(); logo.src = "img/logo-volant.jpg";
     await new Promise(r => { logo.onload = r; logo.onerror = r; });
-    try { g.drawImage(logo, 70, 70, 130, 74); } catch (e) {}
+    try { g.drawImage(logo, 56, 52, 150, 110); } catch (e) {}
     g.textBaseline = "alphabetic";
-    g.font = 'italic 900 70px "Barlow Condensed", Arial Narrow, sans-serif'; g.fillStyle = "#fff"; g.fillText("SIM", 215, 135); const w1 = g.measureText("SIM").width; g.fillStyle = "#cc0000"; g.fillText("BOX", 215 + w1, 135);
+    g.font = 'italic 900 70px "Barlow Condensed", Arial Narrow, sans-serif'; g.fillStyle = "#fff"; g.fillText("SIM", 222, 135); const w1 = g.measureText("SIM ").width; g.fillStyle = "#cc0000"; g.fillText("BOX", 222 + w1, 135);
     g.font = '700 30px "Barlow Condensed", sans-serif'; g.fillStyle = "#f09600"; g.textAlign = "right"; g.fillText("CARTE PILOTE", W - 70, 128); g.textAlign = "left";
     // pseudo
     let size = 190; g.font = 'italic 900 ' + size + 'px "Barlow Condensed", sans-serif';
