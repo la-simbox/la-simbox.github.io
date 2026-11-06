@@ -607,6 +607,8 @@ details.card[open]>summary{margin-bottom:14px}
     // ambiance de l'affiche : lueurs rouges et rayures
     let grd = g.createRadialGradient(W * .9, 60, 40, W * .9, 60, 820); grd.addColorStop(0, "rgba(204,0,0,.55)"); grd.addColorStop(1, "rgba(204,0,0,0)"); g.fillStyle = grd; g.fillRect(0, 0, W, H);
     grd = g.createRadialGradient(0, H, 40, 0, H, 700); grd.addColorStop(0, "rgba(204,0,0,.25)"); grd.addColorStop(1, "rgba(204,0,0,0)"); g.fillStyle = grd; g.fillRect(0, 0, W, H);
+    const wm = await loadImg("img/logo-simbox.jpg");
+    if (wm) { g.save(); g.globalCompositeOperation = "lighten"; g.globalAlpha = .15; const s = 780; g.drawImage(wm, (W - s) / 2, 560, s, s); g.restore(); }
     g.save(); g.globalAlpha = .03; g.strokeStyle = "#fff"; g.lineWidth = 18; for (let x = -H; x < W; x += 58) { g.beginPath(); g.moveTo(x, H); g.lineTo(x + H, 0); g.stroke(); } g.restore();
     g.textBaseline = "alphabetic";
     // en-tête

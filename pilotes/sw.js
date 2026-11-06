@@ -2,7 +2,7 @@
 // (« tu as perdu ta place ») et garde l'appli disponible hors ligne.
 const AUTH_URL = "https://ep-bold-paper-b90hj6av.neonauth.c-7.eu-central-1.aws.neon.tech/neondb/auth";
 const REST_URL = "https://ep-bold-paper-b90hj6av.apirest.c-7.eu-central-1.aws.neon.tech/neondb/rest/v1";
-const CACHE = "simbox-pilotes-v4";
+const CACHE = "simbox-pilotes-v5";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "img/icon-192.png", "img/icon-512.png", "img/apple-touch-icon.png", "img/logo-volant.jpg"];
 
 self.addEventListener("install", (e) => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).catch(() => {})); });
