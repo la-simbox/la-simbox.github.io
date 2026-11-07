@@ -190,6 +190,17 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--red-bright);outl
 
 /* Admin */
 .admin-list{display:grid;gap:6px;max-height:360px;overflow:auto}
+.rigs{display:grid;gap:12px;margin-top:12px}
+.rig{border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--bg-alt);display:grid;gap:10px}
+.rig.rig-on{border-color:rgba(46,204,113,.5)}
+.rig .rh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rig .rh b{font-family:var(--font-display);font-size:1.25rem;text-transform:uppercase}
+.rig .who{font-family:var(--font-display);font-size:1.5rem;text-transform:uppercase;line-height:1.05}
+.rig .rf{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rig .rf .full{grid-column:1/-1}
+.rig input,.rig select{width:100%}
+.dot{width:10px;height:10px;border-radius:50%;background:#555;display:inline-block}
+.dot.on{background:var(--green);box-shadow:0 0 8px var(--green)}
 .admin-list .it{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;background:var(--bg-alt);border:1px solid var(--line);font-size:.9rem}
 .admin-list .it .grow{flex:1;min-width:0;overflow-wrap:anywhere}
 .admin-list .it b{font-family:var(--font-display);font-size:1.05rem;text-transform:uppercase}
@@ -738,6 +749,10 @@ details.card[open]>summary{margin-bottom:14px}
   function buildAdmin(){
     const box = $("#adminBox"); box.dataset.built = "1";
     box.innerHTML =
+      '<div class="card" id="rigCard"><div class="head-row"><div><p class="eyebrow">Capture automatique</p><h2 style="font-size:1.8rem;margin:.3rem 0 0">Simulateurs</h2></div><span class="small muted">Qui roule sur quel simu</span></div>' +
+        '<div class="rigs" id="rigs"><p class="small muted">Chargement…</p></div><p class="msg" id="rigMsg"></p>' +
+        '<div id="rigWaitBox" hidden style="margin-top:14px"><h3 style="font-family:var(--font-display);text-transform:uppercase;margin:0 0 6px">Tours captés sans pilote</h3><p class="small muted" style="margin:0 0 8px">Personne n\'était choisi sur le simu : attribue le tour au bon pilote ou ignore-le.</p><div class="admin-list" id="rigWait"></div></div>' +
+        '<details style="margin-top:12px"><summary class="small muted">Derniers tours captés</summary><div class="admin-list" id="rigRecent" style="margin-top:8px"></div></details></div>' +
       '<div class="card"><p class="eyebrow">Saisie</p><h2 style="font-size:1.8rem;margin:.3rem 0 1rem">Ajouter un chrono</h2>' +
       '<form id="lapForm" style="display:grid;gap:12px">' +
         '<div class="field"><label for="lCh">Challenge</label><select id="lCh"></select></div>' +
@@ -762,7 +777,7 @@ details.card[open]>summary{margin-bottom:14px}
         '<p class="small muted" style="margin:0">Les voitures du défi apparaissent dès que tu saisis un chrono de référence pour chacune.</p>' +
         '<div class="actions"><button class="btn" type="submit">Enregistrer le défi</button></div><p class="msg" id="spMsg"></p></form></details>' +
       '<details class="card"><summary>Pilotes</summary><div class="admin-list" id="pilotAdm"></div><p class="msg" id="pMsg"></p></details>' +
-      '<details class="card"><summary>Réglages</summary><form id="codeForm" style="display:grid;gap:12px"><div class="field"><label for="newCode">Nouveau code gérant (6 caractères minimum)</label><input id="newCode" type="password" autocomplete="new-password"></div><div class="actions"><button class="btn ghost" type="submit">Changer le code</button><button class="btn ghost" type="button" id="adOut">Quitter l\'espace gérant</button></div><p class="msg" id="codeMsg"></p></form></details>';
+      '<details class="card"><summary>Réglages</summary><form id="codeForm" style="display:grid;gap:12px"><div class="field"><label for="newCode">Nouveau code gérant (4 caractères minimum)</label><input id="newCode" type="password" autocomplete="new-password"></div><div class="actions"><button class="btn ghost" type="submit">Changer le code</button><button class="btn ghost" type="button" id="adOut">Quitter l\'espace gérant</button></div><p class="msg" id="codeMsg"></p></form></details>';
 
     $("#lTime").addEventListener("input", () => { const ms = parseChrono($("#lTime").value); $("#lPrev").textContent = $("#lTime").value ? (ms ? fmt(ms) : "Format : 1,47,400") : ""; });
     $("#lCh").addEventListener("change", () => { selCh = +$("#lCh").value; syncLapForm(); loadLaps(); });
@@ -797,7 +812,7 @@ details.card[open]>summary{margin-bottom:14px}
     $("#cMois").innerHTML = '<option value="' + data.mois + '">' + esc(cap(monthLabel(data.mois))) + ' (en cours)</option><option value="' + nextMonthIso() + '">' + esc(cap(monthLabel(nextMonthIso()))) + ' (à préparer)</option>';
     fillMonth();
     $("#sSel").innerHTML = '<option value="">+ Nouveau défi</option>' + data.specials.map(c => '<option value="' + c.id + '">' + esc(c.titre) + '</option>').join("");
-    fillSpecial(); syncLapForm(); loadLaps(); loadPilots();
+    fillSpecial(); syncLapForm(); loadLaps(); loadPilots(); loadRigs();
   }
   function syncLapForm(){
     const c = adminChallenges().find(x => x.id === selCh); const sp = c && c.kind === "special";
@@ -818,6 +833,72 @@ details.card[open]>summary{margin-bottom:14px}
       $("#lapList").innerHTML = laps.length ? laps.map(l => '<div class="it"><div class="grow"><b>' + esc(l.pseudo) + '</b> <span class="num">' + fmt(l.ms) + '</span>' + (l.voiture ? ' <span class="small muted">' + esc(l.voiture) + '</span>' : '') + (l.isRef ? ' <span class="tag on">référence</span>' : '') + '<div class="small muted">' + new Date(l.at).toLocaleString("fr-FR", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }) + '</div></div><button class="btn ghost small" type="button" data-del="' + l.id + '">Supprimer</button></div>').join("") : '<p class="muted small">Aucun chrono pour ce challenge.</p>';
     } catch (e) { $("#lapList").innerHTML = '<p class="msg err">' + esc(e.message) + '</p>'; }
   }
+  // ---------- Simulateurs (capture automatique) ----------
+  let rigData = null;
+  const GAME = { AC: "Assetto Corsa", ACC: "ACC" };
+  function chOptions(sel){ return adminChallenges().map(c => '<option value="' + c.id + '"' + (c.id === sel ? " selected" : "") + '>' + esc(chLabel(c)) + '</option>').join(""); }
+  function carOptions(chId, sel){ const c = adminChallenges().find(x => x.id === chId); if (!c || c.kind !== "special") return ""; return '<option value="">Choisis la voiture</option>' + c.groups.filter(g => g.voiture).map(g => '<option' + (g.voiture === sel ? " selected" : "") + '>' + esc(g.voiture) + '</option>').join(""); }
+  function minsLeft(iso){ return Math.max(0, Math.round((new Date(iso) - Date.now()) / 60000)); }
+  function agoTxt(iso){ if (!iso) return "jamais connecté"; const m = Math.round((Date.now() - new Date(iso)) / 60000); return m < 1 ? "à l'instant" : m < 60 ? "il y a " + m + " min" : m < 1440 ? "il y a " + Math.round(m/60) + " h" : "il y a " + Math.round(m/1440) + " j"; }
+  function hm(iso){ const d = new Date(iso); return d.toLocaleDateString("fr-FR", { day:"numeric", month:"short" }) + " " + d.toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit" }); }
+  function chName(id){ const c = adminChallenges().find(x => x.id === id); return c ? chLabel(c) : "Challenge"; }
+  function renderRigs(){
+    const box = $("#rigs"); if (!box || !rigData) return;
+    const ae = document.activeElement, focus = ae && box.contains(ae) && /^(INPUT|SELECT|TEXTAREA)$/.test(ae.tagName);
+    if (focus) return; // ne pas effacer une saisie en cours
+    const defCh = data && data.current ? data.current.id : (adminChallenges()[0] || {}).id;
+    box.innerHTML = rigData.rigs.map(r => {
+      const lv = r.live || {}, s = r.session;
+      const st = r.online ? [GAME[lv.game] || lv.game, lv.status, lv.track].filter(Boolean).join(" · ") || "en ligne" : "hors ligne · " + agoTxt(r.last_seen);
+      let body;
+      if (s) body = '<div><div class="small muted">Au volant</div><div class="who">' + esc(s.pseudo) + '</div><div class="small muted" style="margin-top:4px">' + esc(chName(s.challenge_id)) + (s.voiture ? " · " + esc(s.voiture) : "") + ' · ' + s.tours + ' tour' + (s.tours > 1 ? "s" : "") + ' enregistré' + (s.tours > 1 ? "s" : "") + ' · fin dans ' + minsLeft(s.ends_at) + ' min</div></div>' +
+        '<div class="actions"><button class="btn ghost small" type="button" data-rig-more="' + r.id + '">+30 min</button><button class="btn ghost small" type="button" data-rig-end="' + r.id + '">Fin de session</button></div>';
+      else body = '<form class="rf" data-rig-form="' + r.id + '"><input class="full" name="pseudo" list="pilotList" autocomplete="off" maxlength="24" placeholder="Pseudo du pilote" required>' +
+        '<select name="ch" class="' + (carOptions(defCh) ? "" : "full") + '">' + chOptions(defCh) + '</select><select name="car"' + (carOptions(defCh) ? "" : " hidden") + '>' + carOptions(defCh) + '</select>' +
+        '<select name="min"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="60">1 h</option><option value="120">2 h</option></select><button class="btn small" type="submit">Démarrer</button></form>';
+      return '<div class="rig' + (r.online ? " rig-on" : "") + '"><div class="rh"><span class="dot' + (r.online ? " on" : "") + '"></span><b>' + esc(r.nom) + '</b><span class="small muted">' + esc(st) + '</span></div>' + body + '</div>';
+    }).join("");
+    const w = rigData.attente || [];
+    $("#rigWaitBox").hidden = !w.length;
+    $("#rigWait").innerHTML = w.map(l => '<div class="it" style="flex-wrap:wrap"><div class="grow"><b>' + esc(l.chrono) + '</b> <span class="small muted">Simu ' + l.rig + ' · ' + esc(hm(l.at)) + (l.track ? " · " + esc(l.track) : "") + (l.car ? " · " + esc(l.car) : "") + '</span>' +
+      '<form class="rf" data-wait-form="' + l.id + '" hidden style="margin-top:8px"><input class="full" name="pseudo" list="pilotList" autocomplete="off" maxlength="24" placeholder="Pseudo du pilote" required><select name="ch" class="' + (carOptions(defCh) ? "" : "full") + '">' + chOptions(defCh) + '</select><select name="car"' + (carOptions(defCh) ? "" : " hidden") + '>' + carOptions(defCh) + '</select><button class="btn small full" type="submit">Valider</button></form></div>' +
+      '<button class="btn ghost small" type="button" data-wait-open="' + l.id + '">Attribuer</button><button class="btn ghost small" type="button" data-wait-ign="' + l.id + '">Ignorer</button></div>').join("");
+    const rc = rigData.recents || [];
+    $("#rigRecent").innerHTML = rc.length ? rc.map(l => '<div class="it"><div class="grow"><b>' + esc(l.chrono) + '</b> <span class="small muted">Simu ' + l.rig + ' · ' + esc(hm(l.at)) + ' · ' + esc({ ajoute: "ajouté", attribue: "attribué", invalide: "non compté", erreur: "erreur" }[l.statut] || l.statut) + (l.pseudo ? " · " + esc(l.pseudo) : "") + '</span></div></div>').join("") : '<p class="small muted">Aucun tour capté pour l\'instant.</p>';
+  }
+  async function loadRigs(){
+    if (!adminToken || !$("#rigs")) return;
+    try { rigData = await rpc("admin_rigs", { token: adminToken }); renderRigs(); } catch (e) { setMsg($("#rigMsg"), e.message, "err"); }
+  }
+  setInterval(() => { if (!document.hidden && adminToken && $("#adminTab") && !$("#adminTab").hidden) loadRigs(); }, 10000);
+  document.addEventListener("change", e => {
+    const f = e.target.closest("[data-rig-form],[data-wait-form]"); if (!f || e.target.name !== "ch") return;
+    const opts = carOptions(+e.target.value); const car = f.querySelector('[name="car"]');
+    car.innerHTML = opts; car.hidden = !opts; e.target.classList.toggle("full", !opts);
+  });
+  document.addEventListener("submit", async e => {
+    const f = e.target.closest("[data-rig-form],[data-wait-form]"); if (!f) return;
+    e.preventDefault();
+    const v = n => (f.querySelector('[name="' + n + '"]') || {}).value || "";
+    try {
+      if (f.dataset.rigForm) { const r = await rpc("admin_rig_assign", { token: adminToken, rig_id: +f.dataset.rigForm, pseudo: v("pseudo"), challenge_id: +v("ch"), voiture: v("car"), minutes: +v("min") || 30 });
+        setMsg($("#rigMsg"), "✓ " + r.pseudo + " roule sur le Simu " + f.dataset.rigForm + ". Ses tours valides arrivent tout seuls.", "ok"); }
+      else { const r = await rpc("admin_simlap_assign", { token: adminToken, sim_lap_id: +f.dataset.waitForm, pseudo: v("pseudo"), challenge_id: +v("ch"), voiture: v("car") });
+        setMsg($("#rigMsg"), "✓ " + r.pseudo + " : " + r.chrono + (r.rank ? " · P" + r.rank : ""), "ok"); await load(true); }
+      document.activeElement && document.activeElement.blur(); await loadRigs(); loadPilots();
+    } catch (err) { setMsg($("#rigMsg"), err.message, "err"); }
+  });
+  document.addEventListener("click", async e => {
+    const b = e.target.closest("[data-rig-end],[data-rig-more],[data-wait-open],[data-wait-ign]"); if (!b) return;
+    try {
+      if (b.dataset.rigEnd) { await rpc("admin_rig_end", { token: adminToken, rig_id: +b.dataset.rigEnd }); setMsg($("#rigMsg"), "Session terminée sur le Simu " + b.dataset.rigEnd + ".", "ok"); }
+      if (b.dataset.rigMore) { const r = rigData.rigs.find(x => x.id === +b.dataset.rigMore), s = r && r.session; if (s) await rpc("admin_rig_assign", { token: adminToken, rig_id: r.id, pseudo: s.pseudo, challenge_id: s.challenge_id, voiture: s.voiture, minutes: minsLeft(s.ends_at) + 30 }); }
+      if (b.dataset.waitOpen) { const f = document.querySelector('[data-wait-form="' + b.dataset.waitOpen + '"]'); f.hidden = !f.hidden; if (!f.hidden) f.querySelector("input").focus(); return; }
+      if (b.dataset.waitIgn) await rpc("admin_simlap_ignore", { token: adminToken, sim_lap_id: +b.dataset.waitIgn });
+      await loadRigs();
+    } catch (err) { setMsg($("#rigMsg"), err.message, "err"); }
+  });
+
   async function loadPilots(){
     try { adminPilots = await rpc("admin_pilots", { token: adminToken });
       $("#pilotList").innerHTML = adminPilots.map(p => '<option value="' + esc(p.pseudo) + '">').join("");
