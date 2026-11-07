@@ -191,6 +191,12 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--red-bright);outl
 /* Admin */
 .admin-list{display:grid;gap:6px;max-height:360px;overflow:auto}
 .rigs{display:grid;gap:12px;margin-top:12px}
+.posts{display:grid;gap:14px;margin-top:12px}
+.post{border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--bg-alt);display:grid;gap:10px}
+.post .pv{display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:start}
+.post canvas{width:120px;height:auto;border-radius:8px;display:block;cursor:zoom-in}
+.post textarea{width:100%;min-height:120px;font:500 .85rem/1.45 var(--font-body);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}
+.post .pt{font-family:var(--font-display);font-size:1.15rem;text-transform:uppercase}
 .rig{border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--bg-alt);display:grid;gap:10px}
 .rig.rig-on{border-color:rgba(46,204,113,.5)}
 .rig .rh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -299,6 +305,7 @@ details.card[open]>summary{margin-bottom:14px}
 </main>
 <div class="toast" id="toast" role="status" hidden></div>
 
+<script src="visuels.js"></script>
 <script>
 (() => {
   "use strict";
@@ -776,6 +783,9 @@ details.card[open]>summary{margin-bottom:14px}
         '<label class="check"><input type="checkbox" id="sActif" checked> Défi visible par les pilotes</label>' +
         '<p class="small muted" style="margin:0">Les voitures du défi apparaissent dès que tu saisis un chrono de référence pour chacune.</p>' +
         '<div class="actions"><button class="btn" type="submit">Enregistrer le défi</button></div><p class="msg" id="spMsg"></p></form></details>' +
+      '<div class="card" id="socCard"><div class="head-row"><div><p class="eyebrow">Instagram · Facebook</p><h2 style="font-size:1.8rem;margin:.3rem 0 0">Réseaux</h2></div><button class="btn ghost small" type="button" id="socReload">Actualiser</button></div>' +
+        '<p class="small muted" style="margin:.5rem 0 0">Posts prêts à partir des chronos : un nouveau leader, un record ou une nouvelle référence sur le One Lap créent un post automatiquement. « Partager » ouvre Instagram ou Facebook sur ton téléphone, le texte est copié : il suffit de le coller.</p>' +
+        '<div class="posts" id="posts"><p class="small muted">Chargement…</p></div><p class="msg" id="socMsg"></p></div>' +
       '<details class="card"><summary>Pilotes</summary><div class="admin-list" id="pilotAdm"></div><p class="msg" id="pMsg"></p></details>' +
       '<details class="card"><summary>Réglages</summary><form id="codeForm" style="display:grid;gap:12px"><div class="field"><label for="newCode">Nouveau code gérant (4 caractères minimum)</label><input id="newCode" type="password" autocomplete="new-password"></div><div class="actions"><button class="btn ghost" type="submit">Changer le code</button><button class="btn ghost" type="button" id="adOut">Quitter l\'espace gérant</button></div><p class="msg" id="codeMsg"></p></form></details>';
 
@@ -812,7 +822,7 @@ details.card[open]>summary{margin-bottom:14px}
     $("#cMois").innerHTML = '<option value="' + data.mois + '">' + esc(cap(monthLabel(data.mois))) + ' (en cours)</option><option value="' + nextMonthIso() + '">' + esc(cap(monthLabel(nextMonthIso()))) + ' (à préparer)</option>';
     fillMonth();
     $("#sSel").innerHTML = '<option value="">+ Nouveau défi</option>' + data.specials.map(c => '<option value="' + c.id + '">' + esc(c.titre) + '</option>').join("");
-    fillSpecial(); syncLapForm(); loadLaps(); loadPilots(); loadRigs();
+    fillSpecial(); syncLapForm(); loadLaps(); loadPilots(); loadRigs(); loadSocial();
   }
   function syncLapForm(){
     const c = adminChallenges().find(x => x.id === selCh); const sp = c && c.kind === "special";
@@ -897,6 +907,47 @@ details.card[open]>summary{margin-bottom:14px}
       if (b.dataset.waitIgn) await rpc("admin_simlap_ignore", { token: adminToken, sim_lap_id: +b.dataset.waitIgn });
       await loadRigs();
     } catch (err) { setMsg($("#rigMsg"), err.message, "err"); }
+  });
+
+  // ---------- Réseaux : posts prêts à publier ----------
+  let socItems = [], socDone = {};
+  const SOC_LABEL = { nouveau: "À publier", planifie: "Dans le Planning" };
+  async function loadSocial(){
+    const box = $("#posts"); if (!box || !adminToken || !window.SimboxVisuel) return;
+    try {
+      const evs = await rpc("admin_social", { token: adminToken });
+      let night = null; try { night = await rpc("night_laps", {}); } catch (e) {}
+      socItems = [{ key: "classement", spec: { type: "classement" } }];
+      if (night && night.laps && night.laps.length) socItems.push({ key: "soiree-" + night.jour, spec: { type: "soiree", night } });
+      evs.filter(e => e.live).forEach(e => socItems.push({ key: "ev" + e.id, ev: e, spec: { type: e.kind, event: e } }));
+      box.innerHTML = socItems.map((it, i) => '<div class="post" data-post="' + i + '"><div class="pv"><canvas width="1080" height="1350" aria-label="Aperçu du visuel"></canvas><div style="display:grid;gap:6px;min-width:0"><div class="pt">' + esc(SimboxVisuel.title(it.spec)) + '</div>' +
+        '<div class="small muted">' + (it.ev ? esc(SOC_LABEL[it.ev.status] || it.ev.status) + ' · ' + new Date(it.ev.at).toLocaleString("fr-FR", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : it.spec.type === "classement" ? "Toujours à jour" : "Ce soir") + '</div>' +
+        '<div class="actions" style="margin-top:4px"><button class="btn gold small" type="button" data-soc="share">Partager</button><button class="btn ghost small" type="button" data-soc="dl">Télécharger</button><button class="btn ghost small" type="button" data-soc="copy">Copier le texte</button>' +
+        (it.ev ? '<button class="btn ghost small" type="button" data-soc="done">Publié ✓</button><button class="btn ghost small" type="button" data-soc="ign">Ignorer</button>' : '') + '</div></div></div><textarea aria-label="Texte du post"></textarea></div>').join("");
+      for (let i = 0; i < socItems.length; i++) {
+        const el = box.querySelector('[data-post="' + i + '"]'); await SimboxVisuel.render(el.querySelector("canvas"), socItems[i].spec, data);
+        el.querySelector("textarea").value = SimboxVisuel.caption(socItems[i].spec, data);
+      }
+    } catch (e) { setMsg($("#socMsg"), e.message, "err"); }
+  }
+  function postBlob(el){ return new Promise(r => el.querySelector("canvas").toBlob(r, "image/png")); }
+  async function copyText(t){ try { await navigator.clipboard.writeText(t); return true; } catch (e) { return false; } }
+  document.addEventListener("click", async e => {
+    if (e.target.id === "socReload") { loadSocial(); return; }
+    const b = e.target.closest("[data-soc]"), cv = e.target.closest(".post canvas");
+    const el = (b || cv) && (b || cv).closest("[data-post]"); if (!el) return;
+    const it = socItems[+el.dataset.post], text = el.querySelector("textarea").value, name = "simbox-" + it.key + ".png";
+    if (cv && !b) { openViewer(await postBlob(el), it.key); return; }
+    try {
+      if (b.dataset.soc === "copy") { setMsg($("#socMsg"), await copyText(text) ? "Texte copié." : "Copie impossible : sélectionne le texte à la main.", "ok"); }
+      if (b.dataset.soc === "dl") downloadBlob(await postBlob(el), name);
+      if (b.dataset.soc === "share") {
+        const blob = await postBlob(el), copied = await copyText(text), file = new File([blob], name, { type: "image/png" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text }); setMsg($("#socMsg"), copied ? "Texte copié : colle-le dans la légende si l'appli ne l'a pas repris." : "", "ok"); }
+        else { downloadBlob(blob, name); setMsg($("#socMsg"), "Image téléchargée" + (copied ? " et texte copié" : "") + " : publie-la depuis Instagram ou Facebook.", "ok"); }
+      }
+      if (b.dataset.soc === "done" || b.dataset.soc === "ign") { await rpc("admin_social_set", { token: adminToken, id: it.ev.id, status: b.dataset.soc === "done" ? "publie" : "ignore" }); el.remove(); setMsg($("#socMsg"), b.dataset.soc === "done" ? "Noté comme publié." : "Post ignoré.", "ok"); }
+    } catch (err) { if (err.name !== "AbortError") setMsg($("#socMsg"), err.message, "err"); }
   });
 
   async function loadPilots(){
