@@ -209,15 +209,15 @@
   <section class="section section-challenge" id="challenge">
     <div class="wrap">
       <header class="section-head reveal">
-        <p class="eyebrow">Challenge chrono · Octobre 2026</p>
+        <p class="eyebrow" id="ch-eyebrow">Challenge chrono · Octobre 2026</p>
         <h2>Le classement du mois</h2>
-        <p class="section-sub">
+        <p class="section-sub" id="ch-sub">
           Spa-Francorchamps en Mercedes-AMG GT3. 8 € les 5 minutes,
           60 € de lots pour le plus rapide du mois.
         </p>
       </header>
 
-      <div class="podium-scene reveal" aria-hidden="true">
+      <div class="podium-scene reveal" aria-hidden="true" id="ch-podium">
         <div class="marche marche-2">
           <span class="marche-nom">Lucas</span>
           <span class="marche-temps">2'27"840</span>
@@ -238,7 +238,7 @@
 
       <div class="challenge-grid">
         <div class="classement-wrap reveal">
-          <table class="classement">
+          <table class="classement" id="ch-table">
             <caption>Classement d'octobre · Spa-Francorchamps · Mercedes-AMG GT3</caption>
             <thead>
               <tr><th scope="col">Pos.</th><th scope="col">Pilote</th><th scope="col">Temps</th><th scope="col">Écart</th></tr>
@@ -249,18 +249,18 @@
               <tr class="pos-3"><td>3</td><th scope="row">Lucille</th><td>2'56"980</td><td>+33"200</td></tr>
             </tbody>
           </table>
-          <p class="classement-note">Votre nom ici ? 8 € les 5 minutes, jusqu'au dernier jour du mois.</p>
+          <p class="classement-note" id="ch-note">Votre nom ici ? 8 € les 5 minutes, jusqu'au dernier jour du mois.</p>
         </div>
 
         <article class="defi-special reveal">
           <p class="defi-flag">Défi spécial</p>
-          <h3>One Lap Nürburgring</h3>
+          <h3 id="defi-titre">One Lap Nürburgring</h3>
           <p>
             Un seul tour, aucune seconde chance. Prenez la Nordschleife
             d'une traite et signez le meilleur chrono.
           </p>
-          <p class="defi-prix"><strong>8 €</strong> la tentative</p>
-          <table class="refs">
+          <p class="defi-prix" id="defi-prix"><strong>8 €</strong> la tentative</p>
+          <table class="refs" id="defi-refs">
             <caption>Chronos de référence de la maison, Nürburgring Nordschleife</caption>
             <thead><tr><th scope="col">Voiture</th><th scope="col">Chrono à battre</th></tr></thead>
             <tbody>
@@ -670,5 +670,6 @@
 
 <script src="assets/js/main.js"></script>
 <script src="assets/js/saison.js"></script>
+<script src="assets/js/live.js" defer></script>
 </body>
 </html>
