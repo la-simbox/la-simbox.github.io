@@ -1,0 +1,17 @@
+{
+  "name": "KART TRACKER · RK7 Team",
+  "short_name": "Kart Tracker",
+  "description": "Logiciel de stand RK7 Team : live Apex, salle d'équipe, panneau pilote et ingénieur de course.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#03050D",
+  "theme_color": "#03050D",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
