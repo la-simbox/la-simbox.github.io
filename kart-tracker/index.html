@@ -8903,5 +8903,187 @@ if(typeof _apexResolve==='function'){
 }
 </script>
 
+<style>
+/* ══ INTERFACE TÉLÉPHONE (≤ 820 px) ══════════════════════════════════
+   Barre d'onglets en bas (au pouce), barre du haut sur une ligne,
+   ordre de l'ingénieur en premier, cartes compactes, alertes au-dessus
+   des onglets, champs à 16 px (pas de zoom automatique sur iPhone). */
+#ktm-tabs,#ktm-sheet,#ktm-sheet-bg{display:none;}
+@media (max-width:820px){
+  html,body{overscroll-behavior-y:none;}
+  input,select,textarea{font-size:16px !important;}
+
+  /* barre du haut */
+  #topbar{display:grid !important;grid-template-columns:auto 1fr auto;grid-template-areas:"logo race timer" "acts acts acts";
+          gap:.35rem .6rem !important;padding:calc(.4rem + env(safe-area-inset-top)) .7rem .45rem !important;min-height:0 !important;height:auto !important;align-items:center;}
+  #topbar>img{grid-area:logo;height:26px !important;width:auto !important;}
+  #topbar .tb-logo,#topbar .tb-sep,#topbar .tb-remain{display:none !important;}
+  #topbar .tb-race-info{grid-area:race;min-width:0;flex:none !important;display:flex;flex-direction:column;gap:0;}
+  #topbar .tb-race-name{font-size:.82rem !important;max-width:100% !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #topbar .tb-race-meta{font-size:.62rem !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #topbar .tb-timer{grid-area:timer;font-size:1.05rem !important;}
+  #topbar #apex-status-tb{position:absolute;top:calc(.3rem + env(safe-area-inset-top));right:.3rem;}
+  #topbar #apex-status-txt{display:none !important;}
+  #topbar>div:has(.weather-bar){display:none !important;}
+  #topbar .tb-actions{grid-area:acts;display:flex !important;flex-wrap:nowrap !important;overflow-x:auto;gap:.35rem;margin:0 -.7rem !important;padding:0 .7rem;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  #topbar .tb-actions::-webkit-scrollbar{display:none;}
+  #topbar .tb-actions>*{flex:0 0 auto;}
+  #topbar .tb-actions .btn-sm{padding:.45rem .6rem !important;font-size:.7rem !important;min-height:34px;}
+  #btn-intel,#btn-sim,#btn-bilan,#btn-stop,#btn-pit,#topbar .tb-actions>button:last-child:not(#btn-team):not(#btn-apex):not(#btn-pitwall){display:none !important;}
+
+  /* navigation : onglets en bas à la place du menu de gauche */
+  #sidebar{display:none !important;}
+  #main{padding-bottom:calc(60px + env(safe-area-inset-bottom));}
+  #ktm-tabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:950;background:rgba(6,11,26,.97);backdrop-filter:blur(10px);
+            border-top:1px solid rgba(26,111,196,.3);padding:0 0 env(safe-area-inset-bottom);}
+  #ktm-tabs button{flex:1;background:none;border:0;color:#8AA0CC;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:58px;font-size:.6rem;font-weight:700;letter-spacing:.03em;cursor:pointer;}
+  #ktm-tabs button .i{font-size:1.25rem;line-height:1;filter:grayscale(.6);opacity:.8;}
+  #ktm-tabs button.on{color:#fff;}
+  #ktm-tabs button.on .i{filter:none;opacity:1;}
+  #ktm-tabs button.on::before{content:'';position:absolute;top:0;width:28px;height:3px;border-radius:0 0 3px 3px;background:#3B8FE8;}
+  #ktm-tabs button{position:relative;}
+
+  /* feuille « Plus » */
+  #ktm-sheet-bg.open{display:block;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:960;}
+  #ktm-sheet.open{display:block;position:fixed;left:0;right:0;bottom:0;z-index:961;background:#060B1A;border-top:1px solid rgba(26,111,196,.4);
+                  border-radius:16px 16px 0 0;padding:.6rem .9rem calc(1rem + env(safe-area-inset-bottom));max-height:80vh;overflow:auto;animation:ktmUp .2s ease;}
+  @keyframes ktmUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+  #ktm-sheet .grab{width:40px;height:4px;border-radius:2px;background:#33415F;margin:0 auto .7rem;}
+  #ktm-sheet h4{font-size:.62rem;letter-spacing:.14em;color:#8AA0CC;text-transform:uppercase;margin:.6rem 0 .45rem;}
+  #ktm-sheet .g{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;}
+  #ktm-sheet .g button{background:#0A1228;border:1px solid rgba(26,111,196,.22);border-radius:12px;color:#E0EAFF;padding:.75rem .3rem;font-size:.7rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:.3rem;min-height:72px;cursor:pointer;}
+  #ktm-sheet .g button .i{font-size:1.35rem;}
+  #ktm-sheet .g button.danger{border-color:rgba(232,25,44,.4);color:#FF6B6B;}
+  #ktm-sheet .wx{display:flex;gap:.45rem;}
+  #ktm-sheet .wx button{flex:1;background:#0A1228;border:1px solid rgba(26,111,196,.22);border-radius:10px;font-size:1.3rem;padding:.55rem 0;cursor:pointer;}
+  #ktm-sheet .wx button.on{border-color:#3B8FE8;background:rgba(26,111,196,.2);}
+
+  /* pages : moins de marges, pas de pavé d'explication */
+  #panels>.panel{padding:10px !important;}
+  .panel.active{overflow-y:auto !important;-webkit-overflow-scrolling:touch;}
+  .panel-intro{margin-bottom:.4rem !important;padding-bottom:.3rem !important;}
+  .panel-intro h2{font-size:1rem !important;}
+  .panel-intro p{display:none !important;}
+
+  /* tableau de bord : l'ordre d'abord, puis les chiffres en compact */
+  #panel-dash.active{display:flex !important;flex-direction:column;gap:8px !important;}
+  #panel-dash>#ai-zone{order:-2;}
+  #panel-dash>#metrics-bar{order:-1;}
+  #metrics-bar{display:grid !important;grid-template-columns:repeat(4,1fr) !important;gap:6px !important;}
+  #metrics-bar .metric-card{padding:.45rem .4rem !important;border-radius:10px !important;min-width:0;}
+  #metrics-bar .metric-val{font-size:1.05rem !important;letter-spacing:-.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #metrics-bar .metric-label{font-size:.5rem !important;letter-spacing:.4px !important;margin-top:.25rem !important;}
+  #ai-banner{padding:.6rem .7rem !important;gap:.55rem !important;}
+  #ai-banner .ai-order-badge{font-size:.95rem !important;padding:.35rem .6rem !important;}
+  #ai-zone .ai-order-text{min-width:0 !important;flex:1 1 100% !important;font-size:.88rem !important;}
+  #ai-zone .ai-order-reason{flex:1 1 100% !important;font-size:.74rem !important;}
+  #files-col,#center-col{max-height:none !important;overflow:visible !important;}
+  #right-col{display:block !important;}
+  #kts-msgcard .kts-row{gap:.3rem;}
+  #kts-msgcard .kts-q{flex:1 0 auto;padding:.55rem .5rem !important;font-size:.72rem !important;}
+  #kts-msgcard input{flex:1 1 100% !important;order:10;}
+
+  /* tableaux : plus serrés, défilement horizontal si besoin */
+  #panel-classement table,#panel-classement-net table,#panel-sws table,#panel-karts table{font-size:.78rem !important;}
+  #panel-classement th,#panel-classement td,#panel-classement-net th,#panel-classement-net td{padding:.45rem .35rem !important;}
+  .panel table{max-width:100%;}
+
+  /* alertes : au-dessus des onglets, fond plein, deux maximum */
+  #notif-stack-left,#notif-stack-right{left:8px !important;right:8px !important;bottom:calc(66px + env(safe-area-inset-bottom)) !important;max-width:none !important;align-items:stretch !important;}
+  #notif-stack-left>*:nth-last-child(n+2),#notif-stack-right>*:nth-last-child(n+2){display:none !important;}
+  .kre-degrade-notif{max-width:none !important;background:#2A0B12 !important;padding:.4rem .6rem !important;font-size:.7rem !important;}
+  .kre-degrade-notif .kdn-title{font-size:.72rem !important;margin-bottom:.1rem !important;}
+  .kre-degrade-notif>div[style*="margin-top:.45rem"]{margin-top:.25rem !important;}
+  #notif-stack-left>*,#notif-stack-right>*{padding:.45rem .65rem !important;font-size:.72rem !important;}
+  #notif-stack-left>*,#notif-stack-right>*{background-color:#0F1A38;}
+  #kts-toast{bottom:calc(70px + env(safe-area-inset-bottom)) !important;max-width:92vw;text-align:center;}
+
+  /* alertes de kart : une seule ligne, titre + bouton « Noter » */
+  .kre-degrade-notif{display:flex !important;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:nowrap;}
+  .kre-degrade-notif>div:nth-child(2),.kre-degrade-notif>div:nth-child(3){display:none !important;}
+  .kre-degrade-notif>div:nth-child(4){margin-top:0 !important;flex:0 0 auto;}
+  .kre-degrade-notif .kdn-auto-btn{margin-top:0 !important;padding:.3rem .5rem !important;}
+
+  /* classements : une ligne par équipe, on fait glisser pour les colonnes de droite */
+  .cl-wrap{-webkit-overflow-scrolling:touch;}
+  .timing-table th,.timing-table td{white-space:nowrap !important;}
+  .timing-table td{font-size:.8rem !important;}
+
+  /* réglages réservés au PC : couleurs des files, guide de démarrage */
+  .file-card>div[style*="padding:.35rem .75rem"]{display:none !important;}
+  #panel-setup .setup-card.guide{display:none !important;}
+  #panel-setup.active{grid-template-columns:1fr !important;display:grid !important;}
+  #panel-setup .setup-card{grid-column:1/-1 !important;}
+  .ktr-bar .kts-btn{flex:1 1 auto;}
+
+  /* fenêtres en plein écran */
+  #kts-modal .kts-box,#ktr-modal .ktr-box{max-height:88vh;}
+  .ktr-row{grid-template-columns:22px 1fr 96px !important;}
+}
+</style>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   MODULE 6 — INTERFACE TÉLÉPHONE
+   Onglets du bas + feuille « Plus » qui reprend le menu et les actions
+   de la barre du haut cachées sur petit écran.
+══════════════════════════════════════════════════════════════════ */
+const KTM = (function(){
+  const TABS=[['dash','🏠','Course'],['classement','🏆','Classement'],['files','🔄','Files'],['relais','📋','Relais']];
+  const MORE_PAGES=[['classement-net','⚖️','Classement net'],['ia','🧠','Ingénieur'],['karts','⭐','Notes karts'],['sws','🌍','Classement SWS'],['setup','🏁','Nouvelle course'],['admin','⚙️','Réglages']];
+  let current='dash';
+
+  function click(id){ const b=document.getElementById(id); if(b) b.click(); }
+  function actions(){
+    const a=[];
+    a.push(['🔗','Salle d\'équipe',()=>KTS.ui.open()]);
+    a.push(['📟','Pit wall',()=>click('btn-pitwall')]);
+    a.push(['📡','Apex',()=>click('btn-apex')]);
+    if(document.getElementById('btn-intel')) a.push(['🔬','Karts intel',()=>click('btn-intel')]);
+    if(document.getElementById('btn-sim')) a.push(['🎮','Simulation',()=>click('btn-sim')]);
+    const bil=document.getElementById('btn-bilan'); if(bil && bil.style.display!=='none') a.push(['📊','Bilan',()=>click('btn-bilan')]);
+    a.push(['📲','Installer l\'appli',()=>ktInstall()]);
+    const st=document.getElementById('btn-stop'); if(st && st.style.display!=='none') a.push(['⏹','Arrêter la course',()=>click('btn-stop'),'danger']);
+    return a;
+  }
+  function render(){
+    const t=document.getElementById('ktm-tabs'); if(!t) return;
+    const morePage = !TABS.some(x=>x[0]===current);
+    t.innerHTML = TABS.map(([p,i,l])=>`<button class="${current===p?'on':''}" onclick="KTM.go('${p}')"><span class="i">${i}</span>${l}</button>`).join('')
+      + `<button class="${morePage?'on':''}" onclick="KTM.more()"><span class="i">☰</span>Plus</button>`;
+  }
+  function go(p){ close(); showPanel(p); }
+  function more(){
+    const s=document.getElementById('ktm-sheet');
+    const wx=[['sec','☀️'],['grasse','💧'],['pluie_legere','🌧️'],['pluie_forte','⛈️']];
+    const curW=(typeof currentWeather!=='undefined'?currentWeather:'sec');
+    s.innerHTML=`<div class="grab"></div>
+      <h4>Pages</h4><div class="g">${MORE_PAGES.map(([p,i,l])=>`<button onclick="KTM.go('${p}')"><span class="i">${i}</span>${l}</button>`).join('')}</div>
+      <h4>Actions</h4><div class="g">${actions().map((a,k)=>`<button class="${a[3]||''}" data-k="${k}"><span class="i">${a[0]}</span>${a[1]}</button>`).join('')}</div>
+      <h4>Météo de la piste</h4><div class="wx">${wx.map(([w,i])=>`<button class="${curW===w?'on':''}" onclick="setWeather('${w}');KTM.close();">${i}</button>`).join('')}</div>`;
+    const acts=actions();
+    s.querySelectorAll('.g button[data-k]').forEach(b=>b.onclick=()=>{ close(); acts[+b.dataset.k][2](); });
+    s.classList.add('open'); document.getElementById('ktm-sheet-bg').classList.add('open');
+  }
+  function close(){ document.getElementById('ktm-sheet')?.classList.remove('open'); document.getElementById('ktm-sheet-bg')?.classList.remove('open'); }
+  function mount(){
+    if(document.getElementById('ktm-tabs')) return;
+    const t=document.createElement('nav'); t.id='ktm-tabs'; document.body.appendChild(t);
+    const bg=document.createElement('div'); bg.id='ktm-sheet-bg'; bg.onclick=close; document.body.appendChild(bg);
+    const s=document.createElement('div'); s.id='ktm-sheet'; document.body.appendChild(s);
+    const active=document.querySelector('#panels>.panel.active'); if(active) current=active.id.replace('panel-','');
+    render();
+  }
+  return { mount, render, go, more, close, set:(p)=>{ current=p; render(); } };
+})();
+const _ktmOrigShowPanel = showPanel;
+showPanel = function(name){ _ktmOrigShowPanel(name); KTM.set(name); try{ const p=document.getElementById('panel-'+name); if(p) p.scrollTop=0; }catch(e){} };
+// les valeurs de météo utilisées par la feuille « Plus » doivent exister dans l'appli
+(function(){
+  if(new URLSearchParams(location.search).get('panneau')!==null) return;
+  KTM.mount();
+})();
+</script>
+
 </body>
 </html>
