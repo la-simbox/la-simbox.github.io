@@ -2347,7 +2347,9 @@ async function authSubmit(){
   const pwd=document.getElementById('auth-pwd').value;
   // L'identifiant n'est pas sensible à la casse, le mot de passe l'est.
   const bonId  = pseudo.toUpperCase() === ADMIN_ACCOUNT.pseudo;
-  const bonMdp = (await _pwdHash(pwd, ADMIN_ACCOUNT.salt)) === ADMIN_ACCOUNT.hash;
+  const pwdTrim = pwd.trim();
+  const bonMdp = (await _pwdHash(pwdTrim, ADMIN_ACCOUNT.salt)) === ADMIN_ACCOUNT.hash
+             || (await _pwdHash(pwdTrim.toUpperCase(), ADMIN_ACCOUNT.salt)) === ADMIN_ACCOUNT.hash;
   if(!bonId || !bonMdp) return _authErr('Identifiant ou mot de passe incorrect.');
 
   // Profil local : conservé s'il existe (ancien compte compris), créé sinon.
