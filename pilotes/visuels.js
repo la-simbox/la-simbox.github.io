@@ -10,7 +10,8 @@
   const NEON = ["#7CFF6B","#00F0FF","#3D8BFF","#B26BFF","#FF4FD8","#FF8A1F","#FFE81F","#FF3B3B","#FFD54A","#FFFFFF"];
   const MOIS = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
   const imgs = {};
-  const load = src => imgs[src] || (imgs[src] = new Promise(r => { if (!src) return r(null); const i = new Image(); i.crossOrigin = "anonymous"; i.onload = () => r(i); i.onerror = () => r(null); i.src = src; }));
+  const BASE = () => window.SIMBOX_BASE || "";
+  const load = src => imgs[src] || (imgs[src] = new Promise(r => { if (!src) return r(null); const i = new Image(); i.crossOrigin = "anonymous"; i.onload = () => r(i); i.onerror = () => r(null); i.src = /^https?:/.test(src) ? src : BASE() + src; }));
   const fmt = ms => ms == null ? "–" : Math.floor(ms / 60000) + "'" + String(Math.floor(ms / 1000) % 60).padStart(2, "0") + '"' + String(ms % 1000).padStart(3, "0");
   const gapTxt = ms => { if (!ms) return ""; const s = Math.floor(ms / 1000), r = ms % 1000; return "+" + (s >= 60 ? Math.floor(s / 60) + "'" + String(s % 60).padStart(2, "0") : s) + '"' + String(r).padStart(3, "0"); };
   const moisNom = iso => MOIS[+String(iso).split("-")[1] - 1];

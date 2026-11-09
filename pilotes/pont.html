@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pont Planning</title><meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,800;1,900&family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0b0e;--card:#16161b;--ink:#f4f4f6;--muted:#a5a5b0;--red:#e10600}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#0b0b0e}}
+:root[data-theme="dark"]{--bg:#0b0b0e}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:500 16px/1.55 Inter,system-ui,sans-serif}
+main{max-width:620px;margin:0 auto;padding:28px 16px 48px}
+h1{font:italic 900 2.4rem/1 "Barlow Condensed",sans-serif;text-transform:uppercase;margin:0 0 .4rem}h1 span{color:var(--red)}
+.card{background:var(--card);border-radius:16px;padding:18px;margin-top:16px}
+.bm{display:inline-block;margin:10px 0;padding:12px 18px;border-radius:999px;background:var(--red);color:#fff;font:800 1.1rem/1 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.5px;text-decoration:none;cursor:grab}
+ol{padding-left:1.2rem;margin:.4rem 0}li{margin:.35rem 0}
+.muted{color:var(--muted);font-size:.92rem}
+code{background:#000;padding:2px 6px;border-radius:6px;word-break:break-all;font-size:.8rem}
+</style></head><body><main>
+<h1>SimBox <span>⇄</span> Pilotes</h1>
+<p class="muted">Le pont entre l'Espace pilotes et le Planning SimBox : en un clic, les posts prêts (nouveau leader, record, nouvelle référence One Lap, résultats de la soirée, classement de la semaine) arrivent dans le calendrier avec leur visuel et leur texte.</p>
+<div class="card">
+<b>1. Installer le bouton (une seule fois, sur ordinateur)</b>
+<ol>
+<li>Affiche la barre des favoris : <b>Ctrl + Maj + B</b>.</li>
+<li>Fais glisser ce bouton rouge dans la barre des favoris :<br><a class="bm" id="bm" href="#">SimBox ⇄ Pilotes</a></li>
+</ol>
+<p class="muted">Sur téléphone : crée un favori de n'importe quelle page, puis modifie son adresse et colle à la place le texte ci-dessous.</p>
+<code id="code"></code>
+</div>
+<div class="card">
+<b>2. S'en servir</b>
+<ol>
+<li>Ouvre le <a href="https://planning-simbox.netlify.app/" style="color:#ff5a4f">Planning SimBox</a> (connecté).</li>
+<li>Clique sur le favori <b>SimBox ⇄ Pilotes</b>.</li>
+<li>Un petit panneau indique ce qui a été ajouté. Les posts se placent sur le prochain jour libre à 18 h 30, la story « Résultats de la soirée » le lendemain à 12 h 30, et les posts « Classement après la semaine… » sont remplis avec le vrai top 3.</li>
+</ol>
+<p class="muted">Tu peux cliquer autant de fois que tu veux : un post déjà ajouté ne l'est jamais deux fois.</p>
+</div>
+</main>
+<script>
+const js = "javascript:(function(){var s=document.createElement('script');s.src='https://la-simbox.github.io/pilotes/pont-planning.js?t='+Date.now();document.body.appendChild(s);})();";
+document.getElementById("bm").setAttribute("href", js);
+document.getElementById("bm").addEventListener("click", e => { e.preventDefault(); e.target.textContent = "↑ Glisse-moi dans la barre des favoris"; });
+document.getElementById("code").textContent = js;
+</script>
+</body></html>
