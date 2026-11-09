@@ -8058,7 +8058,7 @@ const KTE = (function(){
       blk.innerHTML = `<div class="eng-head">INGÉNIEUR DE COURSE · ${E.insights.length} point${E.insights.length>1?'s':''} à surveiller</div>`+
         `<div style="display:flex;flex-direction:column;gap:.35rem;">${E.insights.length?E.insights.map(itemHtml).join(''):'<div class="kts-muted">Rien à signaler : les écarts, les arrêts adverses et le rythme sont normaux.</div>'}</div>`+
         `<div class="ktr-regle" style="margin-top:.7rem;">${(typeof KTR!=='undefined' && currentRace.reglement) ? KTR.summaryHtml(currentRace.reglement) : 'Aucun règlement importé pour cette course : l\'ingénieur ne connaît ni le stand fermé ni les temps de conduite.'}</div>`+
-        `<div style="display:flex;gap:.5rem;flex-wrap:wrap;"><button class="kts-btn" onclick="KTE.copyReport()">📋 Copier l'état de course pour Claude</button>`+
+        `<div style="display:flex;gap:.5rem;flex-wrap:wrap;"><button class="kts-btn" onclick="KTE.copyReport()">📋 Copier l'état de course pour Claude</button><button class="kts-btn" onclick="KTL.show()">📄 Rapport pilotes</button>`+
         `<label class="kts-btn" style="cursor:pointer;">📄 ${currentRace.reglement?'Remplacer':'Importer'} le règlement<input type="file" accept=".pdf,.docx,.txt" style="display:none" onchange="KTR.onFile(this,'race')"></label></div>`;
       if(ia.firstChild!==blk) ia.insertBefore(blk, ia.firstChild);
       // l'ordre affiché plus bas doit être le même que celui du tableau de bord
@@ -9042,6 +9042,7 @@ const KTM = (function(){
     if(document.getElementById('btn-intel')) a.push(['🔬','Karts intel',()=>click('btn-intel')]);
     if(document.getElementById('btn-sim')) a.push(['🎮','Simulation',()=>click('btn-sim')]);
     const bil=document.getElementById('btn-bilan'); if(bil && bil.style.display!=='none') a.push(['📊','Bilan',()=>click('btn-bilan')]);
+    a.push(['📄','Rapport pilotes',()=>KTL.show()]);
     a.push(['📲','Installer l\'appli',()=>ktInstall()]);
     const st=document.getElementById('btn-stop'); if(st && st.style.display!=='none') a.push(['⏹','Arrêter la course',()=>click('btn-stop'),'danger']);
     return a;
@@ -9082,6 +9083,306 @@ showPanel = function(name){ _ktmOrigShowPanel(name); KTM.set(name); try{ const p
 (function(){
   if(new URLSearchParams(location.search).get('panneau')!==null) return;
   KTM.mount();
+})();
+</script>
+
+<style>
+/* ══ RAPPORT PILOTES ══ */
+#ktl-report{position:fixed;inset:0;z-index:9300;background:#E9ECF2;overflow:auto;display:none;-webkit-overflow-scrolling:touch;}
+#ktl-report.open{display:block;}
+#ktl-report .ktl-bar{position:sticky;top:0;z-index:2;display:flex;gap:.45rem;flex-wrap:wrap;align-items:center;justify-content:flex-end;padding:calc(.5rem + env(safe-area-inset-top)) .8rem .5rem;background:#03050D;}
+#ktl-report .ktl-bar .t{flex:1;color:#fff;font-weight:800;font-size:.85rem;min-width:140px;}
+#ktl-report .ktl-bar button{background:#0F1A38;border:1px solid rgba(26,111,196,.45);color:#E0EAFF;border-radius:8px;padding:.5rem .75rem;font-size:.75rem;font-weight:700;cursor:pointer;}
+#ktl-report .ktl-bar button.pri{background:#E8192C;border-color:#E8192C;color:#fff;}
+.ktl-doc{max-width:820px;margin:16px auto 40px;background:#fff;color:#14171F;box-shadow:0 6px 30px rgba(0,0,0,.15);padding:34px 36px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;}
+.ktl-doc .hd{border-left:5px solid #E8192C;padding-left:14px;margin-bottom:18px;}
+.ktl-doc .brand{font-size:.72rem;font-weight:800;letter-spacing:.32em;color:#14171F;}
+.ktl-doc .brand b{color:#E8192C;}
+.ktl-doc h1{font-size:1.65rem;margin:.2rem 0 .1rem;letter-spacing:-.02em;}
+.ktl-doc .sub{color:#5B6475;font-size:.9rem;}
+.ktl-doc .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 22px;}
+.ktl-doc .kpi{border:1px solid #E1E5EC;border-radius:8px;padding:10px 12px;}
+.ktl-doc .kpi .v{font-size:1.3rem;font-weight:800;font-variant-numeric:tabular-nums;}
+.ktl-doc .kpi .l{font-size:.72rem;color:#5B6475;margin-top:2px;}
+.ktl-doc h2{font-size:1.05rem;margin:20px 0 8px;padding-bottom:6px;border-bottom:2px solid #14171F;}
+.ktl-doc table{width:100%;border-collapse:collapse;font-size:.8rem;font-variant-numeric:tabular-nums;}
+.ktl-doc th{text-align:left;font-size:.66rem;letter-spacing:.12em;color:#5B6475;padding:7px 6px;border-bottom:2px solid #14171F;font-weight:700;}
+.ktl-doc td{padding:6px;border-bottom:1px solid #EEF0F4;vertical-align:middle;}
+.ktl-doc td.n,.ktl-doc th.n{text-align:right;}
+.ktl-doc td.pil{font-weight:800;}
+.ktl-doc td.ry{font-weight:800;}
+.ktl-doc tr.rk7 td{background:#FDECEE;}
+.ktl-doc tr.rk7 td:first-child{box-shadow:inset 3px 0 0 #E8192C;}
+.ktl-doc tr.nc td{color:#8A93A3;}
+.ktl-doc .note{font-size:.72rem;color:#5B6475;line-height:1.5;margin-top:10px;}
+.ktl-doc .sheet{border:1px solid #E1E5EC;border-radius:10px;padding:12px 14px;margin:10px 0;page-break-inside:avoid;break-inside:avoid;}
+.ktl-doc .sheet .st{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.ktl-doc .sheet .st b{font-size:1rem;}
+.ktl-doc .sheet .st span{color:#5B6475;font-size:.78rem;}
+.ktl-doc .sheet svg{width:100%;height:70px;display:block;margin:8px 0 4px;}
+.ktl-doc .empty{padding:30px;text-align:center;color:#5B6475;}
+@media (max-width:640px){
+  .ktl-doc{margin:0;padding:18px 14px;box-shadow:none;}
+  .ktl-doc .kpis{grid-template-columns:repeat(2,1fr);}
+  .ktl-doc h1{font-size:1.3rem;}
+  .ktl-doc table{font-size:.72rem;}
+  .ktl-doc th,.ktl-doc td{padding:5px 3px;}
+  .ktl-doc .hide-m{display:none;}
+}
+@media print{
+  @page{size:A4;margin:12mm;}
+  html,body.ktl-printing{height:auto !important;min-height:0 !important;overflow:visible !important;position:static !important;background:#fff !important;}
+  html:has(body.ktl-printing){background:#fff !important;}
+  body.ktl-printing>*:not(#ktl-report){display:none !important;}
+  body.ktl-printing #ktl-report{position:static;display:block;background:#fff;overflow:visible;}
+  body.ktl-printing #ktl-report .ktl-bar{display:none !important;}
+  body.ktl-printing .ktl-doc{box-shadow:none;margin:0;max-width:none;padding:0;}
+  body.ktl-printing .ktl-doc tr{page-break-inside:avoid;break-inside:avoid;}
+  body.ktl-printing .ktl-doc h2{page-break-after:avoid;break-after:avoid;}
+  body.ktl-printing .ktl-doc .hide-m{display:table-cell !important;}
+  body.ktl-printing *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+</style>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   MODULE 7 — RAPPORT PILOTES (plateau complet)
+   ------------------------------------------------------------------
+   Pendant la course, chaque tour de chaque équipe est enregistré avec
+   le pilote au volant (Apex l'affiche : « NOM Prénom [h:mm] »), dans la
+   base du navigateur (IndexedDB : prévue pour les gros volumes, une 24 h
+   = plusieurs dizaines de milliers de tours). En fin de course :
+   chiffres clés, classement des pilotes et des équipes au rythme,
+   fiches des pilotes RK7. Enregistrable en PDF, en page HTML ou en CSV.
+   Rythme = moyenne des tours propres : sans tour de sortie des stands,
+   sans tour à plus de 4 % du meilleur tour du pilote (trafic, drapeaux).
+══════════════════════════════════════════════════════════════════ */
+const KTL = (function(){
+  const MIN_TOURS = 8;                 // tours propres minimum pour être classé
+  const DRIVERS = {};                  // dernier pilote connu par ligne Apex
+  const last = {};                     // dernier chrono vu par ligne Apex
+  let db=null, queue=[], flushTimer=null, count=0;
+
+  // ── base de données ───────────────────────────────
+  function open(){
+    if(db) return Promise.resolve(db);
+    return new Promise((res,rej)=>{
+      const r=indexedDB.open('kt_laps',1);
+      r.onupgradeneeded=()=>{ const d=r.result; const s=d.createObjectStore('laps',{autoIncrement:true}); s.createIndex('race','race'); };
+      r.onsuccess=()=>{ db=r.result; res(db); };
+      r.onerror=()=>rej(r.error);
+    });
+  }
+  function flush(){
+    flushTimer=null;
+    if(!queue.length) return;
+    const batch=queue; queue=[];
+    open().then(d=>{ const tx=d.transaction('laps','readwrite'); const s=tx.objectStore('laps'); batch.forEach(x=>s.add(x)); })
+          .catch(e=>{ console.warn('[KTL]',e); queue=batch.concat(queue); });
+  }
+  function lapsOf(raceId){
+    return open().then(d=>new Promise((res,rej)=>{
+      const r=d.transaction('laps').objectStore('laps').index('race').getAll(IDBKeyRange.only(String(raceId)));
+      r.onsuccess=()=>res(r.result||[]); r.onerror=()=>rej(r.error);
+    }));
+  }
+
+  // ── enregistrement à chaque mise à jour du live ───
+  function record(entries){
+    if(typeof currentRace==='undefined' || !currentRace || !entries || !entries.length) return;
+    const race=String(currentRace.id), now=Date.now();
+    let me=null; try{ me=getMyEntry(entries); }catch(e){}
+    entries.forEach(e=>{
+      const key=e.rid || normName(e.team||''); if(!key) return;
+      if(e.driver) DRIVERS[key]=e.driver;
+      const L=last[key] || (last[key]={sec:null, inPit:false, out:false, pc:null});
+      if(e.inPit){ L.inPit=true; return; }
+      if(L.inPit){ L.inPit=false; L.out=true; }                     // prochain tour = tour de sortie
+      const pc=Number.isFinite(+e.pitCount)?+e.pitCount:null;
+      if(pc!==null && L.pc!==null && pc>L.pc) L.out=true;
+      if(pc!==null) L.pc=pc;
+      const sec=parseTimeToSec(e.lastLap);
+      if(!sec || sec<=0 || sec>900 || sec===L.sec){ return; }
+      const first = L.sec===null; L.sec=sec;
+      if(first) return;                                              // chrono déjà affiché à la connexion
+      let drv = DRIVERS[key] || '';
+      if(!drv && me && e===me){ try{ drv = (piloteActuel()||{}).nom || ''; }catch(x){} }
+      queue.push({ race, k:key, tm:e.team||'', d:drv||e.team||'', s:Math.round(sec*1000)/1000, t:now, l:+e.laps||0, pc:pc, o:L.out?1:0, me:(me&&e===me)?1:0 });
+      L.out=false; count++;
+    });
+    if(queue.length && !flushTimer) flushTimer=setTimeout(flush, 4000);
+  }
+
+  // ── calculs ────────────────────────────────────────
+  const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
+  function fmt(sec){ if(sec==null) return '—'; const m=Math.floor(sec/60); const s=(sec-m*60).toFixed(3).padStart(6,'0'); return m?m+':'+s:sec.toFixed(3); }
+  function gap(x, first){ return first?'P1':(x==null?'—':'+'+Math.max(0,x).toFixed(2)); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function isRk7(teamName, laps){
+    const n=normName(teamName||''); const mine=normName((typeof LS!=='undefined'&&LS.myTeamApex)||'');
+    return (mine && n===mine) || /\brk7\b/.test(n) || laps.some(l=>l.me);
+  }
+  function analyse(laps){
+    // équipes (par ligne Apex) et pilotes
+    const teams={}, drivers={};
+    laps.forEach(l=>{
+      const t=teams[l.k] || (teams[l.k]={k:l.k, name:l.tm, laps:[]});
+      if(l.tm && !/\[\d+:\d{2}\]/.test(l.tm)) t.name=l.tm;
+      t.laps.push(l);
+      const dk=l.k+'|'+(l.d||'?');
+      (drivers[dk] || (drivers[dk]={k:l.k, name:l.d||'?', laps:[]})).laps.push(l);
+    });
+    const cleanOf = arr => {
+      const valid=arr.filter(l=>!l.o);
+      if(!valid.length) return [];
+      const best=Math.min(...valid.map(l=>l.s));
+      return valid.filter(l=>l.s<=best*1.04);
+    };
+    const D=Object.values(drivers).map(d=>{
+      const c=cleanOf(d.laps); const team=teams[d.k];
+      return { name:d.name, team:team?team.name:'', k:d.k, tours:d.laps.length, propres:c.length,
+               best:d.laps.length?Math.min(...d.laps.filter(l=>!l.o).map(l=>l.s).concat([Infinity])):null,
+               rythme:c.length?avg(c.map(l=>l.s)):null, laps:d.laps, rk7:false };
+    }).map(d=>{ if(d.best===Infinity) d.best=null; return d; });
+    const T=Object.values(teams).map(t=>{
+      const c=cleanOf(t.laps);
+      return { name:t.name, k:t.k, tours:t.laps.length, best:Math.min(...t.laps.map(l=>l.s)), rythme:c.length?avg(c.map(l=>l.s)):null,
+               pilotes:new Set(t.laps.map(l=>l.d)).size, rk7:isRk7(t.name, t.laps) };
+    });
+    const rk7Keys=new Set(T.filter(t=>t.rk7).map(t=>t.k));
+    D.forEach(d=>{ d.rk7=rk7Keys.has(d.k); });
+    const ranked=D.filter(d=>d.propres>=MIN_TOURS && d.rythme).sort((a,b)=>a.rythme-b.rythme);
+    const nc=D.filter(d=>!(d.propres>=MIN_TOURS && d.rythme)).sort((a,b)=>b.tours-a.tours);
+    const teamsRanked=T.filter(t=>t.rythme).sort((a,b)=>a.rythme-b.rythme);
+    const bestLap=laps.filter(l=>!l.o).reduce((m,l)=>(!m||l.s<m.s)?l:m,null);
+    return { ranked, nc, teamsRanked, D, T, bestLap, total:laps.length, from:Math.min(...laps.map(l=>l.t)), to:Math.max(...laps.map(l=>l.t)) };
+  }
+
+  // relais d'un pilote = suite de tours avec le même compteur d'arrêts
+  function stintsOf(d){
+    const st=[]; let cur=null;
+    d.laps.slice().sort((a,b)=>a.t-b.t).forEach(l=>{
+      if(!cur || l.pc!==cur.pc || l.t-cur.lastT>10*60*1000){ cur={pc:l.pc, laps:[], lastT:l.t}; st.push(cur); }
+      cur.laps.push(l); cur.lastT=l.t;
+    });
+    return st.map(s=>{ const v=s.laps.filter(l=>!l.o); const best=v.length?Math.min(...v.map(l=>l.s)):null;
+      const c=v.filter(l=>best&&l.s<=best*1.04); return { n:s.laps.length, best, rythme:avg(c.map(l=>l.s)), laps:s.laps, start:s.laps[0].t }; });
+  }
+  function spark(laps, lo, hi){
+    const v=laps.filter(l=>!l.o).map(l=>l.s); if(v.length<2) return '';
+    const W=760,H=70, n=v.length;
+    const y=s=>H-6-Math.max(0,Math.min(1,(s-lo)/Math.max(0.3,hi-lo)))*(H-12);
+    const pts=v.map((s,i)=>(i*(W/(n-1))).toFixed(1)+','+y(s).toFixed(1)).join(' ');
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="#E8192C" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+  }
+
+  // ── rendu du rapport ──────────────────────────────
+  function html(race, A){
+    const date = race.started ? new Date(race.started).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}) : '';
+    const dur = race.duree ? (race.duree%1? Math.floor(race.duree)+' h '+Math.round(race.duree%1*60) : race.duree+' h')+' de course' : '';
+    const p1=A.ranked[0];
+    const rows=A.ranked.map((d,i)=>`<tr class="${d.rk7?'rk7':''}"><td>${i+1}</td><td class="pil">${esc(d.name)}</td><td>${esc(d.team)}</td><td class="n">${d.tours}</td><td class="n">${fmt(d.best)}</td><td class="n ry">${fmt(d.rythme)}</td><td class="n">${gap(d.rythme-p1.rythme, i===0)}</td></tr>`).join('');
+    const ncRows=A.nc.map(d=>`<tr class="nc ${d.rk7?'rk7':''}"><td>—</td><td class="pil">${esc(d.name)}</td><td>${esc(d.team)}</td><td class="n">${d.tours}</td><td class="n">${fmt(d.best)}</td><td class="n">${d.propres} propres</td><td class="n">NC</td></tr>`).join('');
+    const t1=A.teamsRanked[0];
+    const teamRows=A.teamsRanked.map((t,i)=>`<tr class="${t.rk7?'rk7':''}"><td>${i+1}</td><td class="pil">${esc(t.name)}</td><td class="n hide-m">${t.pilotes}</td><td class="n">${t.tours}</td><td class="n">${fmt(t.best)}</td><td class="n ry">${fmt(t.rythme)}</td><td class="n">${gap(t.rythme-t1.rythme, i===0)}</td></tr>`).join('');
+    // fiches RK7
+    const rkDrivers=A.D.filter(d=>d.rk7).sort((a,b)=>(a.rythme||999)-(b.rythme||999));
+    const allClean=rkDrivers.flatMap(d=>d.laps.filter(l=>!l.o).map(l=>l.s)).sort((a,b)=>a-b);
+    const lo=allClean[0]||60, hi=allClean[Math.floor(allClean.length*0.95)]||lo+3;
+    const sheets=rkDrivers.map(d=>{
+      const pos=A.ranked.indexOf(d);
+      const st=stintsOf(d);
+      return `<div class="sheet"><div class="st"><b>${esc(d.name)}</b><span>${pos>=0?'P'+(pos+1)+' au rythme sur '+A.ranked.length:'non classé'} · ${d.tours} tours · meilleur ${fmt(d.best)} · rythme ${fmt(d.rythme)}${p1&&d.rythme&&d!==p1?' ('+gap(d.rythme-p1.rythme)+' du P1)':''}</span></div>
+        ${spark(d.laps, lo, hi)}
+        <table><tr><th>Relais</th><th class="n">Départ</th><th class="n">Tours</th><th class="n">Meilleur</th><th class="n">Rythme</th></tr>
+        ${st.map((s,i)=>`<tr><td>${i+1}</td><td class="n">${new Date(s.start).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</td><td class="n">${s.n}</td><td class="n">${fmt(s.best)}</td><td class="n">${fmt(s.rythme)}</td></tr>`).join('')}</table></div>`;
+    }).join('');
+    const partial = race.started && (A.from - Date.parse(race.started) > 10*60*1000);
+    return `<div class="ktl-doc">
+      <div class="hd"><div class="brand">KART <b>TRACKER</b> · RK7 TEAM</div>
+        <h1>Rapport pilotes — plateau complet</h1>
+        <div class="sub">${esc(race.circuit||'')}${date?' · '+date:''}${dur?' · '+dur:''}</div></div>
+      <div class="kpis">
+        <div class="kpi"><div class="v">${A.D.length}</div><div class="l">pilotes analysés</div></div>
+        <div class="kpi"><div class="v">${A.total.toLocaleString('fr-FR')}</div><div class="l">tours attribués</div></div>
+        <div class="kpi"><div class="v">${A.bestLap?fmt(A.bestLap.s):'—'}</div><div class="l">meilleur tour · ${esc(A.bestLap?A.bestLap.d:'')}</div></div>
+        <div class="kpi"><div class="v">${p1?fmt(p1.rythme):'—'}</div><div class="l">rythme du P1 · ${esc(p1?p1.name:'')}</div></div>
+      </div>
+      <h2>Classement des pilotes au rythme</h2>
+      ${A.ranked.length?`<table><tr><th>#</th><th>PILOTE</th><th>ÉQUIPE</th><th class="n">TOURS</th><th class="n">BEST</th><th class="n">RYTHME</th><th class="n">ÉCART</th></tr>${rows}${ncRows}</table>`:'<div class="empty">Pas encore assez de tours pour classer les pilotes.</div>'}
+      <h2>Classement des équipes au rythme</h2>
+      <table><tr><th>#</th><th>ÉQUIPE</th><th class="n hide-m">PILOTES</th><th class="n">TOURS</th><th class="n">BEST</th><th class="n">RYTHME</th><th class="n">ÉCART</th></tr>${teamRows}</table>
+      ${sheets?`<h2>Fiches des pilotes RK7</h2>${sheets}`:''}
+      <div class="note">Rythme = moyenne des tours propres du pilote : tours de sortie des stands exclus, ainsi que les tours à plus de 4 % de son meilleur tour (trafic, drapeaux, incidents). Classement à partir de ${MIN_TOURS} tours propres ; NC = non classé.
+      ${partial?'<br>⚠️ KART TRACKER a été branché après le départ : le rapport couvre la course à partir de '+new Date(A.from).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+'.':''}
+      <br>Données : live Apex Timing enregistré par KART TRACKER · généré le ${new Date().toLocaleString('fr-FR')}.</div>
+    </div>`;
+  }
+
+  let lastDoc='', lastCsv='', lastName='rapport-pilotes';
+  async function show(raceId){
+    flush();
+    const id = raceId || (typeof bilanRaceId!=='undefined' && bilanRaceId) || (currentRace&&currentRace.id);
+    const race = (LS.races||[]).find(r=>String(r.id)===String(id)) || (currentRace && String(currentRace.id)===String(id) ? currentRace : null);
+    let wrap=document.getElementById('ktl-report');
+    if(!wrap){ wrap=document.createElement('div'); wrap.id='ktl-report'; document.body.appendChild(wrap); }
+    const bar=`<div class="ktl-bar"><span class="t">📄 Rapport pilotes</span>
+      <button class="pri" onclick="KTL.print()">⬇ Enregistrer en PDF</button>
+      <button onclick="KTL.download()">Page HTML</button><button onclick="KTL.csv()">CSV</button>
+      <button onclick="KTL.close()">✕</button></div>`;
+    if(!race){ wrap.innerHTML=bar+'<div class="ktl-doc"><div class="empty">Aucune course sélectionnée.</div></div>'; wrap.classList.add('open'); return; }
+    await new Promise(r=>setTimeout(r,150));
+    const laps=await lapsOf(race.id).catch(()=>[]);
+    if(!laps.length){
+      wrap.innerHTML=bar+`<div class="ktl-doc"><div class="empty">Aucun tour enregistré pour cette course.<br><br>Le rapport se construit pendant la course : KART TRACKER doit être connecté au live Apex sur cet appareil (de préférence le poste principal du stand) du départ à l'arrivée.</div></div>`;
+      wrap.classList.add('open'); return;
+    }
+    const A=analyse(laps);
+    lastDoc=html(race, A);
+    lastName='rapport-pilotes-'+String(race.circuit||'course').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-')+'-'+(race.started||'').slice(0,10);
+    lastCsv='Classement;Pilote;Equipe;Tours;Tours propres;Meilleur tour;Rythme;Ecart\n'+
+      A.ranked.map((d,i)=>[i+1,d.name,d.team,d.tours,d.propres,fmt(d.best),fmt(d.rythme),gap(d.rythme-A.ranked[0].rythme, i===0)].join(';')).join('\n')+'\n'+
+      A.nc.map(d=>['NC',d.name,d.team,d.tours,d.propres,fmt(d.best),fmt(d.rythme),''].join(';')).join('\n');
+    wrap.innerHTML=bar+lastDoc;
+    wrap.classList.add('open'); wrap.scrollTop=0;
+  }
+  function close(){ document.getElementById('ktl-report')?.classList.remove('open'); }
+  function print(){
+    document.body.classList.add('ktl-printing');
+    const done=()=>{ document.body.classList.remove('ktl-printing'); window.removeEventListener('afterprint',done); };
+    window.addEventListener('afterprint',done);
+    setTimeout(()=>{ window.print(); setTimeout(done, 1500); }, 50);
+  }
+  function save(name, type, content){
+    const blob=new Blob([content],{type});
+    const file=new File([blob], name, {type});
+    if(navigator.canShare && navigator.canShare({files:[file]})){ navigator.share({files:[file], title:name}).catch(()=>{}); return; }
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+  function download(){
+    if(!lastDoc) return;
+    const css=[...document.querySelectorAll('style')].map(s=>s.textContent).find(t=>t.includes('.ktl-doc{'))||'';
+    save(lastName+'.html','text/html', `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rapport pilotes</title><style>body{margin:0;background:#E9ECF2;}${css.replace(/body\.ktl-printing /g,'')}</style></head><body>${lastDoc}</body></html>`);
+  }
+  function csv(){ if(lastCsv) save(lastName+'.csv','text/csv;charset=utf-8', '﻿'+lastCsv); }
+
+  return { record, show, close, print, download, csv, analyse, lapsOf, flush, stats:()=>({count, queue:queue.length}) };
+})();
+
+// branchement : chaque mise à jour du live alimente le rapport
+const _ktlOrigProcessApex = processApexData;
+processApexData = function(entries){ _ktlOrigProcessApex(entries); try{ KTL.record(entries); }catch(e){ console.warn('[KTL]', e); } };
+window.addEventListener('pagehide', ()=>KTL.flush());
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') KTL.flush(); });
+
+// accès : bilan de course, menu « Plus » du téléphone, onglet Ingénieur
+(function(){
+  const hd=document.querySelector('#bilan-panel .bilan-header');
+  if(hd && !document.getElementById('ktl-btn-bilan')){
+    const b=document.createElement('button'); b.id='ktl-btn-bilan'; b.className='bilan-print'; b.textContent='📄 RAPPORT PILOTES';
+    b.onclick=()=>KTL.show(typeof bilanRaceId!=='undefined'?bilanRaceId:null);
+    hd.insertBefore(b, hd.querySelector('.bilan-print'));
+  }
 })();
 </script>
 
