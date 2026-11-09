@@ -413,6 +413,7 @@ details.sec[open]>summary::before{content:"▾ "}
 .offline{background:var(--no-soft);color:var(--no);border-radius:8px;padding:8px 12px;font-size:14px;font-weight:600}
 .poster{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}
 .poster canvas{max-height:76vh;max-width:100%;border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+.poster .pcap{width:min(92vw,520px);min-height:110px;max-height:22vh;border-radius:8px;border:1px solid #555;background:#141414;color:#eee;padding:8px 10px;font:14px/1.4 Barlow,Arial,sans-serif}
 .poster .bar2{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .poster button{background:#1f1f1c;color:#f3f1ea;border:1px solid #3a3833}
 .poster button.btn-gold{background:var(--band-gold);color:#121210;border-color:var(--band-gold)}
@@ -855,6 +856,11 @@ button:active:not(:disabled){transform:scale(.97)}
     </form>
     <div class="olist" id="pollAdmList" style="margin-top:8px"></div>
     <p class="msg" id="pollAdmMsg"></p>
+  </section>
+  <section class="panel" id="postPanel">
+    <h2>Posts réseaux sociaux</h2>
+    <p class="msg">Les visuels « Race Week » avant chaque course où des pilotes sont inscrits, et les visuels de résultat après la course, avec le texte prêt à copier pour Instagram et Facebook.</p>
+    <div class="olist" id="postList"></div>
   </section>
   <section class="panel" id="candPanel">
     <h2>Candidatures pilotes <span class="chip" id="candNew" hidden></span></h2>
@@ -1711,9 +1717,11 @@ button:active:not(:disabled){transform:scale(.97)}
     const c=courses.find(x=>x.id===cid); if(!c) return;
     showPosterCanvas(await makePoster(c), "rk7-"+String(c.titre||c.lieu).toLowerCase().replace(/[^a-z0-9]+/g,"-")+".png");
   }
-  function showPosterCanvas(cv, name){
+  function showPosterCanvas(cv, name, caption){
     const el=document.createElement("div"); el.className="poster"; el.id="poster"; el.setAttribute("role","dialog"); el.setAttribute("aria-label","Affiche Instagram");
-    el.appendChild(cv); const bar=document.createElement("div"); bar.className="bar2"; bar.innerHTML='<button type="button" class="btn-gold" data-pdl>Télécharger</button>'+(navigator.canShare?'<button type="button" data-psh>Partager</button>':'')+'<button type="button" data-px>Fermer ✕</button>'; el.appendChild(bar); document.body.appendChild(el);
+    el.appendChild(cv); if(caption){ cv.style.maxHeight="52vh"; const ta=document.createElement("textarea"); ta.className="pcap"; ta.value=caption; ta.setAttribute("aria-label","Texte du post"); el.appendChild(ta); }
+    const bar=document.createElement("div"); bar.className="bar2"; bar.innerHTML='<button type="button" class="btn-gold" data-pdl>Télécharger</button>'+(navigator.canShare?'<button type="button" data-psh>Partager</button>':'')+(caption?'<button type="button" data-pcp>Copier le texte</button>':'')+'<button type="button" data-px>Fermer ✕</button>'; el.appendChild(bar); document.body.appendChild(el);
+    el.addEventListener("click", async e=>{ const b=e.target.closest("[data-pcp]"); if(!b) return; const ta=el.querySelector(".pcap"); try{ await navigator.clipboard.writeText(ta.value); }catch(err){ ta.select(); document.execCommand("copy"); } b.textContent="Texte copié ✓"; setTimeout(()=>b.textContent="Copier le texte",1600); });
     el.addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b){ if(e.target===el) el.remove(); return; }
       if(b.dataset.px!==undefined) el.remove();
       if(b.dataset.pdl!==undefined) cv.toBlob(bl=>{ const u=URL.createObjectURL(bl), a=document.createElement("a"); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),5000); },"image/png");
@@ -2585,6 +2593,7 @@ button:active:not(:disabled){transform:scale(.97)}
     if(isAdmin()){
       const nr=courses.filter(c=>!c.terminee&&c.date&&c.date<today());
       if(nr.length) it.push({i:"🏁",t:"Saisir le résultat : "+(nr[0].titre||nr[0].lieu),s:nr.length>1?"et "+(nr.length-1)+" autre"+(nr.length>2?"s":""):"Classement, pilotes et points SWS",card:nr[0].id,cls:"red",adm:1});
+      for(const x of postTodos()) it.push(x);
       if(adminNew.cands) it.push({i:"🏎",t:adminNew.cands+" candidature"+(adminNew.cands>1?"s":"")+" pilote",s:"À traiter dans l'espace admin",go:"#admin",anchor:"candPanel",cls:"red",adm:1});
       if(adminNew.partners) it.push({i:"🤝",t:adminNew.partners+" message"+(adminNew.partners>1?"s":"")+" de partenaire",s:"À traiter dans l'espace admin",go:"#admin",cls:"red",adm:1});
     }
@@ -2599,7 +2608,7 @@ button:active:not(:disabled){transform:scale(.97)}
     renderBadges(it);
   }
   $("#homeTodo").addEventListener("click", e=>{ const b=e.target.closest("[data-todo]"); if(!b) return; const x=(window.__todo||[])[Number(b.dataset.todo)]; if(!x) return;
-    if(x.card) return goCard(x.card); if(x.go){ if(location.hash!==x.go) location.hash=x.go.slice(1); if(x.anchor) setTimeout(()=>{ const a=document.getElementById(x.anchor); if(a) a.scrollIntoView({behavior:"smooth",block:"start"}); },120); } });
+    if(x.post) return openPost(x.post.id,x.post.k); if(x.card) return goCard(x.card); if(x.go){ if(location.hash!==x.go) location.hash=x.go.slice(1); if(x.anchor) setTimeout(()=>{ const a=document.getElementById(x.anchor); if(a) a.scrollIntoView({behavior:"smooth",block:"start"}); },120); } });
   function setDot(el, n){ if(!el) return; let d=el.querySelector(".dot"); if(!n){ if(d) d.remove(); return; } if(!d){ d=document.createElement("span"); d.className="dot"; el.appendChild(d); } d.textContent=n>9?"9+":String(n); }
   function renderBadges(it){
     it=it||todoItems();
@@ -2615,6 +2624,73 @@ button:active:not(:disabled){transform:scale(.97)}
       sec.classList.add("fold"); if(st[key]) sec.classList.add("open"); h.setAttribute("role","button"); h.tabIndex=0; h.setAttribute("aria-expanded", sec.classList.contains("open"));
       const tog=()=>{ sec.classList.toggle("open"); h.setAttribute("aria-expanded", sec.classList.contains("open")); st[key]=sec.classList.contains("open"); try{ localStorage.setItem("rk7-adm-open", JSON.stringify(st)); }catch(e){} };
       h.addEventListener("click", tog); h.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); tog(); } }); }); })();
+  // ---------- Posts réseaux sociaux (Race Week / résultat) ----------
+  const POST_BASE={week:"db:3611b04cdcd85e9e8967c1d83eac8dd7", result:"db:3611b04cdcd85e9e8967c1d83eac8dd7"};
+  const MOIS=["JANVIER","FÉVRIER","MARS","AVRIL","MAI","JUIN","JUILLET","AOÛT","SEPTEMBRE","OCTOBRE","NOVEMBRE","DÉCEMBRE"], JOURS=["DIMANCHE","LUNDI","MARDI","MERCREDI","JEUDI","VENDREDI","SAMEDI"];
+  function postDate(iso){ const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||""); if(!m) return ""; const d=new Date(+m[1],+m[2]-1,+m[3]); return JOURS[d.getDay()]+" "+(+m[3]===1?"1ER":+m[3])+" "+MOIS[+m[2]-1]+" "+m[1]; }
+  function postLieu(l){ const n=normL(l); const M=[[/jpr|ostricourt/,"JPR RACING KART · OSTRICOURT"],[/^rkc|karting paris/,"RKC · KARTING PARIS"],[/kll/,"KLL LOISIRS"],[/belval/,"KARTING · BELVAL"],[/ouest karting|aunay/,"OUEST KARTING · NORMANDIE"],[/rko|angerville/,"RKO · ANGERVILLE"],[/neuilly/,"KARTING LOISIRS · NEUILLY"],[/fagnes/,"KARTING DES FAGNES · BELGIQUE"],[/hainaut/,"CIRCUIT INTERNATIONAL DU HAINAUT"],[/metz/,"METZ KART INDOOR"]]; for(const [r,t] of M) if(r.test(n)) return t; return String(l||"").toUpperCase(); }
+  function postFormat(c){ if(/sprint/i.test(c.type||"")||/sprint/i.test(c.titre||"")) return "COURSE SPRINT"; const d=String(c.duree||((c.heures||"")+"h")).toUpperCase().replace(/\s+/g,""); return "ENDURANCE "+d; }
+  function postCrews(c){ const byT={};
+    if(c.terminee){ (c.participants||[]).forEach(x=>{ const t=c.equipe||"RK7 Team"; (byT[t]=byT[t]||[]).push(x.nom); }); }
+    else Object.values(pilots).filter(p=>(p.dispo||{})[c.id]==="oui").forEach(p=>{ const t=(p.equipes||{})[c.id]||c.equipe||p.equipePref||"RK7 Team"; (byT[t]=byT[t]||[]).push(p.nom); });
+    return byT; }
+  const firstName=n=>String(n||"").trim().split(/\s+/)[0];
+  const postDone=k=>{ try{ return !!JSON.parse(localStorage.getItem("rk7-posts")||"{}")[k]; }catch(e){ return false; } };
+  const setPostDone=(k,v)=>{ try{ const o=JSON.parse(localStorage.getItem("rk7-posts")||"{}"); if(v) o[k]=1; else delete o[k]; localStorage.setItem("rk7-posts",JSON.stringify(o)); }catch(e){} };
+  function daysTo(iso){ const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||""); if(!m) return null; const t=new Date(); t.setHours(0,0,0,0); return Math.round((new Date(+m[1],+m[2]-1,+m[3])-t)/864e5); }
+  function postCandidates(){ const out=[];
+    for(const c of courses){ const dt=daysTo(c.date); if(dt===null) continue; const crews=postCrews(c), n=Object.values(crews).flat().length;
+      if(!c.terminee && dt>=0 && dt<=30 && n) out.push({c,k:"week",dt});
+      if(c.terminee && c.position && dt<=0 && dt>=-14) out.push({c,k:"result",dt}); }
+    return out.sort((a,b)=>a.dt-b.dt); }
+  function postTodos(){ return postCandidates().filter(x=>!postDone(x.k+":"+x.c.id)&&(x.k==="result"||x.dt<=7)).slice(0,3).map(x=>({i:x.k==="week"?"📣":"📸",t:(x.k==="week"?"Poste le Race Week : ":"Poste le résultat : ")+(x.c.titre||x.c.lieu),s:x.k==="week"?(x.dt===0?"C'est aujourd'hui !":"Course dans "+x.dt+" jour"+(x.dt>1?"s":""))+" · visuel et texte prêts":"Visuel « "+x.c.position+" » et texte prêts",post:{id:x.c.id,k:x.k},cls:"red",adm:1})); }
+  async function postBase(k){ const ref=POST_BASE[k], id=ref.slice(3);
+    if(!imgCache[id]){ const r=await rpc("get_image",{token:teamToken,image_id:id}); const bin=atob(r.b64), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); imgCache[id]=URL.createObjectURL(new Blob([u],{type:r.type})); }
+    return await loadImgUrl(imgCache[id]); }
+  function spaced(g,t,x,y,sp,align){ const ch=[...t]; const w=ch.reduce((a,c)=>a+g.measureText(c).width,0)+sp*(ch.length-1); let cx=align==="center"?x-w/2:x; for(const c of ch){ g.fillText(c,cx,y); cx+=g.measureText(c).width+sp; } return w; }
+  function italic(g,fn){ g.save(); g.transform(1,0,-0.18,1,0,0); fn(); g.restore(); }
+  async function makePost(c,k){
+    try{ await document.fonts.load('700 80px "Saira Condensed"'); await document.fonts.load('600 30px "Saira Condensed"'); }catch(e){}
+    const F='"Saira Condensed","Arial Narrow",Arial,sans-serif', W=1080, H=1350, cv=document.createElement("canvas"); cv.width=W; cv.height=H; const g=cv.getContext("2d");
+    const bg=await postBase(k); if(bg) g.drawImage(bg,0,0,W,H); else { g.fillStyle="#1a150c"; g.fillRect(0,0,W,H); }
+    g.textAlign="left"; g.textBaseline="alphabetic"; const sk=y=>y*0.18; // compensation de l'italique
+    if(k==="week"){ g.shadowColor="rgba(0,0,0,.45)"; g.shadowBlur=18; g.shadowOffsetY=6; g.fillStyle="#FFFFFF";
+      let fs=300; g.font='800 '+fs+'px '+F; while(g.measureText("RACE").width>735&&fs>120){ fs-=4; g.font='800 '+fs+'px '+F; }
+      italic(g,()=>{ const w=g.measureText("RACE").width; g.fillText("RACE",(W-w)/2+sk(505),505); });
+      g.font='800 96px '+F; italic(g,()=>{ const L=["W","E","E","K"], sp=26, tw=L.reduce((a,ch)=>a+g.measureText(ch).width,0)+sp*3; let x=(W-tw)/2+sk(615);
+        const gr=g.createLinearGradient(0,545,0,618); gr.addColorStop(0,"#F3D27A"); gr.addColorStop(.55,"#C8962E"); gr.addColorStop(1,"#7A5516");
+        L.forEach((ch,i)=>{ g.fillStyle=(i===1||i===2)?gr:"#FFFFFF"; g.fillText(ch,x,615); x+=g.measureText(ch).width+sp; }); });
+      g.shadowBlur=0; g.shadowOffsetY=0; }
+    if(k==="result"){ const pos=podiumOf(c.position), lab=pos?"P"+pos:String(c.position||"").toUpperCase();
+      g.shadowColor="rgba(0,0,0,.45)"; g.shadowBlur=18; g.shadowOffsetY=6;
+      g.fillStyle="#FFFFFF"; g.font='800 300px '+F; italic(g,()=>{ const w=g.measureText(lab).width; g.fillText(lab,(W-w)/2+sk(500),500); });
+      g.font='800 92px '+F; italic(g,()=>{ const t1="RACE ", t2="RESULT"; const tw=g.measureText(t1).width+[...t2].reduce((a,ch)=>a+g.measureText(ch).width,0)+12*5; let x=(W-tw)/2+sk(612); g.fillStyle="#FFFFFF"; g.fillText(t1,x,612); x+=g.measureText(t1).width;
+        const gr=g.createLinearGradient(0,540,0,615); gr.addColorStop(0,"#F3D27A"); gr.addColorStop(.55,"#C8962E"); gr.addColorStop(1,"#7A5516"); g.fillStyle=gr; spaced(g,t2,x,612,12,"left"); });
+      g.shadowBlur=0; g.shadowOffsetY=0; }
+    // date (+ points)
+    g.fillStyle="#EFE8D8"; g.font='700 46px '+F; g.shadowColor="rgba(0,0,0,.5)"; g.shadowBlur=8;
+    const dl=postDate(c.date)+(k==="result"&&c.points?" · "+c.points+" PTS":""); italic(g,()=>spaced(g,dl,W/2+sk(688),688,3.5,"center")); g.shadowBlur=0;
+    // lieu
+    g.fillStyle="#E4B95A"; g.font='700 34px '+F; let lw=0; italic(g,()=>{ lw=spaced(g,postLieu(c.lieu),W/2+sk(1113),1113,3,"center"); });
+    // ligne principale (format avant / pilotes après)
+    const crews=postCrews(c), names=Object.values(crews).flat();
+    const main=k==="result"?(names.length?names.map(firstName).join(" · ").toUpperCase():postFormat(c)):postFormat(c);
+    g.fillStyle="#FFFFFF"; let sz=56; g.font='800 '+sz+'px '+F; while(g.measureText(main).width>W-160&&sz>30){ sz-=2; g.font='800 '+sz+'px '+F; }
+    let mw=0; italic(g,()=>{ mw=spaced(g,main,W/2+sk(1186),1186,2,"center"); });
+    const lineW=Math.min(W-120,Math.max(lw,mw)+40); g.strokeStyle="rgba(235,230,220,.75)"; g.lineWidth=3;
+    [1131,1210].forEach(y=>{ g.beginPath(); g.moveTo((W-lineW)/2,y); g.lineTo((W+lineW)/2,y); g.stroke(); });
+    if(k==="result"){ g.fillStyle="#E4B95A"; g.font='700 30px '+F; italic(g,()=>spaced(g,postFormat(c),W/2+sk(1246),1246,3,"center")); }
+    return cv; }
+  function postCaption(c,k){ const crews=postCrews(c), d=postDate(c.date).toLowerCase(), LN={"JPR Ostricourt":"JPR Racing Kart d'Ostricourt","RKC":"RKC Karting Paris","KLL Loisirs":"KLL Loisirs","Karting Belval":"Karting de Belval","Ouest Karting":"Ouest Karting Normandie","RKO Angerville":"RKO Karting Angerville"}, lieu=LN[c.lieu]||c.lieu||"", teams=Object.keys(crews), team=teams.length===1?teams[0]:"RK7 Team", fmt=postFormat(c).toLowerCase().replace(/^./,x=>x.toUpperCase());
+    const crewTxt=Object.entries(crews).map(([t,ns])=>t+" : "+ns.map(firstName).join(", ")).join("\n");
+    const tags="#RK7Team #karting #SWS #sodiworldseries #endurance #lasimbox";
+    if(k==="week") return "🏁 RACE WEEK !\n\n"+(d?d.replace(/^./,x=>x.toUpperCase()):"")+", "+team+" prend le départ de l'"+fmt.toLowerCase()+" au "+lieu+".\n\n"+(crewTxt?"👊 Nos pilotes :\n"+crewTxt+"\n\n":"")+"Venez nous encourager au bord de la piste ou suivez la course en live sur nos stories !\n\nMerci à nos partenaires @lasimbox 🙏\n\n"+tags;
+    const pos=podiumOf(c.position), medal=pos===1?"🏆":pos===2?"🥈":pos===3?"🥉":"🏁", nx=courses.filter(x=>!x.terminee&&daysTo(x.date)>0).sort((a,b)=>String(a.date).localeCompare(String(b.date)))[0];
+    return medal+" "+(pos===1?"VICTOIRE !":"P"+(pos||c.position)+" !")+"\n\n"+(c.equipe||"RK7 Team")+" termine "+(pos===1?"1re":(pos||c.position)+"e")+" de l'"+fmt.toLowerCase()+" au "+lieu+(c.points?" et marque "+c.points+" points SWS":"")+".\n\n"+(crewTxt?"Bravo à "+Object.values(crews).flat().map(firstName).join(", ").replace(/, ([^,]*)$/," et $1")+" 👏\n\n":"")+(nx?"Prochain rendez-vous : "+(nx.titre||nx.lieu)+", le "+postDate(nx.date).toLowerCase()+".\n\n":"")+"Merci à nos partenaires @lasimbox 🙏\n\n"+tags; }
+  async function openPost(cid,k){ const c=courses.find(x=>x.id===cid); if(!c) return; try{ const cv=await makePost(c,k); setPostDone(k+":"+cid,1); showPosterCanvas(cv,(k==="week"?"race-week-":"resultat-")+cid+".png",postCaption(c,k)); renderHome(); renderPosts(); }catch(err){ setMsg("#globalMsg","Visuel impossible : "+err.message,true); } }
+  function renderPosts(){ const box=$("#postList"); if(!box) return; const list=postCandidates();
+    box.innerHTML=list.length?list.map(x=>{ const done=postDone(x.k+":"+x.c.id); return '<div class="settle"><span style="min-width:0;flex:1"><b>'+(x.k==="week"?"📣 Race Week":"📸 Résultat")+' · '+esc(x.c.titre||x.c.lieu)+'</b><br><span class="sub2">'+esc(postDate(x.c.date).toLowerCase())+(x.k==="result"?' · '+esc(x.c.position):' · '+Object.values(postCrews(x.c)).flat().length+' inscrit(s)')+(done?' · ✓ préparé':'')+'</span></span><button type="button" class="btn-gold mini" data-postopen="'+esc(x.c.id)+'" data-postk="'+x.k+'">'+(done?'Revoir':'Préparer')+'</button></div>'; }).join(""):'<p class="sub2">Aucune course à annoncer dans les 30 prochains jours ni de résultat récent.</p>'; }
+  document.addEventListener("click", e=>{ const b=e.target.closest("[data-postopen]"); if(b) openPost(b.dataset.postopen,b.dataset.postk); });
   // ---------- Invitations saison (pilotes officiels / renforts) ----------
   let invClaiming=false, invList=null;
   function invPending(){ try{ const v=JSON.parse(ls.get("rk7-invite")||"null"); return v&&v.code?v:null; }catch(e){ return null; } }
@@ -2878,6 +2954,7 @@ button:active:not(:disabled){transform:scale(.97)}
     }catch(err){ setMsg("#pilotMsg",err.message,true); } finally{ adminLoading=false; }
   }
   function renderAdmin(){
+    try{ renderPosts(); }catch(e){}
     if(!isAdmin() || !adminPilots || $("#viewAdmin").hidden) return;
     renderGear(); renderTreso(); renderAccess(); renderCrewForm(); renderShopAdm(); renderPollAdm();
     if($("#pilotTable").contains(document.activeElement)) return;
