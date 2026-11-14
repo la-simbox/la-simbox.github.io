@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paddock · SIMBOX</title>
+<meta name="description" content="Choisis ta voiture et ton circuit Assetto Corsa Competizione avant ta session à la SIMBOX, La Gorgue.">
+<meta name="theme-color" content="#0b0b0d">
+<meta name="robots" content="noindex">
+<link rel="icon" href="../pilotes/img/icon-192.png">
+<link rel="apple-touch-icon" href="../pilotes/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap">
+<style>
+/* Catalogue façon salle de simu : sections Voitures puis Circuits, filtres + recherche, barre de session collante en bas */
+:root{
+  --bg:#0b0b0d; --panel:#141417; --panel-2:#1b1b1f; --line:#2a2a30; --line-2:#3a3a42;
+  --white:#f3f3f5; --muted:#9b9ba6; --dim:#6a6a74; --red:#e3122a; --red-deep:#8f0b1b;
+  --gt3:#e3122a; --gt2:#7b55d9; --gt4:#2a8fb4; --cup:#c08a1c; --tcx:#4f9a3a;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Inter","Segoe UI",Roboto,Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:90px}
+html,body{background:var(--bg);color:var(--white)}
+body{margin:0;font-family:var(--body);font-size:16px;line-height:1.5;padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.gutter{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto}
+
+/* En-tête */
+header.top{position:sticky;top:0;z-index:30;background:rgba(11,11,13,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px}
+.logo{display:flex;flex-direction:column;line-height:.86;text-decoration:none;color:var(--white)}
+.logo b{font-family:var(--display);font-weight:800;font-style:italic;font-size:34px;letter-spacing:.01em}
+.logo b span{color:var(--red)}
+.logo small{font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.jump{display:flex;gap:6px}
+.jump a{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--white);text-decoration:none;padding:9px 12px;border:1px solid var(--line-2)}
+.jump a:hover{border-color:var(--white)}
+
+/* Sections */
+section{padding-block:44px 8px}
+.eyebrow{display:flex;align-items:center;gap:16px;font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:.32em;text-transform:uppercase;color:var(--red);margin:0 0 22px}
+.eyebrow::before{content:"";width:44px;height:3px;background:var(--red)}
+h1,h2.big{font-family:var(--display);font-weight:800;text-transform:uppercase;line-height:.95;letter-spacing:-.005em;margin:0 0 22px;font-size:clamp(44px,9vw,84px);text-wrap:balance}
+.lead{font-weight:300;font-size:clamp(18px,2.4vw,22px);line-height:1.6;color:#c9c9d0;max-width:58ch;margin:0 0 30px}
+.lead strong{color:var(--white);font-weight:500}
+
+/* Challenge du mois */
+.challenge{margin-top:28px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;border:1px solid var(--red-deep);background:linear-gradient(100deg,rgba(227,18,42,.16),rgba(227,18,42,0) 70%),var(--panel);padding:18px 20px}
+.challenge .lab{font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--red)}
+.challenge .what{font-family:var(--display);font-weight:800;font-size:26px;text-transform:uppercase;line-height:1.05;margin-top:4px}
+
+/* Filtres */
+.filters{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-bottom:24px}
+.filters>*{min-width:0}
+@media (min-width:760px){.filters{grid-template-columns:1fr 1fr 1.6fr;align-items:stretch}}
+.select{position:relative}
+.select select{appearance:none;-webkit-appearance:none;width:100%;background:var(--panel);border:1px solid var(--line-2);border-radius:0;padding:20px 52px 20px 22px;font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:.16em;text-transform:uppercase;color:var(--white)}
+.select::after{content:"";position:absolute;right:24px;top:50%;width:11px;height:11px;border-right:3px solid var(--red);border-bottom:3px solid var(--red);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.search{display:flex;gap:16px;align-items:center}
+.search input{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line-2);border-radius:0;padding:19px 22px;font-size:19px;font-weight:300}
+.search input::placeholder{color:var(--dim)}
+.count{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.classinfo{font-size:14px;color:var(--muted);margin:-8px 0 20px}
+
+/* Cartes voitures */
+.cars{display:grid;gap:14px}
+@media (min-width:640px){.cars{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:980px){.cars{grid-template-columns:repeat(3,1fr)}}
+.car{position:relative;display:flex;flex-direction:column;text-align:left;background:var(--panel);border:2px solid transparent;padding:0;min-width:0;transition:border-color .15s}
+.car:hover{border-color:var(--line-2)}
+.car[aria-pressed="true"]{border-color:var(--red)}
+.car .vis{position:relative;aspect-ratio:16/9;max-width:100%;overflow:hidden;background:radial-gradient(120% 90% at 70% 110%,color-mix(in srgb,var(--c) 38%,transparent),transparent 60%),linear-gradient(160deg,#18181c,#0e0e10)}
+.car .vis::before{content:"";position:absolute;inset:auto -10% 22% -10%;height:16%;background:var(--c);opacity:.85;transform:skewY(-9deg)}
+.car .vis::after{content:"";position:absolute;inset:auto -10% 14% -10%;height:3%;background:var(--white);opacity:.7;transform:skewY(-9deg)}
+.car .code{position:absolute;left:18px;top:10px;font-family:var(--display);font-weight:800;font-style:italic;font-size:clamp(64px,13vw,96px);line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(243,243,245,.75);letter-spacing:-.01em;white-space:nowrap}
+.car .vis img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.car .yr{position:absolute;right:16px;top:14px;font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.12em;color:var(--muted)}
+.car .txt{padding:18px 20px 20px;display:flex;flex-direction:column;gap:4px}
+.car .mk{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--red)}
+.car .nm{font-family:var(--display);font-weight:800;font-size:27px;line-height:1.05;text-transform:uppercase}
+.car .meta{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:6px;color:var(--muted);font-size:15px;font-weight:300}
+.pill{font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.12em;padding:3px 8px;color:#fff;background:var(--c)}
+.easy{font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;border:1px solid var(--line-2);color:var(--white)}
+.tick{position:absolute;right:12px;bottom:12px;width:34px;height:34px;border-radius:50%;background:var(--red);display:none;align-items:center;justify-content:center}
+.tick::after{content:"";width:12px;height:7px;border-left:3px solid #fff;border-bottom:3px solid #fff;transform:translateY(-2px) rotate(-45deg)}
+[aria-pressed="true"] .tick{display:flex}
+.anycard{border:2px dashed var(--line-2);background:transparent;padding:22px 20px;display:flex;flex-direction:column;gap:6px;text-align:left;justify-content:center;min-height:120px;position:relative}
+.anycard[aria-pressed="true"]{border-color:var(--red);border-style:solid}
+.anycard b{font-family:var(--display);font-weight:800;font-size:26px;text-transform:uppercase;line-height:1.05}
+.anycard span{color:var(--muted);font-weight:300}
+
+/* Cartes circuits */
+.tracks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+@media (min-width:760px){.tracks{grid-template-columns:repeat(3,1fr);gap:10px}}
+@media (min-width:1080px){.tracks{grid-template-columns:repeat(4,1fr)}}
+.track{position:relative;display:flex;flex-direction:column;text-align:left;background:var(--panel);border:none;border-bottom:3px solid transparent;padding:16px 14px 14px;min-width:0;outline-offset:-3px}
+.track:hover{background:var(--panel-2)}
+.track[aria-pressed="true"]{border-bottom-color:var(--red);background:var(--panel-2);box-shadow:inset 0 0 0 2px var(--red)}
+.track .map{aspect-ratio:1/1;max-width:100%;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.track svg{width:86%;height:86%;overflow:visible}
+.track svg path{fill:none;stroke:var(--white);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.track[aria-pressed="true"] svg path{stroke:var(--red)}
+.track .noplan{width:78%;aspect-ratio:1/1;border:1.5px dashed var(--line-2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:44px}
+.track .nm{font-family:var(--display);font-weight:800;font-size:clamp(21px,4.6vw,28px);line-height:1.02;text-transform:uppercase;letter-spacing:.02em;overflow-wrap:break-word}
+.track .meta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 8px;margin-top:10px;font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.track .meta span:last-child{white-space:nowrap}
+.badge{position:absolute;top:14px;right:14px;font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;background:var(--red);color:#fff;padding:4px 8px}
+.track .tick{right:12px;bottom:auto;top:12px}
+.track[aria-pressed="true"] .badge{display:none}
+.empty{grid-column:1/-1;border:1px dashed var(--line-2);padding:28px;text-align:center;color:var(--muted)}
+
+/* Barre de session */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(11,11,13,.97);border-top:1px solid var(--line);padding-block:12px calc(12px + env(safe-area-inset-bottom,0px))}
+.bar .wrap{display:flex;gap:12px;align-items:stretch}
+.bar .sum{flex:1;min-width:0;border:1px solid var(--line-2);padding:8px 14px;display:flex;flex-direction:column;justify-content:center;text-align:left;background:transparent}
+.bar .sum small{font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.bar .sum span{font-family:var(--display);font-weight:700;font-size:17px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cta{border:none;background:var(--red);color:#fff;font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:.12em;text-transform:uppercase;padding:14px 22px;min-width:0}
+.cta:disabled{background:var(--panel-2);color:var(--dim);cursor:not-allowed}
+.ghost{border:1px solid var(--line-2);background:transparent;color:var(--white);font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:.12em;text-transform:uppercase;padding:14px 22px}
+
+/* Écrans plein page */
+.sheet{position:fixed;inset:0;z-index:50;background:var(--bg);overflow-y:auto;padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(30px + env(safe-area-inset-bottom,0px))}
+.sheet .wrap{padding-block:26px 40px;max-width:760px}
+.back{background:none;border:none;color:var(--muted);font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:.16em;text-transform:uppercase;padding:6px 0;margin-bottom:18px}
+.recap{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:30px}
+.recap div{background:var(--panel);padding:14px 16px;min-width:0}
+.recap dt,.show dt{font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.recap dd{margin:4px 0 0;font-family:var(--display);font-weight:800;font-size:22px;line-height:1.1;text-transform:uppercase;overflow-wrap:anywhere}
+.field{display:flex;flex-direction:column;gap:8px;margin-bottom:26px}
+.field label,.grouplab{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.field input{background:var(--panel);border:1px solid var(--line-2);border-radius:0;padding:18px 20px;font-size:22px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0 26px}
+.opt{background:var(--panel);border:2px solid var(--line);padding:14px 16px;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
+.opt b{font-family:var(--display);font-weight:800;font-size:21px;text-transform:uppercase}
+.opt span{color:var(--muted);font-size:14px;font-weight:300}
+.opt[aria-pressed="true"]{border-color:var(--red);background:#200d11}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.actions .cta{flex:1}
+
+.show{border:2px solid var(--red);background:var(--panel);padding:24px 22px;margin-top:8px}
+.show .who{font-family:var(--display);font-weight:800;font-size:clamp(46px,11vw,76px);line-height:.9;text-transform:uppercase}
+.show dl{display:grid;gap:16px;margin:22px 0 0}
+.show dd{margin:3px 0 0;font-family:var(--display);font-weight:800;font-size:clamp(26px,6vw,38px);line-height:1.05;text-transform:uppercase;overflow-wrap:anywhere}
+.checker{height:16px;margin:26px 0;background:repeating-conic-gradient(var(--white) 0 25%,var(--bg) 0 50%) 0 0/16px 16px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(84px + env(safe-area-inset-top,0px));z-index:60;background:var(--white);color:var(--bg);padding:11px 18px;font-weight:600;max-width:calc(100% - 40px)}
+footer{border-top:1px solid var(--line);margin-top:50px;padding-block:28px;color:var(--muted);font-size:14px}
+footer a{color:var(--white)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:420px){.jump a{padding:8px 9px;font-size:13px;letter-spacing:.1em}.cta{font-size:17px;padding:12px 14px}}
+</style>
+</head>
+<body>
+<header class="top gutter">
+  <div class="wrap">
+    <a class="logo" href="../"><b>SIM<span>BOX</span></b><small>Paddock</small></a>
+    <nav class="jump" aria-label="Sections"><a href="#voitures">Voitures</a><a href="#circuits">Circuits</a></nav>
+  </div>
+</header>
+
+<main>
+  <section id="voitures" class="gutter">
+    <div class="wrap">
+      <p class="eyebrow">Voitures</p>
+      <h1 id="carsTitle">54 voitures, de la GT4 à la GT2.</h1>
+      <p class="lead">Toutes les voitures officielles d'<strong>Assetto Corsa Competizione</strong>. Choisis la tienne et ton circuit pendant que tu t'équipes : Florent prépare ton simulateur.</p>
+      <div id="challengeBox"></div>
+      <div style="height:30px"></div>
+      <div class="filters">
+        <div class="select"><select id="fClass" aria-label="Catégorie"></select></div>
+        <div class="select"><select id="fBrand" aria-label="Marque"></select></div>
+        <div class="search"><input type="search" id="fCar" placeholder="Modèle, année…" autocomplete="off" aria-label="Rechercher une voiture"><span class="count" id="carCount"></span></div>
+      </div>
+      <p class="classinfo" id="classInfo"></p>
+      <div class="cars" id="carGrid"></div>
+    </div>
+  </section>
+
+  <section id="circuits" class="gutter">
+    <div class="wrap">
+      <p class="eyebrow">Circuits</p>
+      <h2 class="big">Choisis ton terrain de jeu.</h2>
+      <p class="lead">Les circuits du championnat GT World Challenge, scannés au laser : les bosses du Raidillon à Spa, la Parabolica à Monza, les <strong>25 km de la Nordschleife</strong>. Touche un circuit pour le choisir.</p>
+      <div class="filters">
+        <div class="select"><select id="fRegion" aria-label="Région"></select></div>
+        <div class="search" style="grid-column:span 2"><input type="search" id="fTrack" placeholder="Rechercher un circuit…" autocomplete="off" aria-label="Rechercher un circuit"><span class="count" id="trackCount"></span></div>
+      </div>
+      <div class="tracks" id="trackGrid"></div>
+    </div>
+  </section>
+
+  <footer class="gutter"><div class="wrap">SIMBOX · 3854 rue du Grand Chemin, La Gorgue · <a href="../pilotes/">Espace pilotes et classement du challenge</a> · Tracés des circuits : données ouvertes (bacinger/f1-circuits, TUMFTM racetrack-database).<details style="margin-top:12px"><summary>Crédits photos (Wikimedia Commons)</summary><p id="credits" style="font-size:12px;line-height:1.7"></p></details></div></footer>
+</main>
+
+<div class="bar gutter">
+  <div class="wrap">
+    <button class="sum" id="sum" type="button"><small>Ma session</small><span id="sumTxt">Choisis une voiture</span></button>
+    <button class="cta" id="go" type="button" disabled>Valider</button>
+  </div>
+</div>
+
+<div class="sheet gutter" id="details" hidden>
+  <div class="wrap">
+    <button class="back" type="button" data-act="close">← Modifier mes choix</button>
+    <p class="eyebrow">Départ</p>
+    <h2 class="big" style="font-size:clamp(40px,8vw,64px)">Encore 3 infos.</h2>
+    <dl class="recap" id="recap"></dl>
+    <div class="field"><label for="nom">Ton prénom ou pseudo</label><input type="text" id="nom" maxlength="30" autocomplete="off" placeholder="Ex. Lucas"></div>
+    <p class="grouplab">Ton niveau</p><div class="opts" id="oNiveau"></div>
+    <p class="grouplab">Ta formule</p><div class="opts" id="oFormule"></div>
+    <p class="grouplab">Ton simu</p><div class="opts" id="oPoste"></div>
+    <div class="actions"><button class="cta" id="showBtn" type="button" disabled>Afficher mon choix</button></div>
+  </div>
+</div>
+
+<div class="sheet gutter" id="final" hidden>
+  <div class="wrap" id="finalBody"></div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+/* ---------- Contenu ACC : jeu de base + tous les DLC ---------- */
+const CARS = [
+ // [id, marque, modèle, année, classe, code visuel, facile]
+ ["amr-v12","Aston Martin","V12 Vantage GT3",2013,"GT3","V12",0],
+ ["amr-v8","Aston Martin","V8 Vantage GT3",2019,"GT3","V8",0],
+ ["audi-r8","Audi","R8 LMS GT3",2015,"GT3","R8",0],
+ ["audi-r8-evo","Audi","R8 LMS GT3 Evo",2019,"GT3","R8",0],
+ ["audi-r8-evo2","Audi","R8 LMS GT3 Evo II",2022,"GT3","R8",1],
+ ["bentley-15","Bentley","Continental GT3",2015,"GT3","GT3",0],
+ ["bentley-18","Bentley","Continental GT3",2018,"GT3","GT3",0],
+ ["bmw-m4-gt3","BMW","M4 GT3",2021,"GT3","M4",1],
+ ["bmw-m6","BMW","M6 GT3",2017,"GT3","M6",0],
+ ["jaguar","Emil Frey","Jaguar G3",2012,"GT3","G3",0],
+ ["ferrari-296","Ferrari","296 GT3",2023,"GT3","296",0],
+ ["ferrari-488","Ferrari","488 GT3",2018,"GT3","488",0],
+ ["ferrari-488-evo","Ferrari","488 GT3 Evo",2020,"GT3","488",0],
+ ["mustang","Ford","Mustang GT3",2024,"GT3","GT3",1],
+ ["nsx","Honda","NSX GT3",2017,"GT3","NSX",0],
+ ["nsx-evo","Honda","NSX GT3 Evo",2019,"GT3","NSX",0],
+ ["huracan","Lamborghini","Huracán GT3",2015,"GT3","GT3",0],
+ ["huracan-evo","Lamborghini","Huracán GT3 Evo",2019,"GT3","EVO",0],
+ ["huracan-evo2","Lamborghini","Huracán GT3 Evo2",2023,"GT3","EVO2",0],
+ ["lexus","Lexus","RC F GT3",2016,"GT3","RC F",0],
+ ["mclaren-650","McLaren","650S GT3",2015,"GT3","650S",0],
+ ["mclaren-720","McLaren","720S GT3",2019,"GT3","720S",0],
+ ["mclaren-720-evo","McLaren","720S GT3 Evo",2023,"GT3","720S",0],
+ ["amg-gt3","Mercedes-AMG","GT3",2015,"GT3","AMG",0],
+ ["amg-gt3-evo","Mercedes-AMG","GT3 Evo",2020,"GT3","AMG",1],
+ ["gtr-15","Nissan","GT-R Nismo GT3",2015,"GT3","GT-R",0],
+ ["gtr-18","Nissan","GT-R Nismo GT3",2018,"GT3","GT-R",0],
+ ["p991","Porsche","911 GT3 R (991)",2018,"GT3","911",0],
+ ["p991-2","Porsche","911 II GT3 R (991.2)",2019,"GT3","911",0],
+ ["p992","Porsche","911 GT3 R (992)",2023,"GT3","992",0],
+ ["rex","Reiter Engineering","R-EX GT3",2017,"GT3","R-EX",0],
+ ["audi-gt2","Audi","R8 LMS GT2",2021,"GT2","R8",0],
+ ["ktm-gt2","KTM","X-Bow GT2",2021,"GT2","X-BOW",0],
+ ["mc20-gt2","Maserati","MC20 GT2",2023,"GT2","MC20",0],
+ ["amg-gt2","Mercedes-AMG","GT2",2023,"GT2","AMG",0],
+ ["p935","Porsche","935",2019,"GT2","935",0],
+ ["gt2rs","Porsche","911 GT2 RS CS Evo",2023,"GT2","GT2 RS",0],
+ ["alpine","Alpine","A110 GT4",2018,"GT4","A110",1],
+ ["amr-gt4","Aston Martin","Vantage AMR GT4",2018,"GT4","AMR",1],
+ ["audi-gt4","Audi","R8 LMS GT4",2018,"GT4","R8",1],
+ ["bmw-gt4","BMW","M4 GT4",2018,"GT4","M4",1],
+ ["camaro","Chevrolet","Camaro GT4.R",2017,"GT4","GT4.R",1],
+ ["ginetta","Ginetta","G55 GT4",2012,"GT4","G55",1],
+ ["ktm-gt4","KTM","X-Bow GT4",2016,"GT4","X-BOW",1],
+ ["maserati-gt4","Maserati","GranTurismo MC GT4",2016,"GT4","MC",1],
+ ["mclaren-gt4","McLaren","570S GT4",2016,"GT4","570S",1],
+ ["amg-gt4","Mercedes-AMG","GT4",2016,"GT4","AMG",1],
+ ["cayman","Porsche","718 Cayman GT4 Clubsport",2019,"GT4","718",1],
+ ["ferrari-challenge","Ferrari","488 Challenge Evo",2020,"CUP","488",0],
+ ["st","Lamborghini","Huracán Super Trofeo",2015,"CUP","ST",0],
+ ["st-evo2","Lamborghini","Huracán Super Trofeo Evo2",2021,"CUP","ST",0],
+ ["cup-991","Porsche","911 II GT3 Cup (991.2)",2017,"CUP","CUP",0],
+ ["cup-992","Porsche","911 GT3 Cup (992)",2021,"CUP","CUP",0],
+ ["m2","BMW","M2 CS Racing",2020,"TCX","M2",1]
+];
+const CLASSES = {
+  GT3:{label:"GT3", color:"var(--gt3)", info:"GT3 : environ 500 à 600 ch, la catégorie reine des courses GT."},
+  GT4:{label:"GT4", color:"var(--gt4)", info:"GT4 : environ 400 ch, moins d'appui et plus facile à prendre en main. Idéal pour débuter."},
+  GT2:{label:"GT2", color:"var(--gt2)", info:"GT2 : jusqu'à 700 ch et peu d'appui. Pour les pilotes confirmés."},
+  CUP:{label:"Coupes", color:"var(--cup)", info:"Coupes monomarques : Porsche Cup, Lamborghini Super Trofeo, Ferrari Challenge."},
+  TCX:{label:"TCX", color:"var(--tcx)", info:"TCX : BMW M2 CS Racing, une propulsion légère et joueuse."}
+};
+const REGIONS = {eu:"Europe", uk:"Royaume-Uni", am:"Amériques", ao:"Asie et Océanie", af:"Afrique"};
+const TRACKS = [
+ // [id, nom, drapeau, pays, région, km]
+ ["spa","Spa-Francorchamps","🇧🇪","Belgique","eu",7.004],
+ ["zolder","Zolder","🇧🇪","Belgique","eu",4.011],
+ ["paulricard","Paul Ricard","🇫🇷","France","eu",5.770],
+ ["monza","Monza","🇮🇹","Italie","eu",5.793],
+ ["imola","Imola","🇮🇹","Italie","eu",4.959],
+ ["misano","Misano","🇮🇹","Italie","eu",4.226],
+ ["nurburgring","Nürburgring GP","🇩🇪","Allemagne","eu",5.137],
+ ["nordschleife","Nordschleife 24H","🇩🇪","Allemagne","eu",25.378],
+ ["zandvoort","Zandvoort","🇳🇱","Pays-Bas","eu",4.259],
+ ["barcelona","Barcelone","🇪🇸","Espagne","eu",4.655],
+ ["valencia","Valence","🇪🇸","Espagne","eu",4.005],
+ ["hungaroring","Hungaroring","🇭🇺","Hongrie","eu",4.381],
+ ["redbullring","Red Bull Ring","🇦🇹","Autriche","eu",4.318],
+ ["silverstone","Silverstone","🇬🇧","Angleterre","uk",5.891],
+ ["brands","Brands Hatch","🇬🇧","Angleterre","uk",3.908],
+ ["donington","Donington Park","🇬🇧","Angleterre","uk",4.020],
+ ["oulton","Oulton Park","🇬🇧","Angleterre","uk",4.307],
+ ["snetterton","Snetterton","🇬🇧","Angleterre","uk",4.779],
+ ["cota","Circuit of the Americas","🇺🇸","États-Unis","am",5.513],
+ ["indianapolis","Indianapolis","🇺🇸","États-Unis","am",4.167],
+ ["watkins","Watkins Glen","🇺🇸","États-Unis","am",5.552],
+ ["laguna","Laguna Seca","🇺🇸","États-Unis","am",3.602],
+ ["suzuka","Suzuka","🇯🇵","Japon","ao",5.807],
+ ["bathurst","Mount Panorama","🇦🇺","Australie","ao",6.213],
+ ["kyalami","Kyalami","🇿🇦","Afrique du Sud","af",4.522]
+];
+const TRACK_PATHS = {"spa":"M38.9 14.5 L33.9 5.9 L34.6 5.0 L40.7 7.9 L46.4 12.0 L55.4 22.5 L59.2 25.4 L60.2 27.2 L61.1 31.2 L68.7 44.2 L78.0 76.6 L75.4 80.2 L76.3 85.0 L75.7 87.0 L63.9 95.0 L62.0 94.4 L61.4 93.2 L61.6 92.0 L67.0 88.1 L67.8 87.1 L67.9 85.8 L65.4 78.0 L63.2 66.3 L61.8 64.3 L60.2 63.5 L55.6 63.3 L52.9 64.5 L50.7 67.4 L45.3 80.5 L43.9 81.6 L42.3 81.8 L39.2 80.4 L36.7 80.6 L30.4 89.3 L29.3 89.7 L28.0 89.4 L23.4 86.1 L22.3 84.2 L22.2 81.8 L23.4 78.4 L25.5 75.1 L31.5 69.3 L40.0 64.8 L43.0 62.6 L45.4 58.9 L48.3 52.5 L48.3 49.4 L44.7 40.1 L43.7 34.3 L43.4 28.0 L45.7 27.6 L46.1 26.9 L38.9 14.5 Z","paulricard":"M52.2 53.9 L68.3 66.1 L69.0 65.7 L69.4 61.7 L71.7 60.0 L73.7 60.3 L77.3 63.3 L81.3 64.9 L84.7 64.8 L89.8 62.8 L91.1 63.1 L92.0 64.5 L92.0 66.3 L88.0 72.2 L86.8 75.0 L88.1 76.9 L90.6 77.9 L93.7 76.7 L95.0 74.1 L94.8 62.5 L93.8 60.2 L91.7 58.4 L68.1 49.4 L63.1 46.0 L60.9 43.5 L59.9 43.6 L57.8 45.3 L57.1 45.3 L15.0 29.7 L14.0 28.8 L11.7 24.4 L10.1 22.9 L7.9 22.1 L6.2 23.0 L5.1 27.0 L9.7 27.2 L10.6 28.5 L10.5 30.8 L11.3 31.9 L20.1 36.4 L26.6 41.7 L29.9 43.6 L31.6 43.8 L33.9 41.9 L36.3 41.9 L52.2 53.9 Z","monza":"M25.5 62.2 L27.7 36.9 L29.5 35.9 L28.3 30.5 L28.7 23.1 L29.7 19.6 L31.5 16.8 L34.5 14.2 L39.8 12.0 L58.3 10.5 L59.3 8.8 L71.2 5.2 L73.1 5.1 L74.3 5.8 L75.3 7.8 L76.0 18.6 L61.2 27.1 L40.6 45.2 L40.5 49.0 L37.7 53.0 L33.5 92.3 L32.7 93.8 L30.3 95.0 L27.7 94.3 L25.5 92.1 L24.1 88.7 L23.8 77.9 L25.5 62.2 Z","imola":"M62.1 32.3 L50.5 30.2 L44.9 29.8 L34.5 30.7 L28.8 32.3 L27.8 35.1 L21.7 38.7 L14.1 57.4 L14.9 61.4 L14.6 62.4 L5.4 70.4 L5.0 71.4 L5.4 72.6 L7.1 73.1 L23.2 71.1 L34.4 72.5 L36.6 70.0 L38.1 65.6 L36.2 53.8 L38.8 49.5 L39.7 49.3 L42.7 50.3 L63.5 50.2 L64.2 51.4 L64.9 51.6 L73.2 48.2 L77.7 45.2 L86.3 36.9 L94.9 32.6 L94.9 31.3 L92.6 27.1 L90.9 27.0 L75.8 32.3 L62.1 32.3 Z","nurburgring":"M73.4 19.2 L53.6 39.2 L46.7 44.1 L45.5 43.9 L45.4 42.5 L48.4 35.5 L48.1 33.7 L46.8 32.3 L45.1 31.7 L40.7 32.3 L37.5 33.3 L35.7 34.5 L35.6 36.8 L36.4 37.5 L40.2 37.8 L41.3 38.7 L41.4 39.4 L39.4 52.4 L35.7 65.0 L37.3 67.9 L42.8 70.7 L43.4 71.9 L43.1 73.6 L31.7 80.7 L25.9 86.5 L21.0 94.0 L19.5 95.0 L18.0 94.8 L16.9 93.6 L17.0 91.3 L29.1 79.3 L29.9 77.8 L30.2 75.3 L29.2 69.3 L36.2 46.6 L35.3 44.6 L26.7 40.5 L25.9 37.7 L26.5 36.1 L40.0 19.8 L41.5 18.7 L66.7 11.8 L66.8 9.2 L70.9 7.2 L81.2 5.0 L82.8 6.2 L83.3 7.6 L83.0 9.5 L73.4 19.2 Z","zandvoort":"M16.0 46.7 L29.9 13.6 L30.8 12.6 L33.2 11.9 L34.4 12.2 L36.3 13.9 L36.8 16.4 L31.4 30.3 L30.9 39.0 L28.5 41.2 L21.0 44.6 L20.6 47.1 L22.0 49.2 L24.9 49.6 L33.4 46.9 L40.8 46.1 L55.2 48.4 L60.0 47.2 L69.4 42.0 L71.7 41.4 L77.0 41.1 L86.7 41.7 L91.0 43.3 L92.5 44.5 L94.4 47.4 L95.0 51.0 L94.3 54.7 L87.0 65.5 L83.3 73.5 L79.3 74.4 L74.6 73.8 L69.3 71.6 L66.5 69.7 L64.8 67.8 L64.5 66.7 L65.9 64.0 L67.4 63.0 L77.0 60.7 L82.2 58.1 L83.0 54.9 L82.4 53.2 L80.9 51.7 L79.5 51.2 L72.3 50.4 L65.1 50.4 L57.4 51.3 L42.4 55.8 L33.4 60.2 L32.5 60.0 L30.8 57.1 L29.5 56.4 L27.9 56.3 L26.4 57.0 L25.2 59.4 L29.0 82.0 L28.7 84.7 L27.5 86.6 L26.0 87.6 L16.4 88.0 L12.4 87.0 L8.4 84.5 L6.0 80.9 L5.0 76.7 L5.8 71.2 L16.0 46.7 Z","silverstone":"M55.2 5.9 L66.8 5.1 L69.0 6.1 L70.7 8.7 L73.2 19.5 L73.9 32.1 L76.2 37.0 L74.2 45.1 L74.5 46.3 L76.7 49.7 L77.1 52.0 L75.8 54.3 L70.5 58.0 L55.2 85.8 L51.3 91.9 L49.3 94.2 L46.1 94.9 L43.2 93.6 L40.0 87.8 L31.3 77.6 L30.4 77.3 L27.7 79.2 L26.0 78.3 L23.7 75.2 L22.9 71.9 L24.1 69.6 L38.5 50.9 L40.0 49.6 L42.1 49.3 L49.5 50.2 L52.2 49.7 L60.9 43.1 L62.6 42.4 L63.7 43.4 L65.4 48.5 L66.6 48.9 L67.7 48.0 L69.2 43.6 L69.2 39.3 L44.1 16.4 L41.4 15.4 L39.0 16.1 L38.3 17.4 L37.5 22.2 L36.0 23.3 L34.0 23.2 L32.4 21.3 L32.4 19.7 L36.2 12.2 L40.7 8.0 L43.5 7.0 L55.2 5.9 Z","brands":"M37.8 10.6 L48.0 6.4 L53.6 5.0 L57.9 5.1 L60.2 5.6 L62.6 7.1 L64.3 9.4 L65.6 14.0 L65.9 23.1 L64.8 34.0 L63.0 36.2 L60.8 36.6 L59.0 35.1 L58.1 21.4 L56.0 16.0 L53.7 14.4 L41.1 17.1 L29.9 22.4 L25.7 25.5 L24.1 28.4 L24.1 30.3 L24.8 32.6 L27.0 34.5 L47.1 40.5 L81.8 58.9 L85.0 60.9 L87.1 62.9 L89.0 66.7 L88.8 71.4 L80.7 91.4 L78.6 93.9 L67.2 94.9 L57.4 91.0 L54.1 89.1 L47.8 81.9 L46.9 79.8 L47.5 73.6 L51.1 60.2 L51.1 58.3 L50.4 57.0 L47.0 55.2 L15.0 42.4 L13.0 41.1 L11.7 39.2 L10.8 35.5 L11.5 30.8 L13.0 27.3 L15.8 22.9 L19.0 20.0 L23.1 17.4 L37.4 10.8 Z","barcelona":"M71.3 45.2 L43.2 89.8 L42.0 90.9 L39.8 91.2 L36.0 89.2 L34.0 89.0 L31.9 89.7 L26.4 93.8 L22.8 95.0 L18.9 94.5 L15.8 92.4 L14.4 90.6 L13.2 87.6 L13.0 83.7 L13.8 79.9 L15.2 76.4 L26.1 59.6 L28.4 58.7 L31.0 59.6 L33.4 62.6 L33.8 65.6 L33.4 67.9 L32.0 70.9 L25.0 81.7 L25.0 83.8 L26.2 85.2 L28.3 85.4 L40.6 79.6 L44.5 75.9 L49.2 68.4 L48.6 65.7 L44.9 63.0 L43.4 61.0 L37.8 47.8 L37.7 44.5 L39.0 41.8 L40.9 40.0 L76.0 21.7 L76.3 20.4 L75.7 18.9 L74.3 17.7 L71.0 16.8 L68.0 17.0 L61.7 21.0 L59.3 20.9 L57.3 19.7 L56.4 17.9 L56.5 15.0 L57.9 13.3 L66.6 6.1 L68.5 5.2 L70.9 5.0 L73.0 5.6 L83.9 12.5 L86.4 15.4 L87.0 17.6 L86.8 20.5 L71.3 45.2 Z","hungaroring":"M29.9 72.8 L10.6 57.5 L10.0 55.5 L10.8 54.5 L12.1 54.1 L16.8 54.2 L21.2 55.2 L26.3 57.8 L38.5 67.4 L41.1 68.1 L43.1 67.1 L44.3 65.3 L44.3 63.8 L40.4 56.5 L40.1 53.8 L51.4 30.6 L56.5 23.3 L53.2 10.2 L53.5 7.6 L54.5 6.2 L56.2 5.2 L58.0 5.0 L60.2 5.8 L64.9 9.0 L72.7 17.4 L73.1 19.2 L71.8 20.6 L71.7 21.6 L74.1 31.1 L75.0 32.7 L76.5 33.8 L83.4 35.1 L85.0 36.7 L85.4 39.0 L84.1 50.7 L84.7 52.6 L89.4 60.1 L90.0 62.0 L89.8 64.3 L70.6 86.0 L69.0 85.8 L63.6 79.8 L59.1 76.0 L57.0 75.3 L55.3 75.8 L54.1 77.6 L54.5 79.9 L63.7 87.7 L64.4 89.3 L64.4 91.4 L63.7 93.1 L61.0 94.8 L58.6 94.8 L56.5 93.7 L29.9 72.8 Z","redbullring":"M65.0 72.3 L42.4 78.2 L29.4 59.4 L18.4 38.0 L15.2 34.2 L5.3 24.3 L5.0 23.0 L10.8 22.0 L18.7 21.8 L46.9 26.4 L61.5 27.3 L62.4 28.9 L62.0 30.6 L59.6 33.7 L55.5 36.6 L50.0 37.9 L35.6 35.9 L32.8 36.5 L30.8 38.3 L29.8 40.8 L30.3 44.3 L35.9 53.9 L38.3 55.9 L41.6 56.1 L43.4 55.4 L49.0 49.9 L54.9 47.7 L86.4 47.0 L87.8 47.0 L90.4 48.4 L92.0 51.1 L94.8 60.4 L94.5 62.4 L88.0 66.0 L65.0 72.3 Z","suzuka":"M81.9 51.6 L94.5 67.0 L95.0 69.4 L94.1 72.3 L92.8 73.7 L91.3 73.8 L89.8 73.0 L84.5 65.4 L80.9 65.0 L79.2 64.3 L76.6 58.0 L75.0 57.1 L70.8 56.7 L69.3 55.8 L68.2 52.6 L69.7 47.5 L68.8 45.5 L67.0 44.4 L62.7 42.9 L59.6 43.1 L55.4 45.6 L50.0 52.0 L42.7 52.6 L41.1 47.6 L39.6 39.1 L39.8 37.1 L41.5 33.0 L40.9 32.1 L39.8 32.3 L36.0 38.3 L33.9 40.2 L31.9 41.1 L27.1 41.3 L20.8 39.3 L17.7 37.0 L15.4 33.7 L13.0 27.9 L12.0 26.6 L10.4 26.1 L7.4 26.5 L5.2 28.2 L5.1 29.9 L6.1 31.8 L15.0 38.5 L20.9 41.2 L43.2 49.0 L45.8 48.6 L50.0 46.5 L59.3 38.7 L61.4 39.9 L64.9 37.8 L68.4 38.0 L72.9 40.8 L81.9 51.6 Z","kyalami":"M64.0 62.7 L74.2 51.4 L92.7 39.3 L95.0 36.9 L94.8 35.9 L93.7 35.0 L86.7 33.4 L83.7 28.5 L78.2 25.1 L76.7 25.8 L59.0 49.6 L55.7 51.1 L54.1 51.3 L50.8 50.5 L48.5 48.6 L41.8 39.3 L40.2 38.5 L38.1 38.9 L29.1 51.3 L29.0 54.1 L30.6 58.4 L30.2 60.5 L28.5 62.9 L26.6 64.1 L18.6 67.3 L12.9 67.9 L6.1 70.0 L5.3 70.5 L5.0 72.2 L5.6 73.1 L8.1 74.5 L10.8 74.7 L29.8 66.1 L32.5 63.2 L33.4 61.3 L35.3 51.0 L37.2 46.7 L38.2 46.1 L39.4 46.2 L40.5 47.1 L43.2 52.1 L49.7 57.6 L51.8 73.7 L53.6 73.8 L54.7 72.9 L64.0 62.7 Z","cota":"M23.1 66.2 L31.2 72.6 L36.3 75.6 L36.8 74.6 L34.1 66.5 L34.5 63.7 L35.9 61.7 L44.1 56.5 L46.9 51.8 L50.4 49.9 L51.8 45.4 L53.4 43.4 L55.6 42.2 L57.2 42.0 L63.6 44.6 L65.9 43.0 L68.1 40.4 L69.7 39.7 L71.6 40.2 L73.5 42.2 L82.8 40.2 L94.3 26.6 L94.9 24.8 L93.9 24.4 L78.2 29.1 L63.1 32.4 L37.6 35.8 L37.3 36.4 L41.6 42.0 L43.0 45.1 L42.2 45.8 L39.0 45.6 L37.0 42.2 L35.0 40.2 L32.2 40.0 L32.0 40.9 L36.6 49.0 L36.6 50.3 L35.2 53.9 L31.3 55.8 L28.3 55.8 L25.0 54.2 L19.2 46.3 L18.0 45.7 L5.9 50.6 L5.0 51.8 L5.6 52.6 L23.1 66.2 Z","indianapolis":"M29.3 60.4 L29.0 19.9 L34.6 18.8 L35.5 17.5 L35.5 12.3 L36.5 9.5 L38.9 7.1 L43.0 5.2 L44.3 5.0 L45.9 5.9 L47.2 8.1 L47.1 16.9 L46.1 18.4 L38.6 23.7 L37.4 25.6 L37.5 27.1 L38.3 28.6 L40.4 29.8 L43.1 29.6 L46.8 27.5 L48.1 27.9 L49.5 29.7 L50.3 64.0 L51.1 65.4 L53.2 66.6 L59.2 67.1 L60.4 68.3 L61.4 70.7 L62.4 71.3 L68.8 71.2 L69.9 71.8 L71.2 75.8 L69.8 85.7 L69.1 87.8 L66.2 91.6 L61.0 94.0 L44.3 95.0 L40.3 94.2 L36.7 92.4 L32.3 88.2 L30.1 83.8 L29.4 78.4 L29.3 60.4 Z","watkins":"M32.6 23.4 L34.0 5.8 L34.8 5.2 L36.8 5.0 L48.9 7.3 L51.8 8.8 L53.9 11.7 L56.3 21.1 L58.4 23.8 L62.3 27.0 L65.0 30.4 L66.8 34.8 L67.1 37.1 L68.6 79.1 L68.2 81.1 L67.2 82.9 L65.2 84.4 L62.7 85.0 L60.1 84.6 L57.8 82.9 L49.3 72.6 L47.4 71.7 L44.7 72.3 L43.3 73.9 L42.9 76.2 L43.7 92.0 L42.6 94.2 L40.9 95.0 L38.8 94.5 L37.0 92.2 L34.7 62.8 L36.1 61.6 L38.1 61.6 L49.8 66.5 L52.2 65.0 L52.7 63.0 L49.3 48.3 L48.1 46.6 L45.5 45.4 L34.2 44.7 L33.0 44.1 L31.5 42.0 L32.6 23.4 Z"};
+const PHOTOS = {"amr-v12":["Aston Martin V12 Vantage GT3 (7914984772).jpg","Rick W. Dryve","CC BY 2.0"],"amr-v8":["Heart Of Racing Team's Aston Martin Vantage AMR GT3.jpg","Arturo Hurtado","CC BY 2.0"],"audi-r8":["Geneva MotorShow 2013 - Audi R8 LMS ultra front left.jpg","Clément Bucco-Lechat","CC BY-SA 3.0"],"audi-r8-evo":["Audi R8 LMS Evo of Matt Stoupas (Adelaide, 2022).jpg","GTHO","CC0"],"audi-r8-evo2":["Audi R8 LMS GT3 Evo II (2022) (52566757368).jpg","Charles","CC BY 2.0"],"bentley-15":["Andy Soucek Maxime Soulet, Bentley Team M-Sport Bentley Continental GT3, 2016 Blancpain GT Series Sprint Cup R2, Brands Hatch, 8th May (29417415643).jpg","Interceptor73","CC BY 2.0"],"bentley-18":["2019 Bentley Continental GT3 (55110458328).jpg","David Merrett","CC BY 4.0"],"bmw-m4-gt3":["2022 BMW M4 GT3 (19047).jpg","Calreyn88","CC BY-SA 4.0"],"bmw-m6":["BMW M6 GT3.jpg","Yuk4woo","CC BY-SA 4.0"],"jaguar":["Stéphane Ortelli Lorenz Frey Albert Costa, Emil Frey Racing Emil Frey Jaguar G3, 2016 Blancpain GT Series Endurance Cup R2, Silverstone, 15th May (26795286530).jpg","Interceptor73","CC BY 2.0"],"ferrari-296":["Ferrari 296 GT3 of LM Corsa.jpg","TTTNIS","CC0"],"ferrari-488":["Scuderia Corsa - Ferrari 488 GT3.jpg","Osajus","CC BY 2.0"],"ferrari-488-evo":["Ferrari 488 GT3 EVO (2021) (52570348719).jpg","Charles","CC BY 2.0"],"mustang":["Ford Mustang GT3.jpg","Ford Media","CC BY-SA 4.0"],"nsx":["Honda NSX GT3.jpg","Tokumeigakarinoaoshima","CC BY-SA 4.0"],"nsx-evo":["Gradient Racing's Acura NSX GT3 Evo.jpg","Arturo Hurtado","CC BY 2.0"],"huracan":["No.88 MANEPA Lamborghini GT3 at 2016 International Suzuka 1000km.jpg","Tokumeigakarinoaoshima","CC BY-SA 4.0"],"huracan-evo":["Lamborghini Huracán GT3 Evo (2019) (52571781819).jpg","Charles","CC BY 2.0"],"huracan-evo2":["Lamborghini Huracán GT3 Evo2, DTM (55056623095).jpg","Thomas Vogt","CC BY 4.0"],"lexus":["Lexus RC F GT3.jpg","Tokumeigakarinoaoshima","CC BY-SA 4.0"],"mclaren-650":["McLaren 650S GT3 of Tony & Klark Quinn (2016).jpg","GTHO","CC BY-SA 4.0"],"mclaren-720":["McLaren 720S GT3, GIMS 2019, Le Grand-Saconnex (GIMS0559).jpg","Matti Blume","CC BY-SA 4.0"],"mclaren-720-evo":["2024 6 Hours of Spa-Francorchamps United Autosports McLaren 720S GT3 Evo No.95 (DSC03006).jpg","MarcelX42","CC BY-SA 4.0"],"amg-gt3":["Mercedes-AMG GT3 of Hackett & Storey (2016).jpg","GTHO","CC BY-SA 4.0"],"amg-gt3-evo":["Gilbert Korthoff Motorsports's Mercedes-AMG GT3 Evo at the 2021 Road Race Show Case.jpg","Arturo Hurtado","CC BY 2.0"],"gtr-15":["Nissan GT-R Nismo GT3 2015 Bathurst 12 Hour.jpg","Jason Goulding","CC BY 2.0"],"gtr-18":["Blancpain GT Series, Endurance, Silverstone, 2018 (41509918365).jpg","Thomas Harrison-Lord","CC BY 2.0"],"p991":["-911 Porsche 911 GT3 R - Manthey Racing (40100143965).jpg","Florian Volk","CC BY 2.0"],"p991-2":["Porsche 911 GT3 R Gen II.jpg","Louis Proust","CC BY-SA 4.0"],"p992":["AO Racing Porsche 992 GT3 R No. 77.jpg","TaurusEmerald","CC BY-SA 4.0"],"rex":["Lamborghini Gallardo LP 560-4 R-EX (25188867671).jpg","Falcon Photography","CC BY-SA 2.0"],"audi-gt2":["Audi R8 LMS GT2 (2022) (52566232926).jpg","Charles","CC BY 2.0"],"ktm-gt2":["2022 KTM X-Bow GT2.jpg","Pelicanactor","CC BY-SA 4.0"],"mc20-gt2":["Risi MC20 GT2 Garage.jpg","OctaviaCombi","CC0"],"amg-gt2":["2023 Mercedes AMG GT2.jpg","Calreyn88","CC0"],"p935":["2019 Porsche 935 Lanzante 063.jpg","Calreyn88","CC BY-SA 4.0"],"gt2rs":["Porsche 911 GT2 RS Clubsport Evo.jpg","OctaviaCombi","CC BY-SA 4.0"],"alpine":["Alpine A110 GT4 (42687501045).jpg","Guillaume Vachey","CC0"],"amr-gt4":["Volt Aston Martin GT4 WGI22.jpg","SmackJam","CC BY-SA 4.0"],"audi-gt4":["Racing One Audi R8 LMS GT4.jpg","Poppo154","CC BY-SA 4.0"],"bmw-gt4":["BMW M4 GT4.jpg","Calreyn88","CC BY-SA 4.0"],"camaro":["Chevrolet Camaro GT4.R (GS Class -71) (52228326069).jpg","Charles","CC BY 2.0"],"ginetta":["Ginetta G55 GT4 V6-NM Racing Team (1).jpg","Alberto-g-rovi","CC BY 3.0"],"ktm-gt4":["KTM X-Bow GT4.jpg","Adam Pigott","CC BY 2.0"],"maserati-gt4":["Maserati GranTurismo MC GT4 - Chris Coffey.jpg","OctaviaCombi","CC BY-SA 4.0"],"mclaren-gt4":["McLaren 570S GT4.jpg","MrWalkr","CC BY-SA 4.0"],"amg-gt4":["Mercedes-AMG GT4.jpg","Poppo154","CC BY-SA 4.0"],"cayman":["Porsche 718 Cayman GT4 RS Clubsport (2020) (52575480169).jpg","Charles","CC BY 2.0"],"ferrari-challenge":["Ferrari 488 Challenge Evo.jpg","Calreyn88","CC BY-SA 4.0"],"st":["Lamborghini Huracan Super Trofeo (15383668411).jpg","Axion23","CC BY 2.0"],"st-evo2":["Lamborghini Huracan Super Trofeo EVO2 FOS21.jpg","MrWalkr","CC BY-SA 4.0"],"cup-991":["Porsche 911 GT3 Cup Type 991 Julien Andlauer.jpg","Neodyum","CC BY-SA 4.0"],"cup-992":["Porsche 911 992 GT3 Cup.jpg","pelican-actor","CC BY 2.0"],"m2":["BMW M2 CS Racing (52941335963).jpg","More Cars","CC BY 2.0"]};
+const photoUrl = id => "https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent(PHOTOS[id][0].replace(/ /g,"_"))+"?width=960";
+const LEVELS = [["debutant","Débutant","Boîte auto, aides au max"],["intermediaire","Intermédiaire","ABS et antipatinage"],["expert","Expert","Réglages réalistes"]];
+const FORMULES = [["decouverte","Découverte","5 €"],["courses","Courses","12 €"],["challenge","Challenge","8 € les 5 min"],["challenge10","Challenge 10 min","16 €"]];
+const POSTES = [["any","Peu importe",""],["pc1","Simu 1",""],["pc2","Simu 2",""],["pc3","Simu 3",""]];
+const ANY = "__any__";
+
+/* ---------- Outils ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+const norm = s => String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/\(.*?\)/g," ").replace(/[^a-z0-9]+/g," ").trim();
+const km = v => v.toLocaleString("fr-FR",{minimumFractionDigits:1,maximumFractionDigits:1})+" km";
+const carById = id => { const c = CARS.find(x=>x[0]===id); return c && {id:c[0],marque:c[1],modele:c[2],annee:c[3],classe:c[4],label:c[1]+" "+c[2]+" ("+c[3]+")"}; };
+const trackById = id => { const t = TRACKS.find(x=>x[0]===id); return t && {id:t[0],nom:t[1],flag:t[2],pays:t[3],km:t[5]}; };
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,2800); }
+
+/* ---------- État ---------- */
+const blank = () => ({voiture:"", circuit:"", nom:"", niveau:"", formule:"", poste:"any", fromChallenge:false});
+let s = blank();
+let challenge = null;
+
+/* ---------- Voitures ---------- */
+$("fClass").innerHTML = `<option value="">Toutes les catégories</option>` + Object.entries(CLASSES).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join("");
+$("fBrand").innerHTML = `<option value="">Toutes les marques</option>` + [...new Set(CARS.map(c=>c[1]))].sort((a,b)=>a.localeCompare(b,"fr")).map(b=>`<option>${esc(b)}</option>`).join("");
+$("carsTitle").textContent = CARS.length + " voitures, de la GT4 à la GT2.";
+function renderCars(){
+  const cl=$("fClass").value, br=$("fBrand").value, q=norm($("fCar").value);
+  const list = CARS.filter(c => (!cl||c[4]===cl) && (!br||c[1]===br) && (!q || norm(c[1]+" "+c[2]+" "+c[3]+" "+c[4]).includes(q)));
+  $("carCount").textContent = list.length + (list.length>1?" résultats":" résultat");
+  $("classInfo").textContent = cl ? CLASSES[cl].info : "Pastille « Facile » : les voitures les plus stables, conseillées pour une première fois.";
+  let h = (!q && !br) ? `<button class="anycard" type="button" data-car="${ANY}" aria-pressed="${s.voiture===ANY}"><b>Pas d'idée ?</b><span>Florent te conseille une voiture adaptée à ton niveau.</span><i class="tick"></i></button>` : "";
+  h += list.map(c=>`<button class="car" type="button" data-car="${c[0]}" aria-pressed="${s.voiture===c[0]}" style="--c:${CLASSES[c[4]].color}">
+    <div class="vis" aria-hidden="true"><span class="code">${esc(c[5])}</span><span class="yr">${c[3]}</span>${PHOTOS[c[0]]?`<img src="${photoUrl(c[0])}" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:""}</div>
+    <div class="txt"><span class="mk">${esc(c[1])}</span><span class="nm">${esc(c[2])}</span>
+    <span class="meta"><span class="pill" style="--c:${CLASSES[c[4]].color}">${CLASSES[c[4]].label}</span>${c[3]}${c[6]?` <span class="easy">Facile</span>`:""}</span></div><i class="tick"></i></button>`).join("");
+  if(!list.length) h += `<div class="empty">Aucune voiture ne correspond. Essaie « Porsche » ou « GT4 ».</div>`;
+  $("carGrid").innerHTML = h;
+}
+["fClass","fBrand"].forEach(id=>$(id).addEventListener("change",renderCars));
+$("fCar").addEventListener("input",renderCars);
+
+/* ---------- Circuits ---------- */
+$("fRegion").innerHTML = `<option value="">Toutes les régions</option>` + Object.entries(REGIONS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("");
+function trackCard(t){
+  const p = TRACK_PATHS[t[0]];
+  const map = p ? `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="${p}"/></svg>` : `<div class="noplan" aria-hidden="true">${t[2]}</div>`;
+  const badge = t[0]==="nordschleife" ? `<span class="badge">25 km</span>` : (challenge && challenge.circuit===t[0] ? `<span class="badge">Challenge</span>` : "");
+  return `<button class="track" type="button" data-track="${t[0]}" aria-pressed="${s.circuit===t[0]}">${badge}<i class="tick"></i>
+    <div class="map">${map}</div><span class="nm">${esc(t[1])}</span><span class="meta"><span>${esc(t[3])}</span><span>${km(t[5])}</span></span></button>`;
+}
+function renderTracks(){
+  const r=$("fRegion").value, q=norm($("fTrack").value);
+  const list = TRACKS.filter(t => (!r||t[4]===r) && (!q || norm(t[1]+" "+t[3]).includes(q)));
+  $("trackCount").textContent = list.length + (list.length>1?" résultats":" résultat");
+  let h = list.map(trackCard).join("");
+  if(!r && !q) h += `<button class="track" type="button" data-track="${ANY}" aria-pressed="${s.circuit===ANY}"><i class="tick"></i><div class="map"><div class="noplan" aria-hidden="true" style="font-family:var(--display);font-weight:800;font-size:54px">?</div></div><span class="nm">Florent choisit</span><span class="meta"><span>Surprise</span><span></span></span></button>`;
+  if(!list.length) h += `<div class="empty">Aucun circuit ne correspond.</div>`;
+  $("trackGrid").innerHTML = h;
+}
+$("fRegion").addEventListener("change",renderTracks);
+$("fTrack").addEventListener("input",renderTracks);
+
+/* ---------- Sélection ---------- */
+function updateBar(){
+  const c = s.voiture===ANY ? "Voiture conseillée" : (carById(s.voiture)||{}).label;
+  const t = s.circuit===ANY ? "Circuit surprise" : (trackById(s.circuit)||{}).nom;
+  $("sumTxt").textContent = c && t ? c+" · "+t : c ? c+" · choisis un circuit" : t ? "Choisis une voiture · "+t : "Choisis une voiture";
+  $("go").disabled = !(s.voiture && s.circuit);
+}
+$("carGrid").addEventListener("click", e=>{
+  const b=e.target.closest("[data-car]"); if(!b) return;
+  s.voiture=b.dataset.car; s.fromChallenge=false;
+  document.querySelectorAll("[data-car]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  updateBar();
+  if(!s.circuit){ toast("Voiture choisie. Maintenant, ton circuit !"); setTimeout(()=>$("circuits").scrollIntoView({behavior:"smooth"}),350); }
+});
+$("trackGrid").addEventListener("click", e=>{
+  const b=e.target.closest("[data-track]"); if(!b) return;
+  s.circuit=b.dataset.track; s.fromChallenge=false;
+  document.querySelectorAll("[data-track]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  updateBar();
+  if(!s.voiture){ toast("Circuit choisi. Il te reste la voiture."); setTimeout(()=>$("voitures").scrollIntoView({behavior:"smooth"}),350); }
+});
+$("sum").addEventListener("click",()=>{ (s.voiture ? $("circuits") : $("voitures")).scrollIntoView({behavior:"smooth"}); });
+
+/* ---------- Étape infos ---------- */
+function optButtons(list,key){ return list.map(o=>`<button class="opt" type="button" data-k="${key}" data-v="${o[0]}" aria-pressed="${s[key]===o[0]}"><b>${o[1]}</b>${o[2]?`<span>${o[2]}</span>`:""}</button>`).join(""); }
+function renderDetails(){
+  const c = s.voiture===ANY ? null : carById(s.voiture), t = s.circuit===ANY ? null : trackById(s.circuit);
+  $("recap").innerHTML = `<div><dt>Voiture</dt><dd>${c?esc(c.marque+" "+c.modele):"Conseil de Florent"}</dd></div><div><dt>Circuit</dt><dd>${t?esc(t.nom):"Surprise"}</dd></div>`;
+  $("oNiveau").innerHTML = optButtons(LEVELS,"niveau");
+  $("oFormule").innerHTML = optButtons(FORMULES,"formule");
+  $("oPoste").innerHTML = optButtons(POSTES,"poste");
+  $("nom").value = s.nom;
+  checkDetails();
+}
+function checkDetails(){ $("showBtn").disabled = !(s.nom.trim() && s.niveau && s.formule); }
+function openSheet(id){ document.querySelectorAll(".sheet").forEach(x=>x.hidden = x.id!==id); document.body.style.overflow = id ? "hidden" : ""; if(id) $(id).scrollTop=0; }
+$("go").addEventListener("click",()=>{ renderDetails(); openSheet("details"); setTimeout(()=>{ if(!s.nom) $("nom").focus(); },60); });
+$("details").addEventListener("click", e=>{
+  const o=e.target.closest(".opt");
+  if(o){ s[o.dataset.k]=o.dataset.v; o.parentElement.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",String(x===o))); checkDetails(); return; }
+  if(e.target.closest('[data-act="close"]')) openSheet(null);
+});
+$("nom").addEventListener("input",e=>{ s.nom=e.target.value; checkDetails(); });
+
+/* ---------- Écran à montrer ---------- */
+function renderFinal(){
+  const c = s.voiture===ANY ? null : carById(s.voiture), t = s.circuit===ANY ? null : trackById(s.circuit);
+  const lv=LEVELS.find(x=>x[0]===s.niveau), fo=FORMULES.find(x=>x[0]===s.formule), po=POSTES.find(x=>x[0]===s.poste);
+  $("finalBody").innerHTML = `<p class="eyebrow">Montre cet écran à Florent</p>
+  <div class="show"><div class="who">${esc(s.nom.trim())}</div><dl>
+    <div><dt>Voiture</dt><dd>${c?esc(c.label):"À conseiller"}</dd></div>
+    <div><dt>Circuit</dt><dd>${t?esc(t.flag+" "+t.nom):"Au choix de Florent"}</dd></div>
+    <div><dt>Niveau</dt><dd>${lv?lv[1]+" · "+lv[2]:""}</dd></div>
+    <div><dt>Formule</dt><dd>${fo?fo[1]+" · "+fo[2]:""}${s.fromChallenge?" (challenge du mois)":""}</dd></div>
+    <div><dt>Simu</dt><dd>${po?po[1]:""}</dd></div>
+  </dl></div><div class="checker"></div>
+  <div class="actions"><button class="ghost" type="button" data-act="edit">Modifier</button><button class="cta" type="button" data-act="reset">Nouveau pilote</button></div>`;
+}
+$("showBtn").addEventListener("click",()=>{ renderFinal(); openSheet("final"); });
+$("final").addEventListener("click", e=>{
+  const a=e.target.closest("[data-act]"); if(!a) return;
+  if(a.dataset.act==="edit"){ renderDetails(); openSheet("details"); }
+  if(a.dataset.act==="reset"){ s=blank(); openSheet(null); renderCars(); renderTracks(); updateBar(); window.scrollTo(0,0); }
+});
+
+/* ---------- Challenge du mois (lu dans l'Espace pilotes) ---------- */
+function matchTrack(name){
+  const n = norm(name); if(!n) return null;
+  const hit = TRACKS.find(t=>norm(t[1])===n) || TRACKS.find(t=>norm(t[1]).includes(n) || n.includes(norm(t[1]))) || TRACKS.find(t=>n.split(" ").some(w=>w.length>3 && norm(t[1]).split(" ").includes(w)));
+  return hit ? hit[0] : null;
+}
+function matchCar(name){
+  const toks = norm(name).split(" ").filter(Boolean); if(!toks.length) return null;
+  const hits = CARS.filter(c=>{ const full=" "+norm(c[1]+" "+c[2]+" "+c[3])+" "; return toks.every(w=>full.includes(" "+w+" ")); });
+  if(!hits.length) return null;
+  hits.sort((a,b)=>b[3]-a[3]); return hits[0][0];
+}
+function renderChallenge(){
+  if(!challenge){ $("challengeBox").innerHTML=""; return; }
+  const c=carById(challenge.voiture), t=trackById(challenge.circuit);
+  $("challengeBox").innerHTML = `<div class="challenge"><div><div class="lab">Challenge chrono du mois</div><div class="what">${esc(t.nom)} · ${esc(c.marque+" "+c.modele)}</div></div><button class="cta" type="button" id="takeCh">Je tente le challenge</button></div>`;
+  $("takeCh").addEventListener("click",()=>{
+    s.voiture=challenge.voiture; s.circuit=challenge.circuit; s.formule="challenge"; s.fromChallenge=true;
+    renderCars(); renderTracks(); updateBar(); renderDetails(); openSheet("details");
+    setTimeout(()=>{ if(!s.nom) $("nom").focus(); },60);
+  });
+}
+async function loadChallenge(){
+  try{
+    const AUTH_URL="https://ep-bold-paper-b90hj6av.neonauth.c-7.eu-central-1.aws.neon.tech/neondb/auth";
+    const REST_URL="https://ep-bold-paper-b90hj6av.apirest.c-7.eu-central-1.aws.neon.tech/neondb/rest/v1";
+    const jwt=(await (await fetch(AUTH_URL+"/token/anonymous")).json()).token;
+    const r=await fetch(REST_URL+"/rpc/public_data",{method:"POST",headers:{authorization:"Bearer "+jwt,"content-type":"application/json","content-profile":"api","accept-profile":"api"},body:"{}"});
+    const d=await r.json(); const cur=d && d.current; if(!cur) return;
+    const voiture=matchCar(cur.voiture), circuit=matchTrack(cur.circuit);
+    if(voiture && circuit){ challenge={voiture,circuit}; renderChallenge(); renderTracks(); }
+  }catch(e){ /* pas de bandeau si le serveur ne répond pas */ }
+}
+
+$("credits").innerHTML = CARS.filter(c=>PHOTOS[c[0]]).map(c=>`<a href="https://commons.wikimedia.org/wiki/File:${encodeURIComponent(PHOTOS[c[0]][0].replace(/ /g,"_"))}" target="_blank" rel="noopener">${esc(c[1]+" "+c[2]+" "+c[3])}</a> : ${esc(PHOTOS[c[0]][1])}, ${esc(PHOTOS[c[0]][2])}`).join(" · ");
+renderCars(); renderTracks(); updateBar(); loadChallenge();
+</script>
+</body>
+</html>
