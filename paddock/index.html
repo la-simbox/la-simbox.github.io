@@ -79,6 +79,16 @@ h1,h2.big{font-family:var(--display);font-weight:800;text-transform:uppercase;li
 .car{position:relative;display:flex;flex-direction:column;text-align:left;background:var(--panel);border:2px solid transparent;padding:0;min-width:0;transition:border-color .15s}
 .car:hover{border-color:var(--line-2)}
 .car[aria-pressed="true"]{border-color:var(--red)}
+.car.off{cursor:not-allowed}
+.car.off:hover{border-color:transparent}
+.car.off .vis img{filter:grayscale(1) brightness(.55)}
+.car.off .txt{opacity:.55}
+.car.off .vis::after,.car.off .x{display:none}
+.x{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.x::before,.x::after{content:"";position:absolute;width:62%;height:9px;background:var(--red);border-radius:4px;box-shadow:0 0 0 2px rgba(0,0,0,.35)}
+.x::before{transform:rotate(30deg)}.x::after{transform:rotate(-30deg)}
+.car.off .vis .x{display:flex}
+.offtag{position:absolute;left:12px;top:12px;z-index:3;font-family:var(--display);font-weight:800;font-size:13px;letter-spacing:.16em;text-transform:uppercase;background:var(--red);color:#fff;padding:4px 9px}
 .car .vis{position:relative;aspect-ratio:16/9;max-width:100%;overflow:hidden;background:radial-gradient(120% 90% at 70% 110%,color-mix(in srgb,var(--c) 38%,transparent),transparent 60%),linear-gradient(160deg,#18181c,#0e0e10)}
 .car .vis::before{content:"";position:absolute;inset:auto -10% 22% -10%;height:16%;background:var(--c);opacity:.85;transform:skewY(-9deg)}
 .car .vis::after{content:"";position:absolute;inset:auto -10% 14% -10%;height:3%;background:var(--white);opacity:.7;transform:skewY(-9deg)}
@@ -172,7 +182,7 @@ footer a{color:var(--white)}
   <section id="voitures" class="gutter">
     <div class="wrap">
       <p class="eyebrow">Voitures</p>
-      <h1 id="carsTitle">54 voitures, de la GT4 à la GT2.</h1>
+      <h1 id="carsTitle">48 voitures, de la GT4 à la GT3.</h1>
       <p class="lead">Toutes les voitures officielles d'<strong>Assetto Corsa Competizione</strong>. Choisis la tienne et ton circuit pendant que tu t'équipes : Florent prépare ton simulateur.</p>
       <div id="challengeBox"></div>
       <div style="height:30px"></div>
@@ -290,7 +300,7 @@ const CARS = [
 const CLASSES = {
   GT3:{label:"GT3", color:"var(--gt3)", info:"GT3 : environ 500 à 600 ch, la catégorie reine des courses GT."},
   GT4:{label:"GT4", color:"var(--gt4)", info:"GT4 : environ 400 ch, moins d'appui et plus facile à prendre en main. Idéal pour débuter."},
-  GT2:{label:"GT2", color:"var(--gt2)", info:"GT2 : jusqu'à 700 ch et peu d'appui. Pour les pilotes confirmés."},
+  GT2:{label:"GT2", color:"var(--gt2)", info:"GT2 : jusqu'à 700 ch et peu d'appui. Pas encore disponibles à la SIMBOX.", off:true},
   CUP:{label:"Coupes", color:"var(--cup)", info:"Coupes monomarques : Porsche Cup, Lamborghini Super Trofeo, Ferrari Challenge."},
   TCX:{label:"TCX", color:"var(--tcx)", info:"TCX : BMW M2 CS Racing, une propulsion légère et joueuse."}
 };
@@ -348,17 +358,18 @@ let challenge = null;
 /* ---------- Voitures ---------- */
 $("fClass").innerHTML = `<option value="">Toutes les catégories</option>` + Object.entries(CLASSES).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join("");
 $("fBrand").innerHTML = `<option value="">Toutes les marques</option>` + [...new Set(CARS.map(c=>c[1]))].sort((a,b)=>a.localeCompare(b,"fr")).map(b=>`<option>${esc(b)}</option>`).join("");
-$("carsTitle").textContent = CARS.length + " voitures, de la GT4 à la GT2.";
+$("carsTitle").textContent = CARS.filter(c=>!CLASSES[c[4]].off).length + " voitures, de la GT4 à la GT3.";
 function renderCars(){
   const cl=$("fClass").value, br=$("fBrand").value, q=norm($("fCar").value);
   const list = CARS.filter(c => (!cl||c[4]===cl) && (!br||c[1]===br) && (!q || norm(c[1]+" "+c[2]+" "+c[3]+" "+c[4]).includes(q)));
   $("carCount").textContent = list.length + (list.length>1?" résultats":" résultat");
   $("classInfo").textContent = cl ? CLASSES[cl].info : "Pastille « Facile » : les voitures les plus stables, conseillées pour une première fois.";
   let h = (!q && !br) ? `<button class="anycard" type="button" data-car="${ANY}" aria-pressed="${s.voiture===ANY}"><b>Pas d'idée ?</b><span>Florent te conseille une voiture adaptée à ton niveau.</span><i class="tick"></i></button>` : "";
-  h += list.map(c=>`<button class="car" type="button" data-car="${c[0]}" aria-pressed="${s.voiture===c[0]}" style="--c:${CLASSES[c[4]].color}">
-    <div class="vis" aria-hidden="true"><span class="code">${esc(c[5])}</span><span class="yr">${c[3]}</span>${PHOTOS[c[0]]?`<img src="${photoUrl(c[0])}" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:""}</div>
+  h += list.map(c=>{ const off=!!CLASSES[c[4]].off;
+    return `<${off?'div':'button'} class="car${off?' off':''}" ${off?'aria-disabled="true" title="Pas encore disponible"':`type="button" data-car="${c[0]}" aria-pressed="${s.voiture===c[0]}"`} style="--c:${CLASSES[c[4]].color}">
+    <div class="vis" aria-hidden="true"><span class="code">${esc(c[5])}</span><span class="yr">${c[3]}</span>${PHOTOS[c[0]]?`<img src="${photoUrl(c[0])}" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:""}${off?'<span class="x"></span><span class="offtag">Pas dispo</span>':""}</div>
     <div class="txt"><span class="mk">${esc(c[1])}</span><span class="nm">${esc(c[2])}</span>
-    <span class="meta"><span class="pill" style="--c:${CLASSES[c[4]].color}">${CLASSES[c[4]].label}</span>${c[3]}${c[6]?` <span class="easy">Facile</span>`:""}</span></div><i class="tick"></i></button>`).join("");
+    <span class="meta"><span class="pill" style="--c:${CLASSES[c[4]].color}">${CLASSES[c[4]].label}</span>${c[3]}${c[6]?` <span class="easy">Facile</span>`:""}${off?` <span class="easy" style="border-color:var(--red);color:var(--red)">Indisponible</span>`:""}</span></div>${off?"":'<i class="tick"></i>'}</${off?'div':'button'}>`; }).join("");
   if(!list.length) h += `<div class="empty">Aucune voiture ne correspond. Essaie « Porsche » ou « GT4 ».</div>`;
   $("carGrid").innerHTML = h;
 }
