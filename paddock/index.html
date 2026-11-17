@@ -36,7 +36,9 @@ button{cursor:pointer}
 /* En-tête */
 header.top{position:sticky;top:0;z-index:30;background:rgba(11,11,13,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
 header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px}
-.logo{display:flex;flex-direction:column;line-height:.86;text-decoration:none;color:var(--white)}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--white)}
+.logo img{width:46px;height:auto;display:block}
+.logo .lt{display:flex;flex-direction:column;line-height:.86}
 .logo b{font-family:var(--display);font-weight:800;font-style:italic;font-size:34px;letter-spacing:.01em}
 .logo b span{color:var(--red)}
 .logo small{font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin-top:4px}
@@ -155,13 +157,13 @@ h1,h2.big{font-family:var(--display);font-weight:800;text-transform:uppercase;li
 footer{border-top:1px solid var(--line);margin-top:50px;padding-block:28px;color:var(--muted);font-size:14px}
 footer a{color:var(--white)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
-@media (max-width:420px){.jump a{padding:8px 9px;font-size:13px;letter-spacing:.1em}.cta{font-size:17px;padding:12px 14px}}
+@media (max-width:420px){header.top .wrap{flex-wrap:wrap}.logo{gap:7px}.logo img{width:34px}.logo b{font-size:26px}.logo small{font-size:10px;letter-spacing:.2em}.jump a{padding:8px 9px;font-size:13px;letter-spacing:.1em}.cta{font-size:17px;padding:12px 14px}}
 </style>
 </head>
 <body>
 <header class="top gutter">
   <div class="wrap">
-    <a class="logo" href="../"><b>SIM<span>BOX</span></b><small>Paddock</small></a>
+    <a class="logo" href="../"><img src="../assets/img/logo-sb.png" alt="" width="360" height="267"><span class="lt"><b>SIM<span>BOX</span></b><small>Paddock</small></span></a>
     <nav class="jump" aria-label="Sections"><a href="#voitures">Voitures</a><a href="#circuits">Circuits</a></nav>
   </div>
 </header>
